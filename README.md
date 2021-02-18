@@ -1,6 +1,6 @@
 # Pantree
-#### Senior Design Capstone Project Spring 2021
----
+**Senior Design Capstone Project Spring 2021**
+
 Creators: Trey Lavery, Theaux Masquelier, Ben Perez, Brandon Wong
 
 ### Summary
