@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
 
+import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/drawer.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -22,6 +24,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
+  String _food = "";
   static const TextStyle optionStyle =
   TextStyle(fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
@@ -53,8 +56,15 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void _getItems(DocumentSnapshot doc) async{
+    DocumentSnapshot s = await doc['Userpantries'][0].get();
+    setState(() {
+      _food = s['Food'].toString();
+    });
+  }
   @override
   Widget build(BuildContext context) {
+    //CollectionReference user = FirebaseFirestore.instance.collection('users').doc('1').get();
 
     void handleClick(String value) {
       switch (value) {
@@ -91,24 +101,38 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Index selected:',
+      body: StreamBuilder(//Sets up a stream builder to listen for changes inside the database.
+        stream: FirebaseFirestore.instance.collection('pantries').doc('ExamplePantry').snapshots(),//Where its listening!
+        builder: (context, snapshot){
+          if(!snapshot.hasData) return const Text('Loading....');
+          return Center(
+            child: Column(
+
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  'Index selected:',
+                ),
+                Text(
+                  '$_selectedIndex',
+                  style: Theme.of(context).textTheme.headline5,
+                ),
+                Text(
+                  //Reads from data snapshot the the Food section!
+                  snapshot.data['Food'].toString(),
+
+                ),
+              ],
             ),
-            Text(
-              '$_selectedIndex',
-              style: Theme.of(context).textTheme.headline5,
-            ),
-          ],
-        ),
-      ),
+          );
+        }),
       drawer: Drawer(
         child: ListView(
           children: <Widget>[
-            DrawerHeader(
+            StreamBuilder(
+              stream: FirebaseFirestore.instance.collection('users').doc('1').snapshots(),
+              builder: (context, snapshot){
+            return DrawerHeader(
               decoration: BoxDecoration(
                 color: Colors.lightBlue,
               ),
@@ -129,11 +153,15 @@ class _MyHomePageState extends State<MyHomePage> {
                     children: [
                       Text('Pantree User',
                           style: Theme.of(context).textTheme.headline5),
-                      Text('xX420Pussy_Slayer69Xx'),
+                      Text(
+                          snapshot.data['Username'].toString(),
+                      ),
                     ],
                   ),
                 ],
               ),
+            );
+              },
             ),
             ListTile(
               leading: Icon(Icons.account_circle),
