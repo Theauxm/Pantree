@@ -1,11 +1,13 @@
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/drawer.dart';
+//import '../models/drawer.dart';
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+
+class Home extends StatefulWidget {
+  Home({Key key, this.title}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -15,18 +17,18 @@ class MyHomePage extends StatefulWidget {
   // case the title) provided by the parent (in this case the App widget) and
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
-
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _HomeState createState() => _HomeState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _HomeState extends State<Home> {
   int _selectedIndex = 0;
   String _food = "";
   static const TextStyle optionStyle =
   TextStyle(fontWeight: FontWeight.bold);
+
   static const List<Widget> _widgetOptions = <Widget>[
     Text(
       'Index 0: Home',
@@ -62,6 +64,24 @@ class _MyHomePageState extends State<MyHomePage> {
       _food = s['Food'].toString();
     });
   }
+
+  String _getUID () {
+    String uid = FirebaseAuth.instance.currentUser.uid;
+    _setUID(uid);
+    return uid;
+  }
+
+  Future<void> _setUID(String uid) async {
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(uid).get().then((doc) {
+        if (!doc.exists)
+          FirebaseFirestore.instance.collection('users').doc(uid).set({'Username': FirebaseAuth.instance.currentUser.displayName});
+      });
+    } catch (e) {
+      throw e;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     //CollectionReference user = FirebaseFirestore.instance.collection('users').doc('1').get();
@@ -130,8 +150,9 @@ class _MyHomePageState extends State<MyHomePage> {
         child: ListView(
           children: <Widget>[
             StreamBuilder(
-              stream: FirebaseFirestore.instance.collection('users').doc('1').snapshots(),
+              stream: FirebaseFirestore.instance.collection('users').doc(_getUID()).snapshots(),
               builder: (context, snapshot){
+            if(!snapshot.hasData) return const Text('Loading....');
             return DrawerHeader(
               decoration: BoxDecoration(
                 color: Colors.lightBlue,

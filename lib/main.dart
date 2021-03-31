@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'pages/home.dart';
+import 'package:firebase_auth_ui/firebase_auth_ui.dart';
+import 'package:firebase_auth_ui/providers.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 
@@ -17,9 +19,27 @@ void main() async{
 }
 
 class MyApp extends StatelessWidget {
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+
+    FirebaseAuthUi.instance()
+        .launchAuth(
+      [
+        AuthProvider.email(), // Login/Sign up with Email and password
+        // AuthProvider.google(), // Login with Google
+        // AuthProvider.facebook(), // Login with Facebook
+        // AuthProvider.twitter(), // Login with Twitter
+        // AuthProvider.phone(), // Login with Phone number
+      ],
+      // tosUrl: "https://my-terms-url", // Optional
+      // privacyPolicyUrl: "https://my-privacy-policy", // Optional,
+    )
+    .then((firebaseUser) =>
+    print("Logged in user is ${firebaseUser.displayName}"))
+    .catchError((error) => print("Error $error"));
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Pantree',
@@ -35,7 +55,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Pantree Home'), // alt title: myPantree
+      home: Home(title: 'Pantree Home'), // alt title: myPantree
     );
   }
 }
