@@ -1,20 +1,25 @@
 from recipe_scrapers import scrape_me
 
-scraper = scrape_me('https://www.allrecipes.com/recipe/158968/spinach-and-feta-turkey-burgers/')
+top_level_website = scrape_me('https://allrecipes.com')
 
-scraper.title()
-scraper.total_time()
-scraper.yields()
-scraper.ingredients()
-scraper.instructions()
-scraper.image()
-scraper.host()
-scraper.links()
-scraper.nutrients()  # if available
+ingredients = {}
 
-print(scraper.title())
-print(scraper.ingredients())
+for i in top_level_website.links():
+    if 'https://www.allrecipes.com/recipes' not in i['href']:
+        continue
 
-for i in scraper.links():
-    print(i['href'])
-    exit
+    scraper = scrape_me(i['href'])
+    for j in scraper.links():
+        if 'https://www.allrecipes.com/recipe/' not in j['href']:
+            continue
+
+        recipe = scrape_me(j['href'])
+        if recipe.title() not in ingredients:
+            ingredients[recipe.title()] = recipe.ingredients()
+
+            print(len(ingredients))
+
+        
+
+
+print(ingredients)
