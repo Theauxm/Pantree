@@ -25,9 +25,9 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _selectedIndex = 0;
+  String userUID = "";
   String _food = "";
-  static const TextStyle optionStyle =
-  TextStyle(fontWeight: FontWeight.bold);
+  static const TextStyle optionStyle = TextStyle(fontWeight: FontWeight.bold);
 
   static const List<Widget> _widgetOptions = <Widget>[
     Text(
@@ -66,9 +66,9 @@ class _HomeState extends State<Home> {
   }
 
   String _getUID () {
-    String uid = FirebaseAuth.instance.currentUser.uid;
-    _setUID(uid);
-    return uid;
+    userUID = FirebaseAuth.instance.currentUser.uid;
+    _setUID(userUID);
+    return userUID;
   }
 
   Future<void> _setUID(String uid) async {
@@ -150,9 +150,9 @@ class _HomeState extends State<Home> {
         child: ListView(
           children: <Widget>[
             StreamBuilder(
-              stream: FirebaseFirestore.instance.collection('users').doc(_getUID()).snapshots(),
-              builder: (context, snapshot){
-            if(!snapshot.hasData) return const Text('Loading....');
+              stream: FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser.uid).snapshots(),
+              builder: (context, snapshot) {
+              if(!snapshot.hasData) return const Text('Loading....');
             return DrawerHeader(
               decoration: BoxDecoration(
                 color: Colors.lightBlue,

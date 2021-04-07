@@ -37,8 +37,9 @@ class MyApp extends StatelessWidget {
       // privacyPolicyUrl: "https://my-privacy-policy", // Optional,
     )
     .then((firebaseUser) =>
-    print("Logged in user is ${firebaseUser.displayName}"))
-    .catchError((error) => print("Error $error"));
+    //print("Logged in user is ${firebaseUser.displayName}"))
+    handleNewUsers(firebaseUser.uid, firebaseUser.displayName)
+    .catchError((error) => print("Error $error")));
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -58,6 +59,41 @@ class MyApp extends StatelessWidget {
       home: Home(title: 'Pantree Home'), // alt title: myPantree
     );
   }
+
+  static Future<bool> _checkExists(String docID) async {
+    bool exists = false;
+    try {
+      await FirebaseFirestore.instance.doc("users/$docID").get().then((doc) {
+        if (doc.exists)
+          exists = true;
+        else
+          exists = false;
+      });
+      return exists;
+    } catch (e) {
+      return false;
+    }
+  }
+
 }
 
+/// Check If Document Exists
+Future<void> handleNewUsers(String docID, String displayName) async {
+  print("HANDLENEWUSERS REACHED");
+  try {
+    // Get reference to Firestore collection
+    var collectionRef = FirebaseFirestore.instance.collection('users');
 
+    //var doc = await collectionRef.doc(docID).get();
+    await FirebaseFirestore.instance.collection('users').doc(docID).get().then((doc) {
+      if (!doc.exists)
+        FirebaseFirestore.instance.collection('users').doc(docID).set({'Username': displayName});
+    });
+    // add new users to 'users' document
+/*      if (!doc.exists) {
+        FirebaseFirestore.instance.collection('users').doc(docID).set({'Username': FirebaseAuth.instance.currentUser.displayName});
+      }*/
+  } catch (e) {
+    throw e;
+  }
+}
