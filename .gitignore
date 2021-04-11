@@ -44,3 +44,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# PRIVATE KEY FOR ACCESS TO DATABASE
+database_admin_key.json

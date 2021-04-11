@@ -1,4 +1,8 @@
+# pip install firebase_admin
+# pip install recipe_scrapers
+
 from recipe_scrapers import scrape_me
+import firebase_admin
 
 # Sets up website to scrape
 top_level_website = scrape_me('https://allrecipes.com')
