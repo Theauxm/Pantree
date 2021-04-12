@@ -37,6 +37,7 @@ for i in top_level_website.links():
         recipe = scrape_me(j['href'])
         if recipe.title() not in recipes:
             recipes.add(recipe.title())
+            new_recipe_ref = db.collection(u'recipes').document()
 
             # Each recipe requires its own entry
             entry = {
@@ -45,7 +46,7 @@ for i in top_level_website.links():
                 u'Directions' : recipe.instructions().splitlines(),
                 u'RecipeName' : recipe.title(),
                 u'TotalTime' : recipe.total_time(),
-                u'Ingredients' : []
+                u'Ingredients' : new_recipe_ref.collection(u'ingredients')
             }
 
             for ingred in recipe.ingredients():
@@ -70,6 +71,6 @@ for i in top_level_website.links():
                 ingredient_instance["Item"] = db.collection(u'food').document(ingredient.lower())
                 ingredient_instance["Quantity"] = amount
 
-                entry["Ingredients"].append(ingredient_instance)
+                entry["Ingredients"].add(ingredient_instance)
 
             db.collection(u'recipes').add(entry)
