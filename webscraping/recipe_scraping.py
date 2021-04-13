@@ -46,7 +46,6 @@ for i in top_level_website.links():
                 u'Directions' : recipe.instructions().splitlines(),
                 u'RecipeName' : recipe.title(),
                 u'TotalTime' : recipe.total_time(),
-                u'Ingredients' : new_recipe_ref.collection(u'ingredients')
             }
 
             for ingred in recipe.ingredients():
@@ -61,6 +60,9 @@ for i in top_level_website.links():
                     for i in words[2:]:
                         ingredient += i + " "
 
+                print("Ingredient: " + ingredient)
+
+                ingredient = ingredient.replace("/", " ")
                 does_ingredient = db.collection(u'food').document(ingredient.lower()).get()
                 if not does_ingredient.exists:
                     ingredient_dict = {}
@@ -71,6 +73,6 @@ for i in top_level_website.links():
                 ingredient_instance["Item"] = db.collection(u'food').document(ingredient.lower())
                 ingredient_instance["Quantity"] = amount
 
-                entry["Ingredients"].add(ingredient_instance)
+                new_recipe_ref.collection(u'ingredients').add(ingredient_instance)
 
-            db.collection(u'recipes').add(entry)
+            new_recipe_ref.set(entry)
