@@ -49,24 +49,6 @@ class _HomeState extends State<Home> {
   }
 
 
-  // var _listener = _auth.authStateChanges().listen((User user) {
-  //   _currentUser = user;
-  // });
-  // Stream<User> get onAuthStateChanged =>
-  //     _auth.authStateChanges();
-  // _listener = _auth.authStateChanges().listen((event) {
-  //
-  // })
-
-//   _listener = _auth.userChanges().listen((FirebaseUser user) {
-//   setState(() {
-//   _currentUser = user;
-//   });
-//   });
-// }
-// }
-
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User>(
@@ -96,6 +78,8 @@ class _HomeScreenState extends State<HomeScreen> {
   _HomeScreenState({this.user});
   static const TextStyle optionStyle = TextStyle(fontWeight: FontWeight.bold);
   int _selectedIndex = 0;
+  DocumentReference _selectedPantry;
+  String _selectedPantryName= "NO Pantry Selected";
   static const List<Widget> _widgetOptions = <Widget>[
     Text(
       'Index 0: Home',
@@ -133,32 +117,36 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _signOut() async {
     await FirebaseAuth.instance.signOut();
   }
+  void _onPantrySelect(DocumentReference pantry){
+    setState((){
+      _selectedPantry = pantry;
+    });
+  }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
-  Widget _buildPantry(BuildContext context, pantryReference){
-
+  void _onNewPantry(String pantry) {
+    setState(() {
+      _selectedPantryName = pantry;
+    });
   }
-  Widget _buildPantryItem(BuildContext context){
 
-  }
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
       stream: FirebaseFirestore.instance.collection('users').doc(user.uid).snapshots(),
       builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-        //if (!snapshot.hasData) return const Text('Loading....');
         if (!snapshot.hasData) return Center ( child: CircularProgressIndicator(),);
-        //if (snapshot.data['Username'] == null) return  const Text('Loading....');
         if(!snapshot.data.exists) return Center ( child: CircularProgressIndicator(),);
+        _selectedPantry = snapshot.data['Pantry IDs'][0];
         return Scaffold(
           appBar: AppBar(
             // Here we take the value from the MyHomePage object that was created by
             // the App.build method, and use it to set our appbar title.
-            title: Text("Pantree Home"),
+            title: Text(_selectedPantryName),
             actions: <Widget>[
               Padding(
                 padding: EdgeInsets.only(right: 20.0),
@@ -181,33 +169,45 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           body: StreamBuilder( //Sets up a stream builder to listen for changes inside the database.
-              stream: FirebaseFirestore.instance.collection('pantries').doc(
-                  'ExamplePantry').snapshots(), //Where its listening!
+              // stream: FirebaseFirestore.instance.collection('pantries').doc(
+              //     _selectedPantry).snapshots(), //Where its listening!
+              //stream: FirebaseFirestore.instance.(_selectedPantry).snapshots(),
+              stream: _selectedPantry.collection('Ingredients').snapshots(),
+
               builder: (context, snapshot) {
                 if (!snapshot.hasData) return const Text('Loading....');
-                return Center(
-                  child: Column(
+                //return _buildPantry(context, snapshot);
+                return new ListView(children: snapshot.data.docs.map<Widget>((doc){
+                  return new ListTile(
+                    title: new Text(doc['Item'].id),
+                    subtitle: new Text("Quantity: " + doc['Quantity'].toString())
+                  );
+                }).toList());
 
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        'Index selected:',
-                      ),
-                      Text(
-                        '$_selectedIndex',
-                        style: Theme
-                            .of(context)
-                            .textTheme
-                            .headline5,
-                      ),
-                      Text(
-                        //Reads from data snapshot the the Food section!
-                        snapshot.data['Food'].toString(),
-
-                      ),
-                    ],
-                  ),
-                );
+                // return Center(
+                //   child: Column(
+                //
+                //     mainAxisAlignment: MainAxisAlignment.center,
+                //     children: <Widget>[
+                //       Text(
+                //         'Index selected:',
+                //       ),
+                //       Text(
+                //         '$_selectedIndex',
+                //         style: Theme
+                //             .of(context)
+                //             .textTheme
+                //             .headline5,
+                //       ),
+                //       Text(
+                //         //Reads from data snapshot the the Food section!
+                //
+                //         _buildPantry(context, snapshot.data.),
+                //
+                //       ),
+                //     ],
+                //   ),
+                // );
               }),
           drawer: Drawer(
             child: ListView(
