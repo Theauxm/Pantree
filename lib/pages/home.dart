@@ -214,7 +214,7 @@ class _HomeScreenState extends State<HomeScreen> {
               children: <Widget>[
                 DrawerHeader(
                   decoration: BoxDecoration(
-                    color: Colors.lightBlue,
+                    color: Colors.blue,
                   ),
 /*              child: Text('Pantree',style: TextStyle(
                 color: Colors.white,
