@@ -129,11 +129,16 @@ class _HomeScreenState extends State<HomeScreen> {
       _selectedIndex = index;
     });
   }
+
   void _onNewPantry(String pantry) {
     setState(() {
       _selectedPantryName = pantry;
     });
   }
+
+  void _onFABTapped() {
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -223,6 +228,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 //   ),
                 // );
               }),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              _onFABTapped();
+            },
+            child: const Icon(Icons.add),
+            backgroundColor: Colors.amber[800],
+          ),
           drawer: Drawer(
             child: ListView(
               children: <Widget>[
