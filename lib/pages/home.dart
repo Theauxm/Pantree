@@ -39,6 +39,9 @@ class _HomeState extends State<Home> {
 
   void _checkCurrentUser() async {
     _currentUser = _auth.currentUser;
+    // looks like the line below is a null-aware method invocation: `x?.m()` invokes `m` only if `x` is not `null`.
+    // getIdToken(forceRefresh ? : boolean) returns the current JSON Web Token (JWT) if it has not expired. Otherwise, this will refresh the token and return a new one.
+    // we might need it to identify users when logging in via Google or Twitter, etc. -Ben
     //_currentUser?.getIdToken(refresh = true) // IM not sure what this is doing or if we need it - Trey
   }
 
@@ -102,8 +105,6 @@ class _HomeScreenState extends State<HomeScreen> {
       style: optionStyle,
     ),
   ];
-
-
 
   void handleClick(String value) {
     switch (value) {
@@ -178,9 +179,22 @@ class _HomeScreenState extends State<HomeScreen> {
                 if (!snapshot.hasData) return const Text('Loading....');
                 //return _buildPantry(context, snapshot);
                 return new ListView(children: snapshot.data.docs.map<Widget>((doc){
-                  return new ListTile(
-                    title: new Text(doc['Item'].id),
-                    subtitle: new Text("Quantity: " + doc['Quantity'].toString())
+                  return Container(
+                    decoration: BoxDecoration(
+                      border: Border(bottom: BorderSide()),
+                    ),
+                    child: ListTile(
+                      leading: new Container (
+                        decoration: BoxDecoration (
+                          border: Border.all (
+                          width: 2,
+                          ),
+                        ),
+                        child: Image.network("https://i2.wp.com/ceklog.kindel.com/wp-content/uploads/2013/02/firefox_2018-07-10_07-50-11.png"), //replace images with ones in firestore
+                      ),
+                      title: new Text(doc['Item'].id),
+                      subtitle: new Text("Quantity: " + doc['Quantity'].toString())
+                    ),
                   );
                 }).toList());
 
@@ -272,7 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // This trailing comma makes auto-formatting nicer for build methods.
           bottomNavigationBar: BottomNavigationBar(
             type: BottomNavigationBarType.fixed,
-            items: const <BottomNavigationBarItem>[
+            items: const <BottomNavigationBarItem> [
               BottomNavigationBarItem(
                 icon: Icon(Icons.home),
                 label: 'Home',

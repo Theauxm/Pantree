@@ -53,20 +53,15 @@ class WelcomePage extends StatelessWidget {
 }
 
 Future<void> handleNewUsers(String docID, String displayName) async {
-  print("HANDLENEWUSERS REACHED");
   try {
     // Get reference to Firestore collection
-    var collectionRef = FirebaseFirestore.instance.collection('users');
+    //var collectionRef = FirebaseFirestore.instance.collection('users');
 
     //var doc = await collectionRef.doc(docID).get();
     await FirebaseFirestore.instance.collection('users').doc(docID).get().then((doc) {
       if (!doc.exists)
         FirebaseFirestore.instance.collection('users').doc(docID).set({'Username': displayName});
     });
-    // add new users to 'users' document
-/*      if (!doc.exists) {
-        FirebaseFirestore.instance.collection('users').doc(docID).set({'Username': FirebaseAuth.instance.currentUser.displayName});
-      }*/
   } catch (e) {
     throw e;
   }
