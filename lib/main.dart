@@ -5,6 +5,9 @@ import 'package:pantree/pages/welcome.dart';
 import 'pages/home.dart';
 import 'package:firebase_auth_ui/firebase_auth_ui.dart';
 import 'package:firebase_auth_ui/providers.dart';
+import 'pages/shopping_list.dart';
+import 'pages/recipes.dart';
+import 'pages/social_feed.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 
@@ -33,6 +36,12 @@ class MyApp extends StatelessWidget {
       ),
       //home: Home(title: 'Pantree Home'), // alt title: myPantree
       home: Home(),
+      routes: {
+        'home': (context) => Home(),
+        'shopping': (context) => shoppingList(),
+        'recipes': (context) => recipes(),
+        'social': (context) => social_feed(),
+      },
     );
   }
 

@@ -7,7 +7,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 //import '../models/drawer.dart';
 import 'package:firebase_auth_ui/firebase_auth_ui.dart';
+import 'package:pantree/pages/shopping_list.dart';
 import 'welcome.dart';
+import 'shopping_list.dart';
+import 'recipes.dart';
+import 'social_feed.dart';
 
 class Home extends StatefulWidget {
   Home({Key key, this.title}) : super(key: key);
@@ -59,6 +63,7 @@ class _HomeState extends State<Home> {
       builder: (context, snapshot) {
         if(snapshot.hasData){
           return HomeScreen(user: snapshot.data);
+          //return shoppingList();
         } else {
           return WelcomePage();
         }
@@ -124,10 +129,27 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  void _onNavTapped(int index) {
+    switch(index){
+      case 0:{
+        Navigator.pushNamed(context, 'home');
+      }
+      break;
+      case 1:{
+        Navigator.pushNamed(context, 'shopping');
+      }
+      break;
+      case 2:{
+        Navigator.pushNamed(context, 'recipes');
+      }
+      break;
+      case 3:{
+        Navigator.pushNamed(context, 'social');
+      }
+    }
+    // setState(() {
+    //   _selectedIndex = index;
+    // });
   }
 
   void _onNewPantry(String pantry) {
@@ -198,7 +220,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Image.network("https://i2.wp.com/ceklog.kindel.com/wp-content/uploads/2013/02/firefox_2018-07-10_07-50-11.png"), //replace images with ones in firestore
                       ),
                       title: new Text(doc['Item'].id),
-                      subtitle: new Text("Quantity: " + doc['Quantity'].toString())
+                      subtitle: new Text("Quantity: " + doc['Quantity'].toString()),
                     ),
                   );
                 }).toList());
@@ -316,9 +338,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 label: 'Social Feed',
               ),
             ],
-            currentIndex: _selectedIndex,
+            currentIndex: 0,
             selectedItemColor: Colors.amber[800],
-            onTap: _onItemTapped,
+            onTap: _onNavTapped,
           ),
         );
       }
