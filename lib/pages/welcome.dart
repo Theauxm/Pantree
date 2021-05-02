@@ -40,6 +40,10 @@ class WelcomePage extends StatelessWidget {
                     .catchError((error) => print("Error $error")));
                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Home(title: 'Pantree Home')));
               },
+              style: ElevatedButton.styleFrom(
+                primary: Colors.amber[800],
+                onPrimary: Colors.white,
+              ),
               child: Text('Sign in'),
           ),]
         ),
