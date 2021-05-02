@@ -9,6 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth_ui/firebase_auth_ui.dart';
 import 'package:pantree/pages/shopping_list.dart';
 import 'welcome.dart';
+import 'pantry.dart';
 import 'shopping_list.dart';
 import 'recipes.dart';
 import 'social_feed.dart';
@@ -87,7 +88,26 @@ class _HomeScreenState extends State<HomeScreen> {
   static const TextStyle optionStyle = TextStyle(fontWeight: FontWeight.bold);
   int _selectedIndex = 0;
   DocumentReference _selectedPantry;
-  String _selectedPantryName= "NO Pantry Selected";
+  pantry pantryPage;
+  recipes recipesPage;
+  social_feed socialPage;
+  shoppingList shoppingPage;
+
+  Widget currentPage;
+  List<Widget> pages;
+
+  @override
+  void initState(){
+    pantryPage = pantry();
+    recipesPage = recipes();
+    socialPage = social_feed();
+    shoppingPage = shoppingList();
+
+    currentPage = pantryPage;
+    pages = [pantryPage,shoppingPage,recipesPage,socialPage];
+    super.initState();
+  }
+
   static const List<Widget> _widgetOptions = <Widget>[
     Text(
       'Index 0: Home',
@@ -123,42 +143,32 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _signOut() async {
     await FirebaseAuth.instance.signOut();
   }
-  void _onPantrySelect(DocumentReference pantry){
-    setState((){
-      _selectedPantry = pantry;
-    });
-  }
 
   void _onNavTapped(int index) {
-    switch(index){
-      case 0:{
-        Navigator.pushNamed(context, 'home');
-      }
-      break;
-      case 1:{
-        Navigator.pushNamed(context, 'shopping');
-      }
-      break;
-      case 2:{
-        Navigator.pushNamed(context, 'recipes');
-      }
-      break;
-      case 3:{
-        Navigator.pushNamed(context, 'social');
-      }
-    }
+    setState(() {
+      _selectedIndex = index;
+      currentPage = pages[index];
+    });
+    // switch(index){
+    //   case 0:{
+    //     Navigator.pushNamed(context, 'home');
+    //   }
+    //   break;
+    //   case 1:{
+    //     Navigator.pushNamed(context, 'shopping');
+    //   }
+    //   break;
+    //   case 2:{
+    //     Navigator.pushNamed(context, 'recipes');
+    //   }
+    //   break;
+    //   case 3:{
+    //     Navigator.pushNamed(context, 'social');
+    //   }
+    // }
     // setState(() {
     //   _selectedIndex = index;
     // });
-  }
-
-  void _onNewPantry(String pantry) {
-    setState(() {
-      _selectedPantryName = pantry;
-    });
-  }
-
-  void _onFABTapped() {
   }
 
 
@@ -174,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
           appBar: AppBar(
             // Here we take the value from the MyHomePage object that was created by
             // the App.build method, and use it to set our appbar title.
-            title: Text(_selectedPantryName),
+            title: Text("Pantree <3"),
             actions: <Widget>[
               Padding(
                 padding: EdgeInsets.only(right: 20.0),
@@ -196,63 +206,10 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
-          body: StreamBuilder( //Sets up a stream builder to listen for changes inside the database.
-              // stream: FirebaseFirestore.instance.collection('pantries').doc(
-              //     _selectedPantry).snapshots(), //Where its listening!
-              //stream: FirebaseFirestore.instance.(_selectedPantry).snapshots(),
-              stream: _selectedPantry.collection('Ingredients').snapshots(),
-
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) return const Text('Loading....');
-                //return _buildPantry(context, snapshot);
-                return new ListView(children: snapshot.data.docs.map<Widget>((doc){
-                  return Container(
-                    decoration: BoxDecoration(
-                      border: Border(bottom: BorderSide()),
-                    ),
-                    child: ListTile(
-                      leading: new Container (
-                        decoration: BoxDecoration (
-                          border: Border.all (
-                          width: 2,
-                          ),
-                        ),
-                        child: Image.network("https://i2.wp.com/ceklog.kindel.com/wp-content/uploads/2013/02/firefox_2018-07-10_07-50-11.png"), //replace images with ones in firestore
-                      ),
-                      title: new Text(doc['Item'].id),
-                      subtitle: new Text("Quantity: " + doc['Quantity'].toString()),
-                    ),
-                  );
-                }).toList());
-
-                // return Center(
-                //   child: Column(
-                //
-                //     mainAxisAlignment: MainAxisAlignment.center,
-                //     children: <Widget>[
-                //       Text(
-                //         'Index selected:',
-                //       ),
-                //       Text(
-                //         '$_selectedIndex',
-                //         style: Theme
-                //             .of(context)
-                //             .textTheme
-                //             .headline5,
-                //       ),
-                //       Text(
-                //         //Reads from data snapshot the the Food section!
-                //
-                //         _buildPantry(context, snapshot.data.),
-                //
-                //       ),
-                //     ],
-                //   ),
-                // );
-              }),
+          body: currentPage,
           floatingActionButton: FloatingActionButton(
             onPressed: () {
-              _onFABTapped();
+
             },
             child: const Icon(Icons.add),
             backgroundColor: Colors.amber[800],
@@ -338,7 +295,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 label: 'Social Feed',
               ),
             ],
-            currentIndex: 0,
+            currentIndex: _selectedIndex,
             selectedItemColor: Colors.amber[800],
             onTap: _onNavTapped,
           ),

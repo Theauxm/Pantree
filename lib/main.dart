@@ -36,12 +36,6 @@ class MyApp extends StatelessWidget {
       ),
       //home: Home(title: 'Pantree Home'), // alt title: myPantree
       home: Home(),
-      routes: {
-        'home': (context) => Home(),
-        'shopping': (context) => shoppingList(),
-        'recipes': (context) => recipes(),
-        'social': (context) => social_feed(),
-      },
     );
   }
 
