@@ -7,10 +7,8 @@ from datetime import datetime
 from firebase_admin import firestore
 import firebase_admin
 
-# Measurements available within web scraper
-measures = {'teaspoon', 'tablespoon', 'cups', 'cup', 'teaspoons', 'tablespoons', 'pinch', 'ounces', 'ounce', 'pound', 'pounds'}
+measures = {'teaspoon', 'tablespoon', 'cups', 'cup', 'teaspoons', 'tablespoons'}
 
-# Converts unicode fractions to python readable fractions 
 unicode_fractions = {
     int('00bc', 16) : 1/4,
     int('00bd', 16) : 1/2,
@@ -35,15 +33,6 @@ unicode_fractions = {
 }
 
 def main():
-    # Sets up firestore database
-    # **IMPORTANT**
-    # NEED LOCAL database_admin_key.json FROM FIRESTORE CONSOLE VIA PROJECT SETTINGS -> SERVICE ACCOUNTS -> GENERATE NEW PRIVATE KEY
-    cred = firebase_admin.credentials.Certificate('./database_admin_key.json')
-    default_app = firebase_admin.initialize_app(cred)
-
-    # Database object to write to
-    db = firestore.client()
-
     # Sets up website to scrape
     top_level_website = scrape_me('https://allrecipes.com')
 
@@ -65,43 +54,18 @@ def main():
             recipe = scrape_me(j['href'])
             if recipe.title() not in recipes:
                 recipes.add(recipe.title())
-                new_recipe_ref = db.collection(u'recipes').document()
-
-                # Each recipe requires its own entry
-                entry = {
-                    u'CreationDate' : datetime.utcnow(),
-                    u'Creator' : db.collection(u'users').document(u'PanTreeOfficial'),
-                    u'Directions' : recipe.instructions().splitlines(),
-                    u'RecipeName' : recipe.title(),
-                    u'TotalTime' : recipe.total_time(),
-                    u'Credit' : 'allrecipes.com'
-                }
 
                 # Parse eachingredient and add unique identifier to database
                 for ingred in recipe.ingredients():
+                    print(ingred)
                     words = ingred.split()
 
-                    # Get the ingredient name from the string along with amount and type
-                    ingredient_and_unit = get_ingredients(words)
-                    ingredient = ingredient_and_unit[0].lower()
-
-                    # Adds ingredient to database
-                    ingredient_instance = {}
-                    does_ingredient = db.collection(u'food').document(ingredient).get()
-                    if not does_ingredient.exists:
-                        ingredient_dict = {}
-                        ingredient_dict[u'ExpTime'] = 1
-                        ingredient_dict[u'Weight'] = 24
-                        db.collection(u'food').document(ingredient).set(ingredient_dict)
-
-                    ingredient_instance['Item'] = db.collection(u'food').document(ingredient)
-                    ingredient_instance['Quantity'] = get_amount(words)
-                    ingredient_instance['Unit'] = ingredient_and_unit[1]
-
-                    new_recipe_ref.collection(u'ingredients').add(ingredient_instance)
-
-                # Adds structured recipe to database
-                new_recipe_ref.set(entry)
+                    # Attemps to get the ingredient name from the string
+                    ingredient = get_ingredients(words)
+                    amount = str(get_amount(words))
+                    
+                    print("Ingredient: " + ingredient[0])
+                    print("Amount: " + amount + " " + ingredient[1])
 
 
 def get_amount(words):
