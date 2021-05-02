@@ -207,13 +207,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           body: currentPage,
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-
-            },
-            child: const Icon(Icons.add),
-            backgroundColor: Colors.amber[800],
-          ),
           drawer: Drawer(
             child: ListView(
               children: <Widget>[
