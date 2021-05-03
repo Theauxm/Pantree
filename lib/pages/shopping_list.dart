@@ -1,16 +1,130 @@
 import 'package:flutter/material.dart';
 
-class shoppingList extends StatefulWidget {
-
+class ShoppingList extends StatefulWidget {
   @override
-  _ShoppingState createState() => _ShoppingState();
+  _ListState createState() => _ListState();
 }
 
-class _ShoppingState extends State<shoppingList> {
-  int _count = 0;
+class _ListState extends State<ShoppingList> with AutomaticKeepAliveClientMixin<ShoppingList> {
+  List<CheckBoxListTileModel> listTileModel = CheckBoxListTileModel.getListItems();
+  TextEditingController nameController = TextEditingController();
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return  Center(child: Text('You have pressed the button $_count times.'));
+    super.build(context);
+    return Scaffold(
+      body: Column (
+        children: <Widget> [
+          Expanded(
+            child: ListView.builder(
+                itemCount: listTileModel.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return new Card(
+                    child: new Container(
+                      padding: new EdgeInsets.all(10.0),
+                      child: Column(
+                        children: <Widget>[
+                          new CheckboxListTile(
+                              activeColor: Colors.pink[300],
+                              dense: true,
+                              //font change
+                              title: new Text(
+                                listTileModel[index].title,
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.5),
+                              ),
+                              value: listTileModel[index].isCheck,
+                              secondary: Container(
+                                height: 50,
+                                width: 50,
+                                child: Image.network(
+                                  listTileModel[index].img,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              onChanged: (bool val) {
+                                itemChange(val, index);
+                              })
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+          ),
+          Padding(
+            padding: EdgeInsets.all(20),
+            child: TextField(
+              controller: nameController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Add item to list',
+              ),
+              onEditingComplete: () {addItemToList();},
+            ),
+          ),
+        ]
+      )
+    );
+  }
+
+  void itemChange(bool val, int index) {
+    setState(() {
+      listTileModel[index].isCheck = val;
+    });
+  }
+
+  void addItemToList(){
+    setState(() {
+      listTileModel.add(
+          CheckBoxListTileModel(
+              img: "https://i2.wp.com/ceklog.kindel.com/wp-content/uploads/2013/02/firefox_2018-07-10_07-50-11.png",
+              title: nameController.text,
+              isCheck: false)
+      );
+      nameController.clear();
+    });
+  }
+}
+
+class CheckBoxListTileModel {
+  String img;
+  String title;
+  bool isCheck;
+
+  CheckBoxListTileModel({this.img, this.title, this.isCheck});
+
+  static List<CheckBoxListTileModel> getListItems() {
+    return <CheckBoxListTileModel>[
+      CheckBoxListTileModel(
+          img: "https://i2.wp.com/ceklog.kindel.com/wp-content/uploads/2013/02/firefox_2018-07-10_07-50-11.png",
+          title: "Fruit",
+          isCheck: false),
+      CheckBoxListTileModel(
+          img: "https://i2.wp.com/ceklog.kindel.com/wp-content/uploads/2013/02/firefox_2018-07-10_07-50-11.png",
+          title: "Eggs",
+          isCheck: false),
+      CheckBoxListTileModel(
+          img: "https://i2.wp.com/ceklog.kindel.com/wp-content/uploads/2013/02/firefox_2018-07-10_07-50-11.png",
+          title: "Bread",
+          isCheck: false),
+      CheckBoxListTileModel(
+          img: "https://i2.wp.com/ceklog.kindel.com/wp-content/uploads/2013/02/firefox_2018-07-10_07-50-11.png",
+          title: "Milk",
+          isCheck: false),
+      CheckBoxListTileModel(
+          img: "https://i2.wp.com/ceklog.kindel.com/wp-content/uploads/2013/02/firefox_2018-07-10_07-50-11.png",
+          title: "Chips",
+          isCheck: false),
+    ];
   }
 }
