@@ -104,7 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
     shoppingPage = ShoppingList();
 
     currentPage = pantryPage;
-    pages = [pantryPage,shoppingPage,recipesPage,socialPage];
+    pages = [pantryPage, shoppingPage, recipesPage, socialPage];
     super.initState();
   }
 
@@ -206,7 +206,10 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
-          body: currentPage,
+          body: IndexedStack(
+            index: _selectedIndex,
+            children: pages
+          ),
           drawer: Drawer(
             child: ListView(
               children: <Widget>[

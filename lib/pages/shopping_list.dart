@@ -19,6 +19,7 @@ class _ListState extends State<ShoppingList> with AutomaticKeepAliveClientMixin<
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
       body: Column (
         children: <Widget> [
