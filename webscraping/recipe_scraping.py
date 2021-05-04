@@ -8,7 +8,13 @@ from firebase_admin import firestore
 import firebase_admin
 
 # Measurements available within web scraper
-measures = {'teaspoon', 'tablespoon', 'cups', 'cup', 'teaspoons', 'tablespoons', 'pinch', 'ounces', 'ounce', 'pound', 'pounds'}
+measures = {'teaspoon', 'teaspoons', 
+            'cups', 'cup', 
+            'tablespoon', 'tablespoons', 
+            'pinch', 
+            'ounces', 'ounce', 
+            'pound', 'pounds', 
+            'package', 'packages'}
 
 # Converts unicode fractions to python readable fractions 
 unicode_fractions = {
@@ -61,47 +67,64 @@ def main():
             if 'https://www.allrecipes.com/recipe/' not in j['href']:
                 continue
 
-            # Adds recipe to database
+            # Each specific recipe
             recipe = scrape_me(j['href'])
-            if recipe.title() not in recipes:
-                recipes.add(recipe.title())
-                new_recipe_ref = db.collection(u'recipes').document()
 
-                # Each recipe requires its own entry
-                entry = {
-                    u'CreationDate' : datetime.utcnow(),
-                    u'Creator' : db.collection(u'users').document(u'PanTreeOfficial'),
-                    u'Directions' : recipe.instructions().splitlines(),
-                    u'RecipeName' : recipe.title(),
-                    u'TotalTime' : recipe.total_time(),
-                    u'Credit' : 'allrecipes.com'
-                }
+            if recipe.title() in recipes:
+                continue
+            recipes.add(recipe.title())
 
-                # Parse eachingredient and add unique identifier to database
-                for ingred in recipe.ingredients():
-                    words = ingred.split()
+            # Database document of created recipe
+            new_recipe_ref = db.collection(u'recipes').document()
 
-                    # Get the ingredient name from the string along with amount and type
-                    ingredient_and_unit = get_ingredients(words)
-                    ingredient = ingredient_and_unit[0].lower()
+            # User account of created recipe 
+            user = db.collection(u'users').document(u'PantreeOfficial')
 
-                    # Adds ingredient to database
-                    ingredient_instance = {}
-                    does_ingredient = db.collection(u'food').document(ingredient).get()
-                    if not does_ingredient.exists:
-                        ingredient_dict = {}
-                        ingredient_dict[u'ExpTime'] = 1
-                        ingredient_dict[u'Weight'] = 24
-                        db.collection(u'food').document(ingredient).set(ingredient_dict)
+            # Recipe name
+            recipe_name = db.collection(u'recipe_names').document(recipe.title())
 
-                    ingredient_instance['Item'] = db.collection(u'food').document(ingredient)
-                    ingredient_instance['Quantity'] = get_amount(words)
-                    ingredient_instance['Unit'] = ingredient_and_unit[1]
+            entry = {
+                u'CreationDate' : datetime.utcnow(),
+                u'Creator' : user,
+                u'Directions' : recipe.instructions().splitlines(),
+                u'RecipeName' : recipe.title(),
+                u'TotalTime' : recipe.total_time(),
+                u'Credit' : 'allrecipes.com'
+            }
 
-                    new_recipe_ref.collection(u'ingredients').add(ingredient_instance)
+            # Parse each ingredient and add unique identifier to database
+            for ingred in recipe.ingredients():
+                words = ingred.split()
+
+                # Get the ingredient name from the string along with amount and type
+                ingredient_and_unit = get_ingredients(words)
+                ingredient = ingredient_and_unit[0].lower()
+
+                # Adds ingredient to database
+                ingredient_instance = {}
+                does_ingredient = db.collection(u'food').document(ingredient).get()
+                if not does_ingredient.exists:
+                    ingredient_dict = {}
+                    ingredient_dict[u'ExpTime'] = 1
+                    ingredient_dict[u'Weight'] = 24
+                    db.collection(u'food').document(ingredient).set(ingredient_dict)
+
+                ingredient_instance['Item'] = db.collection(u'food').document(ingredient)
+                ingredient_instance['Quantity'] = get_amount(words)
+                ingredient_instance['Unit'] = ingredient_and_unit[1]
+
+                new_recipe_ref.collection(u'ingredients').add(ingredient_instance)
 
                 # Adds structured recipe to database
                 new_recipe_ref.set(entry)
+
+                # Adds recipe to @PantreeOfficial's list of recipe_ids
+                user.update({u'recipe_ids' : firestore.ArrayUnion([new_recipe_ref])})
+
+                # Adds recipe to recipe_names
+                recipe_name.set({u'recipe_ids' : firestore.ArrayUnion([new_recipe_ref])})
+
+                
 
 
 def get_amount(words):
@@ -122,10 +145,12 @@ def get_ingredients(words):
     ingredient = " "
     unit = " "
     for x in words[1:]:
+        # All ingredients with comma will be an extra un-necessary parameter
         if "," in x:
             ingredient += x[:-1]
             break
 
+        # Takes off extra 's' if necessary, then adds as unit
         if x in measures:
             if x[len(x) - 1] == 's':
                 unit = x[:-1]
@@ -133,6 +158,11 @@ def get_ingredients(words):
                 unit = x
             continue
 
+        # Any "and" is un-necessary
+        if "and" in x:
+            continue
+
+        # Skips over unicode fractions, this is used in get_amount()
         try:
             if ord(x) in unicode_fractions.keys():
                 continue
