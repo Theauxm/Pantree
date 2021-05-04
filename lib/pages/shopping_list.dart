@@ -7,6 +7,8 @@ class ShoppingList extends StatefulWidget {
 
 class _ListState extends State<ShoppingList> with AutomaticKeepAliveClientMixin<ShoppingList> {
   List<CheckBoxListTileModel> listTileModel = CheckBoxListTileModel.getListItems();
+
+  // for adding a new list item
   TextEditingController nameController = TextEditingController();
 
   @override
@@ -15,6 +17,12 @@ class _ListState extends State<ShoppingList> with AutomaticKeepAliveClientMixin<
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    super.dispose();
   }
 
   @override
@@ -27,39 +35,44 @@ class _ListState extends State<ShoppingList> with AutomaticKeepAliveClientMixin<
             child: ListView.builder(
                 itemCount: listTileModel.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return new Card(
-                    child: new Container(
-                      padding: new EdgeInsets.all(10.0),
-                      child: Column(
-                        children: <Widget>[
-                          new CheckboxListTile(
-                              activeColor: Colors.pink[300],
-                              dense: true,
-                              //font change
-                              title: new Text(
-                                listTileModel[index].title,
-                                style: TextStyle(
+                  return Dismissible(
+                    key: Key(listTileModel[index].title),
+                    onDismissed: (direction) {deleteItemFromList(index);},
+                    child: new Card(
+                      child: new Container(
+                        padding: new EdgeInsets.all(10.0),
+                        child: Column(
+                          children: <Widget>[
+                            new CheckboxListTile(
+                                activeColor: Colors.pink[300],
+                                dense: true,
+                                //font change
+                                title: new Text(
+                                  listTileModel[index].title,
+                                  style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
-                                    letterSpacing: 0.5),
-                              ),
-                              value: listTileModel[index].isCheck,
-                              secondary: Container(
-                                height: 50,
-                                width: 50,
-                                child: Image.network(
-                                  listTileModel[index].img,
-                                  fit: BoxFit.cover,
+                                    letterSpacing: 0.5
+                                  ),
                                 ),
-                              ),
-                              onChanged: (bool val) {
-                                itemChange(val, index);
-                              })
-                        ],
+                                value: listTileModel[index].isCheck,
+                                secondary: Container(
+                                  height: 50,
+                                  width: 50,
+                                  child: Image.network(
+                                    listTileModel[index].img,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                onChanged: (bool val) {
+                                  itemCheck(val, index);
+                                })
+                          ],
+                        ),
                       ),
-                    ),
+                    )
                   );
-                }),
+              }),
           ),
           Padding(
             padding: EdgeInsets.all(20),
@@ -77,13 +90,13 @@ class _ListState extends State<ShoppingList> with AutomaticKeepAliveClientMixin<
     );
   }
 
-  void itemChange(bool val, int index) {
+  void itemCheck(bool val, int index) {
     setState(() {
       listTileModel[index].isCheck = val;
     });
   }
 
-  void addItemToList(){
+  void addItemToList() {
     setState(() {
       listTileModel.add(
           CheckBoxListTileModel(
@@ -92,6 +105,12 @@ class _ListState extends State<ShoppingList> with AutomaticKeepAliveClientMixin<
               isCheck: false)
       );
       nameController.clear();
+    });
+  }
+
+  void deleteItemFromList(int index) {
+    setState(() {
+      listTileModel.removeAt(index);
     });
   }
 }
