@@ -12,10 +12,10 @@ class _recipeState extends State<recipes> {
   static const historyLength = 5;
 
   List<String> _searchHistory = [
-    'fuchsia',
-    'flutter',
-    'widgets',
-    'resocoder',
+    'tofu',
+    'tofu1',
+    'milk',
+    'worm',
   ];
 
   List<String> filteredSearchHistory;
