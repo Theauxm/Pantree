@@ -64,7 +64,13 @@ Future<void> handleNewUsers(String docID, String displayName) async {
     //var doc = await collectionRef.doc(docID).get();
     await FirebaseFirestore.instance.collection('users').doc(docID).get().then((doc) {
       if (!doc.exists)
-        FirebaseFirestore.instance.collection('users').doc(docID).set({'Username': displayName});
+        FirebaseFirestore.instance.collection('users').doc(docID).set({
+          'Username': displayName,
+          'Pantry IDs': [null],
+          'Friend IDs': [null],
+          'Recipe IDs': [null],
+          'Shopping IDs': [null],
+        });
     });
   } catch (e) {
     throw e;

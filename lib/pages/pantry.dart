@@ -15,11 +15,14 @@ class _pantryState extends State<pantry> {
   //Widget _selectedPantry = FirebaseFirestore.instance.collection('pantries').doc('Yqxw4fjgA8If7hc49ylF').collection('Ingredients').snapshots();
   DocumentSnapshot _userDocSnap;
   DocumentReference _selectedPantry;
+  List _pantryNames;
+
   @override
   void initState(){
     _selectedIndex = 0;
     super.initState();
     initialize();
+    //setPantryNames();
   }
 
   void initialize() async{
@@ -29,43 +32,58 @@ class _pantryState extends State<pantry> {
     });
     //_selectedPantry = document['Pantry IDs'][0];
   }
-  void setPantry() async{
+  void setPantry(int index) async{
     var document = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
     setState(() {
-      if(_selectedIndex == 0){
-        _selectedPantry = document['Pantry IDs'][1];
-        _selectedIndex = 1;
-      }else {
-        _selectedPantry = document['Pantry IDs'][0];
-        _selectedIndex = 0;
-      }
+      _selectedPantry = document['Pantry IDs'][index];
+      _selectedIndex = index;
     });
   }
+  void getPantryName (DocumentReference pantryRef)async{
+    var document = pantryRef.get();
+    setState(() {
+
+    });
+
+  }
+
+
   final User user;
   _pantryState({this.user});
   @override
   Widget build(BuildContext context) {
     if(_selectedPantry == null){
-      return Center ( child: CircularProgressIndicator());
+      return Center ( child: Text("No Pantries Found"));
     }
     return Scaffold(
       body:
-      //Row (
-      // children: [
-      // StreamBuilder(
-      //   stream: FirebaseFirestore.instance.collection('users').doc(user.uid).snapshots(),
-      //   builder: (context, snapshot) {
-      //     return new DropdownButton<String>(
-      //       items: <String>['A', 'B', 'C', 'D'].map((String value) {
-      //         return new DropdownMenuItem<String>(
-      //           value: value,
-      //           child: new Text(value),
-      //         );
-      //       }).toList(),
-      //       onChanged: (_) {},
-      //     );
-      //   }
-      // ),
+      Column (
+       children: [
+      StreamBuilder(
+        stream: FirebaseFirestore.instance.collection('users').doc(user.uid).snapshots(),
+        builder: (context, snapshot) {
+          return
+            Container(
+                alignment: Alignment.topLeft,
+                padding: new EdgeInsets.only(left: 17.0),
+                child: DropdownButton<DocumentReference>(
+            value: _selectedPantry,
+            items:  snapshot.data['Pantry IDs'].map<DropdownMenuItem<DocumentReference>>((value) {
+              return new DropdownMenuItem<DocumentReference>(
+                value: value,
+                child: new Text(value.path),
+              );
+            }).toList(),
+            onChanged: (DocumentReference value) {
+              setState(() {
+                _selectedPantry = value;
+              });
+              //setPantry(index);
+            },
+          )
+            );
+        }
+      ),
 
 
       StreamBuilder( //Sets up a stream builder to listen for changes inside the database.
@@ -78,7 +96,8 @@ class _pantryState extends State<pantry> {
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const Text('Loading....');
           //return _buildPantry(context, snapshot);
-          return new ListView(children: snapshot.data.docs.map<Widget>((doc){
+          return Expanded(child:
+            new ListView(children: snapshot.data.docs.map<Widget>((doc){
             return Container(
               decoration: BoxDecoration(
                 border: Border(bottom: BorderSide()),
@@ -96,17 +115,10 @@ class _pantryState extends State<pantry> {
                 subtitle: new Text("Quantity: " + doc['Quantity'].toString()),
               ),
             );
-          }).toList());
+          }).toList())
+          );
         }),
-       // ]
-      //),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setPantry();
-          // Add your onPressed code here!
-        },
-        child: const Icon(Icons.navigation),
-        backgroundColor: Colors.green,
+        ]
       ),
     );
   }
