@@ -63,6 +63,7 @@ class _HomeState extends State<Home> {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         if(snapshot.hasData){
+          //TODO: prevent progression until user has been added
           return HomeScreen(user: snapshot.data);
           //return shoppingList();
         } else {
