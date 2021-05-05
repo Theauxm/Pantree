@@ -62,6 +62,9 @@ class _pantryState extends State<pantry> {
       StreamBuilder(
         stream: FirebaseFirestore.instance.collection('users').doc(user.uid).snapshots(),
         builder: (context, snapshot) {
+          if(!snapshot.hasData){
+            return Center ( child: CircularProgressIndicator());
+          }
           return
             Container(
                 alignment: Alignment.topLeft,
