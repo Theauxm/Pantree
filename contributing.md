@@ -16,6 +16,7 @@ Each task within the Scrum board will be categorized into a subsection denoting 
   - Shopping List View (SLV): All shopping lists the user has created
   - Recipe Recommendation View (RRV): All available recipes within the app
   - Social View (SV): Dynamic shopping lists and events
+
 The task's name will start with the acronym, along with a unique number to associate with it. Within each task, the [task form](https://docs.google.com/document/d/1XMjXoHocey8QCICZziE2Ia0_UgGrKt38Pvrd6G--DG0/edit?usp=sharing) will be filled out so each developer has an idea of what the task is for. 
 
 That's it! One of the project members will take a look at your issue and make any necessary comments. Thank you for helping our team make the best Pantree application we can!
