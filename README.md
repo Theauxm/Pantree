@@ -12,19 +12,23 @@ This application has a wide potential user base, targeting audiences who activel
 
 
 ### Installation
-**Linux:**
-The following is mostly copied from [this link](https://developer.android.com/studio/install). **IMPORTANT:** Java SDK 8 is required for a correct installation.
+
+##**Linux:**
+
+The following is mostly copied from [this link](https://developer.android.com/studio/install). 
+
+**IMPORTANT:** Java SDK 8 is required for a correct installation.
 
 1. Download the Android studio tar.gz file from [here](https://developer.android.com/studio) and place the extracted files in the ```/usr/local/``` directory.
 
 2. Install required dependencies:
 ```
 sudo apt update
-sudo apt install libc6:i386 libncurses5:i386 libstdc++6:i386 lib32z1 libbz2-1.0:i386 clang cmake ninja-build pkg-config libgtk-3-dev
+sudo apt install libc6:i386 libncurses5:i386 libstdc++6:i386 lib32z1 libbz2-1.0:i386 clang cmake ninja-build pkg-config libgtk-3-dev android-sdk
 sudo snap install flutter --classic
 flutter sdk-path
-flutter doctor --android-licenses
 flutter upgrade
+flutter doctor --android-licenses
 ```
 
 3. Extract the downloaded file:
@@ -32,7 +36,7 @@ flutter upgrade
 sudo tar -xvzf ./android-studio-2020.3.1.23-linux.tar.gz -C /usr/local/
 ```
 
-4. Run the application:
+4. Add android studio to PATH and run the application:
 ```
 /usr/local/android-studio/bin/studio.sh
 ```
