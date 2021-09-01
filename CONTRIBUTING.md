@@ -14,6 +14,7 @@ Whether you're a CS4500 Senior Project student or somebody who is extremely pass
       - Shopping List View (SLV): All shopping lists the user has created
       - Recipe Recommendation View (RRV): All available recipes within the app
       - Social View (SV): Dynamic shopping lists and events
+      - Back End (PE): Any and all back-end requirements
 
   2. Clone the repository and create a branch. The naming convention of the branch follows the name of the task. The first letters should correspond to the acronym, followed by a '/', then the number of the task and the name. I.e., if the task is "CT69 - Eat Pancakes", the branch should be named: "CT/69_EAT_PANCAKES".
   3. Follow our setup guidelines to compile the project, which can be accessed via the README.txt file
