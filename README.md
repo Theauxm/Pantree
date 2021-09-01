@@ -79,9 +79,9 @@ The following is a condensed version of [this link](https://developer.android.co
 ---
 #### **MacOS:**
 
-The following has been adapted from https://flutter.dev/docs/get-started/install/macos
+The following has been adapted from [Flutter Install Guide for MacOS](https://flutter.dev/docs/get-started/install/macos)
 
-1. Download and Install the Flutter SDK from https://flutter.dev/docs/get-started/install/macos
+1. Download and Install the Flutter SDK from [here](https://flutter.dev/docs/get-started/install/macos)
 
 2. Extract the at desired location 
   ```
@@ -97,7 +97,7 @@ The following has been adapted from https://flutter.dev/docs/get-started/install
   ```
    $ brew install --cask flutter
   ```
-5. Flutter requires Android Studio, click the following link to download https://developer.android.com/studio
+5. Flutter requires Android Studio, click the following link to download [here](https://developer.android.com/studio)
 
 6. Run flutter doctor to ensure that flutter had downloaded successfully, and Android Studio dependency is satisfied
   ```
@@ -122,7 +122,9 @@ The following has been adapted from https://flutter.dev/docs/get-started/install
 
 10. Clone the pantree repository 
 
-- git clone https://github.com/Theauxm/Pantree.git
+``` 
+$git clone https://github.com/Theauxm/Pantree.git
+```
 
 11. Navigate to the repository's folder, open ```Pantree/android/build.gradle```, wait for the gradle to finish building
 
