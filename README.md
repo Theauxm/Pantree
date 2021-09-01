@@ -75,3 +75,56 @@ The following is a condensed version of [this link](https://developer.android.co
 
 4. Navigate to the project folder you either cloned or downloaded and open it
 
+
+---
+####**MacOS:**
+
+The following has been adapted from https://flutter.dev/docs/get-started/install/macos
+
+1. Download and Install the Flutter SDK from https://flutter.dev/docs/get-started/install/macos
+
+2. Extract the at desired location 
+  ```
+  $ cd ~/development
+  $ unzip ~/Downloads/flutter_macos_2.2.3-stable.zip
+  ```
+3. Add the Flutter SDK as a path variable to your rc file.  
+  ```
+  $ export PATH="$PATH:[PATH_OF_FLUTTER_GIT_DIRECTORY]/bin"
+  ```
+
+4. Alternative Download with HomeBrew
+  ```
+   $ brew install --cask flutter
+  ```
+5. Flutter requires Android Studio, click the following link to download https://developer.android.com/studio
+
+6. Run flutter doctor to ensure that flutter had downloaded successfully, and Android Studio dependency is satisfied
+  ```
+  $ flutter doctor
+  ```
+7. Accept the Android Licenses 
+  ``` 
+  $ flutter doctor --android-licenses
+  ```
+8. Download the Flutter and Dart plugins for Android Studio
+
+  - Open plugin preferences (Preferences > Plugins as of v3.6.3.0 or later).
+  - Select the Flutter plugin and click Install.
+  - Click Yes when prompted to install the Dart plugin.
+  - Click Restart when prompted.
+
+9. Update Languages & Frameworks option to point to Flutter SDK
+
+- Open Language & Frameworks preferences (Preferences > Language & Framework > Flutter/Dart)
+- Update Flutter SDK path to the installation destination defined earlier
+- Update Dart SDK path within the Flutter SDK installation destination, then '...bin/cache/dart-sdk'
+
+10. Clone the pantree repository 
+
+- git clone https://github.com/Theauxm/Pantree.git
+
+11. Navigate to the repository's folder, open ```Pantree/android/build.gradle```, wait for the gradle to finish building
+
+12.  run main.dart to begin the application
+
