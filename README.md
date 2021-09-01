@@ -77,7 +77,7 @@ The following is a condensed version of [this link](https://developer.android.co
 
 
 ---
-####**MacOS:**
+#### **MacOS:**
 
 The following has been adapted from https://flutter.dev/docs/get-started/install/macos
 
