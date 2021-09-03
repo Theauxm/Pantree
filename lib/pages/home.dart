@@ -64,9 +64,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState(){
     pantry pantryPage = pantry(user: this.user);
-    recipes recipesPage = recipes();
-    social_feed socialPage = social_feed();
-    ShoppingList shoppingPage = ShoppingList();
+    recipes recipesPage = recipes(user: this.user);
+    social_feed socialPage = social_feed(user: this.user);
+    ShoppingList shoppingPage = ShoppingList(user: this.user);
     currentPage = pantryPage;
     pages = [pantryPage, shoppingPage, recipesPage, socialPage];
 

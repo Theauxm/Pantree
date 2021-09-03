@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../pantreeUser.dart';
 
 class ShoppingList extends StatefulWidget {
+  PantreeUser user;
+  ShoppingList({this.user});
+
   @override
-  _ListState createState() => _ListState();
+  _ListState createState() => _ListState(user: user);
 }
 
 class _ListState extends State<ShoppingList> with AutomaticKeepAliveClientMixin<ShoppingList> {
-  List<CheckBoxListTileModel> listTileModel = CheckBoxListTileModel.getListItems();
+  PantreeUser user;
+  _ListState({this.user});
 
+  List<CheckBoxListTileModel> listTileModel = CheckBoxListTileModel.getListItems();
   // for adding a new list item
   TextEditingController nameController = TextEditingController();
 
