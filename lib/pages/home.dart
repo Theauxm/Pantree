@@ -1,12 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pantree/pages/shopping_list.dart';
 import 'welcome.dart';
 import 'pantry.dart';
 import 'shopping_list.dart';
 import 'recipes.dart';
 import 'social_feed.dart';
+import '../pantreeUser.dart';
 
 class Home extends StatefulWidget {
   Home({Key key, this.title}) : super(key: key);
@@ -34,7 +34,8 @@ class _HomeState extends State<Home> {
       builder: (context, snapshot) {
         if(snapshot.hasData){
           //TODO: Build proper user object here.
-          return HomeScreen(user: snapshot.data);
+          PantreeUser pUser = PantreeUser();
+          return HomeScreen(user: pUser);
         } else {
           return WelcomePage();
         }
@@ -45,7 +46,7 @@ class _HomeState extends State<Home> {
 
 
 class HomeScreen extends StatefulWidget {
-  final User user;
+  PantreeUser user;
   HomeScreen({this.user});
 
   @override
@@ -53,7 +54,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final User user;
+  PantreeUser user;
   _HomeScreenState({this.user});
   int _selectedIndex = 0;
 
@@ -76,11 +77,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     //TODO: Remove this Streambuilder once we have real user objects
     //It shouldnt be needed because we will have the information and I dont know why we would want to rebuild this is a user gets a friend or something!
-    return StreamBuilder(
-      stream: FirebaseFirestore.instance.collection('users').doc(user.uid).snapshots(),
-      builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-        if (!snapshot.hasData) return Center ( child: CircularProgressIndicator(),);
-        if(!snapshot.data.exists) return Center ( child: CircularProgressIndicator(),);
+    // return StreamBuilder(
+    //   stream: FirebaseFirestore.instance.collection('users').doc(user.uid).snapshots(),
+    //   builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+    //     if (!snapshot.hasData) return Center ( child: CircularProgressIndicator(),);
+    //     if(!snapshot.data.exists) return Center ( child: CircularProgressIndicator(),);
         return Scaffold(
           body: IndexedStack(
             index: _selectedIndex,
@@ -112,8 +113,8 @@ class _HomeScreenState extends State<HomeScreen> {
             onTap: _onNavTapped,
           ),
         );
-      }
-    );
+    //   }
+    // );
   }
 
   void _onNavTapped(int index) {

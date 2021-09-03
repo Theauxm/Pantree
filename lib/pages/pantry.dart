@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../pantreeUser.dart';
 
 class pantry extends StatefulWidget {
 
-  final User user;
+  PantreeUser user;
   pantry({this.user});
   @override
   _pantryState createState() => _pantryState(user: user);
@@ -48,12 +49,13 @@ class _pantryState extends State<pantry> {
   }
 
 
-  final User user;
+  PantreeUser user;
   _pantryState({this.user});
   @override
   Widget build(BuildContext context) {
     if(_selectedPantry == null){
-      return Center ( child: Text("No Pantries Found"));
+      //return Center ( child: Text("No Pantries Found"));
+      return Center ( child: Text(user.email + user.shoppingLists.toString()));
     }
     return Scaffold(
       body:
