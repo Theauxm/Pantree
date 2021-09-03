@@ -182,31 +182,6 @@ class _HomeScreenState extends State<HomeScreen> {
         if(!snapshot.data.exists) return Center ( child: CircularProgressIndicator(),);
         _selectedPantry = snapshot.data['Pantry IDs'][0];
         return Scaffold(
-          appBar: AppBar(
-            // Here we take the value from the MyHomePage object that was created by
-            // the App.build method, and use it to set our appbar title.
-            title: Text("Pantree <3"),
-            actions: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(right: 20.0),
-                child: GestureDetector(
-                  onTap: () {},
-                  child: Icon(Icons.search, size: 26.0),
-                ),
-              ),
-              PopupMenuButton<String>(
-                onSelected: handleClick,
-                itemBuilder: (BuildContext context) {
-                  return {'Add new item', 'Filter'}.map((String choice) {
-                    return PopupMenuItem<String>(
-                      value: choice,
-                      child: Text(choice),
-                    );
-                  }).toList();
-                },
-              ),
-            ],
-          ),
           body: IndexedStack(
             index: _selectedIndex,
             children: pages
@@ -302,5 +277,33 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
+
+//Save these for later helper methods
+//**********************APPBAR**********************************
+// appBar: AppBar(
+//   // Here we take the value from the MyHomePage object that was created by
+//   // the App.build method, and use it to set our appbar title.
+//   title: Text("Pantree <3"),
+//   actions: <Widget>[
+//     Padding(
+//       padding: EdgeInsets.only(right: 20.0),
+//       child: GestureDetector(
+//         onTap: () {},
+//         child: Icon(Icons.search, size: 26.0),
+//       ),
+//     ),
+//     PopupMenuButton<String>(
+//       onSelected: handleClick,
+//       itemBuilder: (BuildContext context) {
+//         return {'Add new item', 'Filter'}.map((String choice) {
+//           return PopupMenuItem<String>(
+//             value: choice,
+//             child: Text(choice),
+//           );
+//         }).toList();
+//       },
+//     ),
+//   ],
+// ),
 
 
