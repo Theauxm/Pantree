@@ -125,6 +125,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
 }
 
+/*
+class PantreeUser{
+      name
+      email
+      uid(the token we need for our database)
+
+      **Stuff from database
+      Friends= []
+      Pantrys= []
+      Recipes= []
+      ShoppingList= []
+
+      Get this object to your view
+}
+ */
 
 //Save these for later helper methods
 
