@@ -19,25 +19,45 @@ class WelcomePage extends StatelessWidget {
         child: Column(
           children: [
             Image.asset('assets/images/prototype_logo.png'),
+            Text('Email address'),
+            TextField(decoration: InputDecoration(
+              labelText:"Email"
+            )),
+            Text('Password'),
+            TextField(decoration: InputDecoration(
+                labelText:"password"
+            )),
             ElevatedButton(
               onPressed: () {
                 // Navigate back to first route when tapped.
-                FirebaseAuthUi.instance()
-                    .launchAuth(
-                  [
-                    AuthProvider.email(), // Login/Sign up with Email and password
-                    // AuthProvider.google(), // Login with Google
-                    // AuthProvider.facebook(), // Login with Facebook
-                    // AuthProvider.twitter(), // Login with Twitter
-                    // AuthProvider.phone(), // Login with Phone number
-                  ],
-                  // tosUrl: "https://my-terms-url", // Optional
-                  // privacyPolicyUrl: "https://my-privacy-policy", // Optional,
-                )
-                    .then((firebaseUser) =>
-                //print("Logged in user is ${firebaseUser.displayName}"))
-                handleNewUsers(firebaseUser.uid, firebaseUser.displayName)
-                    .catchError((error) => print("Error $error")));
+                try {
+                  FirebaseAuth.instance.signInWithEmailAndPassword(
+                      email: "treyjlavery@gmail.com",
+                      password: "password"
+                  );
+                } on FirebaseAuthException catch (e) {
+                  if (e.code == 'user-not-found') {
+                    print('No user found for that email.');
+                  } else if (e.code == 'wrong-password') {
+                    print('Wrong password provided for that user.');
+                  }
+                }
+                // FirebaseAuthUi.instance()
+                //     .launchAuth(
+                //   [
+                //     AuthProvider.email(), // Login/Sign up with Email and password
+                //     // AuthProvider.google(), // Login with Google
+                //     // AuthProvider.facebook(), // Login with Facebook
+                //     // AuthProvider.twitter(), // Login with Twitter
+                //     // AuthProvider.phone(), // Login with Phone number
+                //   ],
+                //   // tosUrl: "https://my-terms-url", // Optional
+                //   // privacyPolicyUrl: "https://my-privacy-policy", // Optional,
+                // )
+                //     .then((firebaseUser) =>
+                // //print("Logged in user is ${firebaseUser.displayName}"))
+                // handleNewUsers(firebaseUser.uid, firebaseUser.displayName)
+                //     .catchError((error) => print("Error $error")));
                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Home(title: 'Pantree Home')));
               },
               style: ElevatedButton.styleFrom(
