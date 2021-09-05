@@ -267,17 +267,18 @@ class _CreateAccount extends State<CreateAccount> {
   void registerUser() async{
     print("hereo");
     try {
-      var f = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      var result = await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: textControllerEmail.text,
           password: textControllerPassword.text
         // email: "treyjlavery@gmail.com",
         // password: "password"
       );
-      User u = FirebaseAuth.instance.currentUser;
-      while (u == null){
-        u = FirebaseAuth.instance.currentUser;
-      }
-      handleNewUsers(u.uid, textControllerUsername.text);
+      var uid = result.user.uid;
+      result.user.updateProfile(displayName: textControllerUsername.text);
+      await FirebaseAuth.instance.signOut();
+      await handleNewUsers(uid, textControllerUsername.text);
+
+
     } catch (e) {
       if (e.code == 'firebase_auth/user-not-found') {
         print('No user found for that email.');
