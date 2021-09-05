@@ -24,11 +24,12 @@ class PantreeUser{
     FirebaseFirestore.instance.collection('users').doc(u.uid).get()
         .then((DocumentSnapshot documentSnapshot) => {
       if (documentSnapshot.exists) {
-        print('Document is Real and added info to the User baby'),
-        this.shoppingLists = documentSnapshot['Shopping IDs'],
-        this.friends = documentSnapshot['Friend IDs'],
-        this.recipes = documentSnapshot['Recipe IDs'],
-        this.pantries = documentSnapshot['Pantry IDs'],
+        this.shoppingLists = documentSnapshot.data()['Shopping IDs'],
+        this.friends = documentSnapshot.data()['Friend IDs'],
+        this.recipes = documentSnapshot.data()['Recipe IDs'],
+        this.pantries = documentSnapshot.data()['Pantry IDs'],
+      } else {
+
       }
     });
   }
