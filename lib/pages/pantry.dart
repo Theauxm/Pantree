@@ -3,6 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../pantreeUser.dart';
 
+extension StringExtension on String {
+  String capitalize() {
+    return "${this[0].toUpperCase()}${this.substring(1)}";
+  }
+}
+
 class Pantry extends StatefulWidget {
   final User user;
   Pantry({this.user});
@@ -95,40 +101,48 @@ class _PantryState extends State<Pantry> {
 
       // Sets up a stream builder to listen for changes inside the database.
       StreamBuilder(
-        // stream: FirebaseFirestore.instance.collection('pantries').doc(
-        //     _selectedPantry).snapshots(), //Where its listening!
-        //stream: FirebaseFirestore.instance.(_selectedPantry).snapshots(),
+          // stream: FirebaseFirestore.instance.collection('pantries').doc(
+          //     _selectedPantry).snapshots(), //Where its listening!
+          //stream: FirebaseFirestore.instance.(_selectedPantry).snapshots(),
           stream: _selectedPantry.collection('Ingredients').snapshots(),
           //stream: FirebaseFirestore.instance.collection('pantries').doc('Yqxw4fjgA8If7hc49ylF').collection('Ingredients').snapshots(),
           //stream: FirebaseFirestore.instance.collection('users').doc(user.uid).('Ingredients').snapshots(),
           builder: (context, snapshot) {
-            if (!snapshot.hasData) return const Text('Loading....'); // TODO: return a widget here that stylizes the loading screen
+            if (!snapshot.hasData)
+              return const Text(
+                  'Loading....'); // TODO: return a widget here that stylizes the loading screen
             //return _buildPantry(context, snapshot);
             return Expanded(
                 child: ListView(
                     children: snapshot.data.docs.map<Widget>((doc) {
-                      return Container(
-                        child: Card(
-                          elevation: 8.0,
-                          margin: new EdgeInsets.symmetric(horizontal: 15.0, vertical: 3.0),
-                          child: ListTile(
-                            leading: Container(
-                              child: Image.network(
-                                  "https://i2.wp.com/ceklog.kindel.com/wp-content/uploads/2013/02/firefox_2018-07-10_07-50-11.png"), //replace images with ones in firestore
-                            ),
-                            title: Text(doc['Item'].id),
-                            subtitle: Text("Quantity: " + doc['Quantity'].toString()),
-                          ),
-                        ),
-                      );
-                    }).toList())
-            );
+              return Container(
+                child: Card(
+                  elevation: 8.0,
+                  margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 3.0),
+                  child: ListTile(
+                    leading: Container(
+                      child: Image.network(
+                          "https://i2.wp.com/ceklog.kindel.com/wp-content/uploads/2013/02/firefox_2018-07-10_07-50-11.png"), //replace images with ones in firestore
+                    ),
+                    title: Text(
+                      doc['Item'].id.toString().capitalize(),
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600),
+                    ),
+                    subtitle: Text(
+                      "Quantity: " + doc['Quantity'].toString(),
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+              );
+            }).toList()));
           }),
     ]);
 
-
-    return Scaffold(
-      body: makeBody
-    );
+    return Scaffold(body: makeBody);
   }
 }
