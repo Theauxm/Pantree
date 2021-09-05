@@ -4,7 +4,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../pantreeUser.dart';
 
 extension StringExtension on String {
+  String get inCaps => this.length > 0 ?'${this[0].toUpperCase()}${this.substring(1)}':'';
+  String get allInCaps => this.toUpperCase();
+  String get capitalizeFirstOfEach => this.replaceAll(RegExp(' +'), ' ').split(" ").map((str) => str.inCaps).join(" ");
+  String get capitalizeFirstLetter => (this?.isNotEmpty ?? false) ? '${this[0].toUpperCase()}${this.substring(1)}' : this;
+
   String capitalize() {
+    if (this == null || this == "") {return "";}
     return "${this[0].toUpperCase()}${this.substring(1)}";
   }
 }
@@ -110,7 +116,7 @@ class _PantryState extends State<Pantry> {
           builder: (context, snapshot) {
             if (!snapshot.hasData)
               return const Text(
-                  'Loading....'); // TODO: return a widget here that stylizes the loading screen
+                  'Loading....');
             //return _buildPantry(context, snapshot);
             return Expanded(
                 child: ListView(
@@ -125,7 +131,7 @@ class _PantryState extends State<Pantry> {
                           "https://i2.wp.com/ceklog.kindel.com/wp-content/uploads/2013/02/firefox_2018-07-10_07-50-11.png"), //replace images with ones in firestore
                     ),
                     title: Text(
-                      doc['Item'].id.toString().capitalize(),
+                      doc['Item'].id.toString().capitalizeFirstOfEach,
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600),
