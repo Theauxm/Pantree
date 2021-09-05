@@ -89,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
   static const TextStyle optionStyle = TextStyle(fontWeight: FontWeight.bold);
   int _selectedIndex = 0;
   DocumentReference _selectedPantry;
-  pantry pantryPage;
+  Pantry pantryPage;
   recipes recipesPage;
   social_feed socialPage;
   ShoppingList shoppingPage;
@@ -99,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState(){
-    pantryPage = pantry(user: this.user);
+    pantryPage = Pantry(user: this.user);
     recipesPage = recipes();
     socialPage = social_feed();
     shoppingPage = ShoppingList();
