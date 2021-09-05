@@ -33,7 +33,6 @@ class _HomeState extends State<Home> {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         if(snapshot.hasData){
-          //TODO: Build proper user object here.
           PantreeUser pUser = PantreeUser();
           return HomeScreen(user: pUser);
         } else {
