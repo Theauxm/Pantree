@@ -18,7 +18,6 @@ class _WelcomePage extends State<WelcomePage> {
 
   TextEditingController textControllerEmail = TextEditingController();
   TextEditingController textControllerPassword = TextEditingController();
-  String _loginError = "gg";
 
   void signIn() {
     try {
@@ -101,7 +100,9 @@ class _WelcomePage extends State<WelcomePage> {
                                     child: TextButton(
                                       style: TextButton.styleFrom(
                                           backgroundColor: Colors.blue),
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        _navigateToNextScreen(context);
+                                      },
                                       child: Text(
                                         'Sign up',
                                         style: TextStyle(
@@ -129,11 +130,15 @@ class _WelcomePage extends State<WelcomePage> {
             ),
           ));
     }
+  void _navigateToNextScreen(BuildContext context) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => CreateAccount()));
+  }
 
 // onPressed: () {
 // Navigator.pop(context);
 // }
   }
+
 
 
   Future<void> handleNewUsers(String docID, String displayName) async {
@@ -159,6 +164,8 @@ class _WelcomePage extends State<WelcomePage> {
     }
   }
 
+
+
 /*
                 FirebaseAuthUi.instance()
                     .launchAuth(
@@ -177,3 +184,106 @@ class _WelcomePage extends State<WelcomePage> {
                 handleNewUsers(firebaseUser.uid, firebaseUser.displayName)
                     .catchError((error) => print("Error $error")));
  */
+
+
+class CreateAccount extends StatefulWidget {
+
+  @override
+  State<StatefulWidget> createState() => _CreateAccount();
+}
+
+class _CreateAccount extends State<CreateAccount> {
+  TextEditingController textControllerEmail = TextEditingController();
+  TextEditingController textControllerPassword = TextEditingController();
+  TextEditingController textControllerUsername = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return  Scaffold(
+        appBar: AppBar(title: Text('New User!')),
+        body: SingleChildScrollView(
+          child: Center(
+            child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Container(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextField(
+                              controller: textControllerUsername,
+                              decoration: InputDecoration(
+                                labelText: "User Name",
+                                border: OutlineInputBorder(
+                                ),)),
+                          SizedBox(height: 10),
+                          TextField(
+                              controller: textControllerEmail,
+                              decoration: InputDecoration(
+                                labelText: "Email",
+                                border: OutlineInputBorder(
+                                ),)),
+                          SizedBox(height: 10),
+                          TextField(
+                            controller: textControllerPassword,
+                              obscureText: true,
+                              decoration: InputDecoration(
+                                labelText: "Password",
+                                border: OutlineInputBorder(
+                                ),)),
+                          SizedBox(height: 10),
+                          Flexible(
+                            flex: 1,
+                            child: Container(
+                              width: double.maxFinite,
+                              child: TextButton(
+                                style: TextButton.styleFrom(
+                                    backgroundColor: Colors.blue),
+                                onPressed: () {
+                                  registerUser();
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text(
+                                  'Create Account',
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.black),
+                                ),
+                              ),
+                            ),
+                          ),
+                            ],
+                          ),
+                          //Center(child: GoogleButton()),
+                      ),
+                    ),
+                ]
+            ),
+          ),
+        ));
+  }
+
+  void registerUser() async{
+    print("hereo");
+    try {
+      var f = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: textControllerEmail.text,
+          password: textControllerPassword.text
+        // email: "treyjlavery@gmail.com",
+        // password: "password"
+      );
+      User u = FirebaseAuth.instance.currentUser;
+      while (u == null){
+        u = FirebaseAuth.instance.currentUser;
+      }
+      handleNewUsers(u.uid, textControllerUsername.text);
+    } catch (e) {
+      if (e.code == 'firebase_auth/user-not-found') {
+        print('No user found for that email.');
+      } else if (e.code == 'firebase_auth/wrong-password') {
+        print('Wrong password provided for that user.');
+      }
+    }
+  }
+}
