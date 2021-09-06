@@ -143,6 +143,7 @@ class _WelcomePage extends State<WelcomePage> {
 
   Future<void> handleNewUsers(String docID, String displayName) async {
     try {
+      print(docID);
       // Get reference to Firestore collection
       //var collectionRef = FirebaseFirestore.instance.collection('users');
 
@@ -267,18 +268,34 @@ class _CreateAccount extends State<CreateAccount> {
   void registerUser() async{
     print("hereo");
     try {
-      var result = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: textControllerEmail.text,
-          password: textControllerPassword.text
-        // email: "treyjlavery@gmail.com",
-        // password: "password"
-      );
-      var uid = result.user.uid;
-      result.user.updateProfile(displayName: textControllerUsername.text);
-      await FirebaseAuth.instance.signOut();
-      await handleNewUsers(uid, textControllerUsername.text);
 
-
+      FirebaseApp app = await Firebase.initializeApp(
+          name: 'Secondary', options: Firebase.app().options);
+      try {
+        UserCredential userCredential = await FirebaseAuth.instanceFor(app: app)
+            .createUserWithEmailAndPassword(email: textControllerEmail.text, password: textControllerPassword.text);
+        print("created user.");
+        await handleNewUsers(userCredential.user.uid, textControllerUsername.text);
+        print("added user.");
+      }
+      on FirebaseAuthException catch (e) {
+        // Do something with exception. This try/catch is here to make sure
+        // that even if the user creation fails, app.delete() runs, if is not,
+        // next time Firebase.initializeApp() will fail as the previous one was
+        // not deleted.
+      }
+      await app.delete();
+      // var result = await auth.createUserWithEmailAndPassword(
+      //     email: textControllerEmail.text,
+      //     password: textControllerPassword.text
+      //   // email: "treyjlavery@gmail.com",
+      //   // password: "password"
+      // ).then((UserCredential u) => {
+      //   u.user.updateProfile(displayName: textControllerUsername.text),
+      //   handleNewUsers(u.user.uid, textControllerUsername.text),
+      //   //secondaryApp.auth().signOut();
+      //   //FirebaseAuth.instance.signOut()
+      // });
     } catch (e) {
       if (e.code == 'firebase_auth/user-not-found') {
         print('No user found for that email.');
