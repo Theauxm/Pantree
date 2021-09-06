@@ -43,22 +43,3 @@ class PantreeUser {
     });
   }
 }
-PantreeUser createPantreeUser() {
-  PantreeUser user = PantreeUser();
-  User u = FirebaseAuth.instance.currentUser;
-  user.uid = u.uid;
-  user.name = u.displayName;
-  user.email = u.email;
-
-  FirebaseFirestore.instance.collection('users').doc(u.uid).get()
-      .then((DocumentSnapshot documentSnapshot) => {
-        if (documentSnapshot.exists) {
-            print('Document is Real and added info to the User baby'),
-            user.shoppingLists = documentSnapshot['Shopping IDs'],
-            user.friends = documentSnapshot['Friend IDs'],
-            user.recipes = documentSnapshot['Recipe IDs'],
-            user.pantries = documentSnapshot['Pantry IDs'],
-          }
-      });
-  return user;
-}
