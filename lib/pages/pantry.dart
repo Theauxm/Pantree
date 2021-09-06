@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../pantreeUser.dart';
 
 extension StringExtension on String {
   String get inCaps => this.length > 0 ?'${this[0].toUpperCase()}${this.substring(1)}':'';
   String get allInCaps => this.toUpperCase();
   String get capitalizeFirstOfEach => this.replaceAll(RegExp(' +'), ' ').split(" ").map((str) => str.inCaps).join(" ");
   String get capitalizeFirstLetter => (this?.isNotEmpty ?? false) ? '${this[0].toUpperCase()}${this.substring(1)}' : this;
-
   String capitalize() {
     if (this == null || this == "") {return "";}
     return "${this[0].toUpperCase()}${this.substring(1)}";
   }
 }
+  PantreeUser user;
+  pantry({this.user});
+
 
 class Pantry extends StatefulWidget {
   final User user;
@@ -63,7 +66,8 @@ class _PantryState extends State<Pantry> {
     setState(() {});
   }
 
-  final User user;
+
+  PantreeUser user;
   _PantryState({this.user});
   @override
   Widget build(BuildContext context) {

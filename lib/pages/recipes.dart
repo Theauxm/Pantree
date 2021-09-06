@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
+import 'package:pantree/pantreeUser.dart';
 
 //created by ResoCoder https://resocoder.com/2021/01/23/search-bar-in-flutter-logic-material-ui/
 //Abstracted by Brandon Wong
 
 class recipes extends StatefulWidget {
-
+  PantreeUser user;
+  recipes({this.user});
   @override
-  _recipeState createState() => _recipeState();
+  _recipeState createState() => _recipeState(user: user);
 }
 
 class _recipeState extends State<recipes> {
+  PantreeUser user;
+  _recipeState({this.user});
 
   static const historyLength = 5;
 

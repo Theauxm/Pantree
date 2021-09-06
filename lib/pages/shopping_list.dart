@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../pantreeUser.dart';
 
 class ShoppingList extends StatefulWidget {
+  PantreeUser user;
+  ShoppingList({this.user});
+
   @override
-  _ListState createState() => _ListState();
+  _ListState createState() => _ListState(user: user);
 }
 
 class _ListState extends State<ShoppingList> with AutomaticKeepAliveClientMixin<ShoppingList> {
-  List<CheckBoxListTileModel> listTileModel = CheckBoxListTileModel.getListItems();
+  PantreeUser user;
+  _ListState({this.user});
 
+  List<CheckBoxListTileModel> listTileModel = CheckBoxListTileModel.getListItems();
   // for adding a new list item
   TextEditingController nameController = TextEditingController();
 
@@ -82,12 +89,18 @@ class _ListState extends State<ShoppingList> with AutomaticKeepAliveClientMixin<
                 border: OutlineInputBorder(),
                 labelText: 'Add item to list',
               ),
-              onEditingComplete: () {addItemToList();},
+              onEditingComplete: () {
+                _signOut();//TODO: Remove this lmao once we have a real signout!
+                addItemToList();},
             ),
           ),
         ]
       )
     );
+  }
+
+  Future<void> _signOut() async {
+    await FirebaseAuth.instance.signOut();
   }
 
   void itemCheck(bool val, int index) {
