@@ -47,3 +47,5 @@ app.*.map.json
 
 # PRIVATE KEY FOR ACCESS TO DATABASE
 database_admin_key.json
+android/local.properties~
+pubspec.lock
