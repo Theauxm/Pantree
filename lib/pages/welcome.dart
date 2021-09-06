@@ -134,16 +134,12 @@ class _WelcomePage extends State<WelcomePage> {
     Navigator.of(context).push(MaterialPageRoute(builder: (context) => CreateAccount()));
   }
 
-// onPressed: () {
-// Navigator.pop(context);
-// }
   }
 
 
 
   Future<void> handleNewUsers(String docID, String displayName) async {
     try {
-      print(docID);
       // Get reference to Firestore collection
       //var collectionRef = FirebaseFirestore.instance.collection('users');
 
@@ -164,27 +160,6 @@ class _WelcomePage extends State<WelcomePage> {
       throw e;
     }
   }
-
-
-
-/*
-                FirebaseAuthUi.instance()
-                    .launchAuth(
-                  [
-                    AuthProvider.email(), // Login/Sign up with Email and password
-                    // AuthProvider.google(), // Login with Google
-                    // AuthProvider.facebook(), // Login with Facebook
-                    // AuthProvider.twitter(), // Login with Twitter
-                    // AuthProvider.phone(), // Login with Phone number
-                  ],
-                  // tosUrl: "https://my-terms-url", // Optional
-                  // privacyPolicyUrl: "https://my-privacy-policy", // Optional,
-                )
-                    .then((firebaseUser) =>
-                //print("Logged in user is ${firebaseUser.displayName}"))
-                handleNewUsers(firebaseUser.uid, firebaseUser.displayName)
-                    .catchError((error) => print("Error $error")));
- */
 
 
 class CreateAccount extends StatefulWidget {
@@ -266,7 +241,6 @@ class _CreateAccount extends State<CreateAccount> {
   }
 
   void registerUser() async{
-    print("hereo");
     try {
 
       FirebaseApp app = await Firebase.initializeApp(
@@ -274,9 +248,7 @@ class _CreateAccount extends State<CreateAccount> {
       try {
         UserCredential userCredential = await FirebaseAuth.instanceFor(app: app)
             .createUserWithEmailAndPassword(email: textControllerEmail.text, password: textControllerPassword.text);
-        print("created user.");
         await handleNewUsers(userCredential.user.uid, textControllerUsername.text);
-        print("added user.");
       }
       on FirebaseAuthException catch (e) {
         // Do something with exception. This try/catch is here to make sure
@@ -285,17 +257,6 @@ class _CreateAccount extends State<CreateAccount> {
         // not deleted.
       }
       await app.delete();
-      // var result = await auth.createUserWithEmailAndPassword(
-      //     email: textControllerEmail.text,
-      //     password: textControllerPassword.text
-      //   // email: "treyjlavery@gmail.com",
-      //   // password: "password"
-      // ).then((UserCredential u) => {
-      //   u.user.updateProfile(displayName: textControllerUsername.text),
-      //   handleNewUsers(u.user.uid, textControllerUsername.text),
-      //   //secondaryApp.auth().signOut();
-      //   //FirebaseAuth.instance.signOut()
-      // });
     } catch (e) {
       if (e.code == 'firebase_auth/user-not-found') {
         print('No user found for that email.');
