@@ -146,6 +146,7 @@ def add_recipe(recipe, db, filter = ""):
     # Parse each ingredient and add unique identifier to database
     for ingred in recipe.ingredients():
         words = ingred.split()
+        print(ingred)
 
         # Get the ingredient name from the string along with the amount and type
         ingredient_and_unit = get_ingredients(words)
@@ -166,6 +167,9 @@ def add_recipe(recipe, db, filter = ""):
         ingredient_instance['Quantity'] = get_amount(words)
         if ingredient_and_unit != "":
             ingredient_instance['Unit'] = ingredient_and_unit[1]
+
+        db.collection(u'food').document(ingredient).set({u'recipe_ids' : firestore.ArrayUnion([new_recipe_ref])},
+                                                        merge=True)
 
         new_recipe_ref.collection(u'ingredients').add(ingredient_instance)
 
