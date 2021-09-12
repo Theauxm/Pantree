@@ -23,6 +23,7 @@ class _WelcomePage extends State<WelcomePage> {
         // email: "treyjlavery@gmail.com",
         // password: "password"
       );
+
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
