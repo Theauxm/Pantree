@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../pantreeUser.dart';
 
 extension StringExtension on String {
@@ -33,57 +32,52 @@ class Pantry extends StatefulWidget {
 class _PantryState extends State<Pantry> {
   final PantreeUser user;
   _PantryState({this.user});
-  final firestoreInstance = FirebaseFirestore.instance;
-  DocumentReference _selectedPantry; // user's pantry is private, so use the _prefix
-  String _selectedPantryName;
-  List<DocumentReference> userPantryRefs;
-  List<String> pantryNamesStr;
-  Map<String, DocumentReference> pantryMap;
 
-  dynamic data;
+  final firestoreInstance = FirebaseFirestore.instance;
+  DocumentReference _selectedPantry; // private
+  String _selectedPantryName; // private
+  List<DocumentReference> _userPantryRefs; // private
+  Map<String, DocumentReference> _pantryMap; // private NOTE: bad design - it will fuck with users collaborating on multiple pantries with the same name
+  Stream _stream;
+  // DocumentSnapshot cache;
 
   Future<dynamic> getData() async {
-    QuerySnapshot pantriesCollection = await FirebaseFirestore.instance.collection("pantries").get();
-    // final CollectionReference pantriesCollection = FirebaseFirestore.instance.collection("pantries");
-    final DocumentReference currPantryDoc = FirebaseFirestore.instance.collection("pantries").doc("Yqxw4fjgA8If7hc49ylF");
-    
-    userPantryRefs = List.from(user.pantries); // convert user pantry ID to list of pantry doc refs
-    pantryNamesStr = <String>[]; // instantiate the list
-    pantryMap = Map<String, DocumentReference>(); // instantiate the map
-    for (DocumentReference ref in userPantryRefs) { // go through each doc ref and add to list of pantry names + map
-      ref.get().then((snapshot) {
-        pantryNamesStr.add(snapshot.data()['Name']);
-        pantryMap[snapshot.data()['Name']] = ref; // map the doc ref to its name
-        _selectedPantryName = snapshot.data()['Name'];
+    //_selectedPantry = user.pantries[0]; // default pantry
+    DocumentReference tempPantry;
+    String tempName;
+
+    await user.updateData();
+
+    _userPantryRefs = List.from(
+        user.pantries); // convert user pantry ID to list of pantry doc refs
+    _pantryMap = Map<String, DocumentReference>(); // instantiate the map
+    for (DocumentReference ref in _userPantryRefs) {
+      // go through each doc ref and add to list of pantry names + map
+      String pantryName = "";
+      await ref.get().then((DocumentSnapshot snapshot) {
+        pantryName = snapshot.data()['Name']; // get the pantry name as a string
       });
+      // String pantryName = getPantryName(ref);
+      // todo: check for [upcoming] 'primary' boolean val and set _selectedPantry/Name vals to that
+      tempPantry = ref; // this will have to do for now
+      tempName = pantryName;
+      _pantryMap[pantryName] = ref; // map the doc ref to its name
     }
 
-    await currPantryDoc.get().then<dynamic>((DocumentSnapshot snapshot) async {
-      setState(() {
-        _selectedPantry = currPantryDoc;
-        
-        if (snapshot.exists) {
-          data = snapshot.data();
-        }
-      });
+    // use setState() to force a call to build(). A very important piece of code.
+    setState(() {
+      _selectedPantry = tempPantry;
+      _selectedPantryName = tempName;
     });
   }
-
-/*  void initialize() async {
-    var document = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .get();
-    setState(() {
-      _selectedPantry = user.pantries[0];
-    });
-  }*/
 
   @override
   void initState() {
     super.initState();
-    // initialize();
     getData();
+    _stream = firestoreInstance.collection('users')
+        .doc(user.uid)
+        .snapshots();
   }
 
 /*  void setPantry(int index) async {
@@ -97,61 +91,66 @@ class _PantryState extends State<Pantry> {
     });
   }*/
 
-  void getPantryName(DocumentReference pantryRef) async {
-    var document = pantryRef.get();
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_selectedPantry == null) {
-      // handle user with no pantries case
+      // handle user with no pantries case todo: update with loading widget
       return Center(child: Text("No Pantries Found"));
     }
 
-    final makeAppBar = AppBar(
-      elevation: 0.1,
-      backgroundColor: Color.fromRGBO(204, 51, 255, 1.0),
-      title: Text("Pantree!"),
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(Icons.list),
-          onPressed: () {},
-        )
-      ],
-    );
-
     // User pantry dropdown selector that listens for changes in users
     final makeDropDown = StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .snapshots(),
+        // initialData: cache,
+        stream: _stream,
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Center(child: CircularProgressIndicator());
           }
+          // cache = snapshot.data;
           return Container(
               alignment: Alignment.topLeft,
               padding: EdgeInsets.only(left: 17.0),
               child: DropdownButton<String>(
                 value: _selectedPantryName,
-                items: pantryMap.keys.map<DropdownMenuItem<String>>((val) {
+                items: _pantryMap.keys.map<DropdownMenuItem<String>>((val) {
                   return DropdownMenuItem<String>(
                     value: val,
-                    child: Text(val.toString()),
+                    child: Text(val),
                   );
                 }).toList(),
                 onChanged: (String value) {
                   setState(() {
-                    //_selectedPantry = value;
-                    _selectedPantry = pantryMap[value];
+                    _selectedPantry = _pantryMap[value];
                     _selectedPantryName = value;
                   });
-                  //setPantry(index);
                 },
               ));
         });
+
+    final makeAppBar = AppBar(
+      backgroundColor: Color.fromRGBO(255, 204, 102, 1.0),
+      title: makeDropDown,
+      actions: <Widget>[
+        Padding(
+          padding: EdgeInsets.only(right: 20.0),
+          child: GestureDetector(
+            onTap: () {},
+            child: Icon(Icons.search, size: 26.0),
+          ),
+        ),
+        PopupMenuButton<String>(
+          // onSelected: handleClick,
+          itemBuilder: (BuildContext context) {
+            return {'Add new item', 'Filter'}.map((String choice) {
+              return PopupMenuItem<String>(
+                value: choice,
+                child: Text(choice),
+              );
+            }).toList();
+          },
+        ),
+      ],
+    );
 
     final makeBody = Column(children: [
       // Sets up a stream builder to listen for changes inside the database.
@@ -164,7 +163,7 @@ class _PantryState extends State<Pantry> {
                     children: snapshot.data.docs.map<Widget>((doc) {
               return Container(
                 child: Card(
-                  elevation: 8.0,
+                  elevation: 7.0,
                   margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 3.0),
                   child: ListTile(
                     leading: Container(
@@ -188,31 +187,6 @@ class _PantryState extends State<Pantry> {
           }),
     ]);
 
-    return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Color.fromRGBO(255, 204, 102, 1.0),
-          title: makeDropDown,
-          actions: <Widget>[
-            Padding(
-              padding: EdgeInsets.only(right: 20.0),
-              child: GestureDetector(
-                onTap: () {},
-                child: Icon(Icons.search, size: 26.0),
-              ),
-            ),
-            PopupMenuButton<String>(
-              // onSelected: handleClick,
-              itemBuilder: (BuildContext context) {
-                return {'Add new item', 'Filter'}.map((String choice) {
-                  return PopupMenuItem<String>(
-                    value: choice,
-                    child: Text(choice),
-                  );
-                }).toList();
-              },
-            ),
-          ],
-        ),
-        body: makeBody);
+    return Scaffold(appBar: makeAppBar, body: makeBody);
   }
 }
