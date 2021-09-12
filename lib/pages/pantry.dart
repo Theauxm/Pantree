@@ -36,35 +36,31 @@ class _PantryState extends State<Pantry> {
   final firestoreInstance = FirebaseFirestore.instance;
   DocumentReference _selectedPantry; // private
   String _selectedPantryName; // private
-  List<DocumentReference> _userPantryRefs; // private
-  Map<String, DocumentReference> _pantryMap; // private NOTE: bad design - it will fuck with users collaborating on multiple pantries with the same name
+  Map<String, DocumentReference>
+      _pantryMap; // private NOTE: bad design - it will fuck with users collaborating on multiple pantries with the same name
   Stream _stream;
   // DocumentSnapshot cache;
 
   Future<dynamic> getData() async {
-    //_selectedPantry = user.pantries[0]; // default pantry
     DocumentReference tempPantry;
     String tempName;
 
-    await user.updateData();
-
-    _userPantryRefs = List.from(
-        user.pantries); // convert user pantry ID to list of pantry doc refs
+    await user.updateData(); // important: refreshes the user's data
     _pantryMap = Map<String, DocumentReference>(); // instantiate the map
-    for (DocumentReference ref in _userPantryRefs) {
+
+    for (DocumentReference ref in user.pantries) {
       // go through each doc ref and add to list of pantry names + map
       String pantryName = "";
       await ref.get().then((DocumentSnapshot snapshot) {
         pantryName = snapshot.data()['Name']; // get the pantry name as a string
       });
-      // String pantryName = getPantryName(ref);
       // todo: check for [upcoming] 'primary' boolean val and set _selectedPantry/Name vals to that
       tempPantry = ref; // this will have to do for now
       tempName = pantryName;
       _pantryMap[pantryName] = ref; // map the doc ref to its name
     }
 
-    // use setState() to force a call to build(). A very important piece of code.
+    // very important: se setState() to force a call to build()
     setState(() {
       _selectedPantry = tempPantry;
       _selectedPantryName = tempName;
@@ -75,9 +71,7 @@ class _PantryState extends State<Pantry> {
   void initState() {
     super.initState();
     getData();
-    _stream = firestoreInstance.collection('users')
-        .doc(user.uid)
-        .snapshots();
+    _stream = firestoreInstance.collection('users').doc(user.uid).snapshots();
   }
 
 /*  void setPantry(int index) async {
@@ -95,7 +89,7 @@ class _PantryState extends State<Pantry> {
   Widget build(BuildContext context) {
     if (_selectedPantry == null) {
       // handle user with no pantries case todo: update with loading widget
-      return Center(child: Text("No Pantries Found"));
+      return Center(child: CircularProgressIndicator());
     }
 
     // User pantry dropdown selector that listens for changes in users
@@ -108,22 +102,35 @@ class _PantryState extends State<Pantry> {
           }
           // cache = snapshot.data;
           return Container(
-              alignment: Alignment.topLeft,
               padding: EdgeInsets.only(left: 17.0),
-              child: DropdownButton<String>(
-                value: _selectedPantryName,
-                items: _pantryMap.keys.map<DropdownMenuItem<String>>((val) {
-                  return DropdownMenuItem<String>(
-                    value: val,
-                    child: Text(val),
-                  );
-                }).toList(),
-                onChanged: (String value) {
-                  setState(() {
-                    _selectedPantry = _pantryMap[value];
-                    _selectedPantryName = value;
-                  });
-                },
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: _selectedPantryName,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600),
+                  icon: Icon(
+                    Icons.arrow_drop_down,
+                    color: Colors.white,
+                    size: 30.0,
+                  ),
+                  items: _pantryMap.keys.map<DropdownMenuItem<String>>((val) {
+                    return DropdownMenuItem<String>(
+                      value: val,
+                      child: Text(val),
+                    );
+                  }).toList(),
+                  onChanged: (String newVal) {
+                    setState(() {
+                      _selectedPantry = _pantryMap[newVal];
+                      _selectedPantryName = newVal;
+                    });
+                  },
+                  hint: Text("Select Pantry"),
+                  elevation: 0,
+                  dropdownColor: Colors.lightBlue,
+                ),
               ));
         });
 
@@ -172,13 +179,13 @@ class _PantryState extends State<Pantry> {
                     ),
                     title: Text(
                       doc['Item'].id.toString().capitalizeFirstOfEach,
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                     subtitle: Text(
                       "Quantity: " + doc['Quantity'].toString(),
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
