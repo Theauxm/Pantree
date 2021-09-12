@@ -25,11 +25,13 @@ class PantreeUser {
       this.email = u.email;
 
       updateData();
-    } catch(e){}
+    } catch(e){
+      print(e.toString());
+    }
   }
 
-  updateData() {
-    FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser.uid).get()
+  Future<void> updateData() async {
+    await FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser.uid).get()
         .then((DocumentSnapshot documentSnapshot) =>
     {
       if (documentSnapshot.exists) {
@@ -37,9 +39,7 @@ class PantreeUser {
         this.friends = documentSnapshot.data()['Friend IDs'],
         this.recipes = documentSnapshot.data()['Recipe IDs'],
         this.pantries = documentSnapshot.data()['Pantry IDs'],
-      } else
-        {
-        }
+      }
     });
   }
 }
