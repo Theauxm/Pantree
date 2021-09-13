@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:pantree/pantreeUser.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:image_picker/image_picker.dart';
 
+enum ImageSourceType { gallery, camera }
 
 class social_feed extends StatefulWidget {
+
+  // void _handleURLButtonPress(BuildContext context, var type) {
+  //   Navigator.push(context,
+  //       MaterialPageRoute(builder: (context) => ImageFromGalleryEx(type)));
+  // }
 
   firebase_storage.FirebaseStorage storage =
   firebase_storage.FirebaseStorage.instanceFor(
       bucket: 'pantree-4347e.appspot.com');
   //var images = FirebaseStorage.getInstance
   //var f = FirebaseStorage.instance.refFromURL("gs://pantree-4347e.appspot.com/images/social.png");
-  PantreeUser user;
+  PantreeUser user; //working more with the user so it can contain more objects within it
   social_feed({this.user});
 
   @override
@@ -43,6 +50,8 @@ class _socialState extends State<social_feed> {
     ],
   );
 
+  ImagePicker picker = ImagePicker();
+
   @override
   Widget build(BuildContext context) {
     //return Center(child: Text('You have pressed the button $_count times.'));
@@ -52,45 +61,93 @@ class _socialState extends State<social_feed> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.lightGreen,
-        leading:
-        IconButton(
-          icon: const Icon(Icons.arrow_left),
-        ),
+     //   leading:
+     //   IconButton(
+     //     icon: const Icon(Icons.arrow_left),
+     //   ),
 
         //leading: stars,
 
         title: Text(user.name),
 
         actions: <Widget>[
+
           IconButton(
             icon: const Icon(Icons.add_box_outlined),
+            tooltip: 'Add New Photo',
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute<void>(
+                builder: (BuildContext context) {
+                  return Scaffold(
+                    appBar: AppBar(
+                      title: const Text('Create New Post'),
+                    ),
+                    body: Container(
+                      child: Column(
+                        children: [
+                          Row(
+                            children:[
+                              Container( //place holder for image
+                                height: 120.0,
+                                width: 120.0,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage(
+                                      "https://i2.wp.com/ceklog.kindel.com/wp-content/uploads/2013/02/firefox_2018-07-10_07-50-11.png"),
+                                    fit: BoxFit.fill,
+                                  ),
+                                  shape: BoxShape.rectangle,
+                                ),
+                              )
+                            ]
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+
+                            children: [
+                              MaterialButton(
+                                color: Colors.blue,
+                                child: Text(
+                                  "Pick Image from Gallery",
+                                  style: TextStyle(
+                                      color: Colors.white70, fontWeight: FontWeight.bold),
+                                ),
+                                onPressed: () {
+                                  //_handleURLButtonPress(context, ImageSourceType.gallery);
+                                },
+                              ),
+                            ],
+                          ),
+
+                      Container(
+                        //height: 150.0,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
+                          child: TextField(
+                            decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: 'Description'
+                  ),
+                  )
+
+                          )
+                        ],
+                      )
+                    )
+                  );
+                },
+              ));
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.view_headline_rounded),
             tooltip: 'Show Snackbar',
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('This is a snackbar')));
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.view_headline_rounded),
-            tooltip: 'Go to the next page',
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute<void>(
-                builder: (BuildContext context) {
-                  return Scaffold(
-                    appBar: AppBar(
-                      title: const Text('Next page'),
-                    ),
-                    body: const Center(
-                      child: Text(
-                        'This is the next page',
-                        style: TextStyle(fontSize: 24),
-                      ),
-                    ),
-                  );
-                },
-              ));
-            },
-          ),
+
         ],
       ),
 
