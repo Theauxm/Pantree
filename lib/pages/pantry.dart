@@ -86,7 +86,7 @@ class _PantryState extends State<Pantry> {
     });
   }*/
 
-  void addNewItem() {print("I was pressed!");}
+  void addNewItem() {}
 
   @override
   Widget build(BuildContext context) {
