@@ -276,40 +276,32 @@ class SearchResultsListView extends StatelessWidget {
 
 
     return Expanded(
-      child: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('recipe_names').snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> querySnapshot) {
-          if (querySnapshot.hasError)
-            return Text("Could not show any recipes, please try again in a few seconds");
+        child: StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance.collection('recipes').snapshots(),
+            builder: (BuildContext context,
+                AsyncSnapshot<QuerySnapshot> querySnapshot) {
+              if (querySnapshot.hasError)
+                return Text(
+                    "Could not show any recipes, please try again in a few seconds");
 
-          if (querySnapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
-          }
+              if (querySnapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              }
+              else {
+                return ListView.builder(
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(querySnapshot.data.docs[index]["RecipeName"]),
+                      subtitle: Text(index.toString()),
+                      onTap: () {},
+                    );
+                  },
 
-          else {
-            List<QueryDocumentSnapshot> filteredDocs = [];
-            for (QueryDocumentSnapshot name in querySnapshot.data.docs) {
-              if (name.id.toLowerCase().contains('$searchTerm'.toLowerCase())) {
-                filteredDocs.add(name);
+                  itemCount: querySnapshot.data.docs.length,
+                );
               }
             }
-
-            return ListView.builder(
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(filteredDocs[index].id),
-                  subtitle: Text(index.toString()),
-                  onTap: () {
-                    List<dynamic> ids = filteredDocs[index].get("recipe_ids");
-                    return Text(ids.toString());
-                  },
-                );
-              },
-
-              itemCount: filteredDocs.length,
-            );
-          }
-        }
-      )
+        )
     );
   }
+}
