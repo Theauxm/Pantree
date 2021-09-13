@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pantree/models/custom_fab.dart';
 import '../pantreeUser.dart';
 
 extension StringExtension on String {
@@ -84,6 +85,8 @@ class _PantryState extends State<Pantry> {
       _selectedIndex = index;
     });
   }*/
+
+  void addNewItem() {print("I was pressed!");}
 
   @override
   Widget build(BuildContext context) {
@@ -194,6 +197,13 @@ class _PantryState extends State<Pantry> {
           }),
     ]);
 
-    return Scaffold(appBar: makeAppBar, body: makeBody);
+    return Scaffold(
+        appBar: makeAppBar,
+        body: makeBody,
+        floatingActionButton: CustomFAB(
+          color: Colors.lightBlue,
+          icon: const Icon(Icons.add),
+          onPressed: addNewItem,
+        ));
   }
 }
