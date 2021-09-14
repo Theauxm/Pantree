@@ -268,12 +268,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                       if (m == null) {
                         showAlertDialog(context, "Account Created!","return to login page!");
                       } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(m),
-                              duration: const Duration(seconds: 10),
-                              backgroundColor: Colors.red,
-                            ));
+                        showAlertDialog(context, "Account Creation Failed",m);
                       }
                     }
                     },
