@@ -71,10 +71,8 @@ def main():
     # Database object to write to
     db = firestore.client()
 
-    add_recipe(scrape_me('https://www.hellofresh.com/recipes/firecracker-meatballs-611d14d71fc432111c3865f6'), db)
-
     # Starts recursive calls
-    #get_recipes(db, site, '/')
+    get_recipes(db, site, '/')
 
 
 def get_recipes(db, link, h):
