@@ -71,8 +71,10 @@ def main():
     # Database object to write to
     db = firestore.client()
 
+    add_recipe(scrape_me('https://www.hellofresh.com/recipes/firecracker-meatballs-611d14d71fc432111c3865f6'), db)
+
     # Starts recursive calls
-    get_recipes(db, site, '/')
+    #get_recipes(db, site, '/')
 
 
 def get_recipes(db, link, h):
@@ -132,16 +134,7 @@ def add_recipe(recipe, db, filter = ""):
     # user adding the recipe
     user = db.collection(u'users').document(u'PantreeOfficial')
 
-    # Information (except ingredient instances) about the recipe
-    new_recipe_ref.set({
-        u'CreationDate' : datetime.utcnow(),
-        u'Creator' : user,
-        u'Directions' : recipe.instructions().splitlines(),
-        u'RecipeName' : recipe.title(),
-        u'TotalTime' : recipe.total_time(),
-        u'Credit' : site,
-        u'Keywords' : get_keywords(recipe.title())
-    })
+    ingredients_keywords = set()
 
     # Parse each ingredient and add unique identifier to database
     for ingred in recipe.ingredients():
@@ -156,11 +149,17 @@ def add_recipe(recipe, db, filter = ""):
         if ingredient == "":
             continue
 
+        # Gets Keywords set for each ingredient, adds to 'master set'
+        ingred_keywords = get_keywords(ingredient)
+        ingredients_keywords |= ingred_keywords
+
         # Adds ingredient to database
         ingredient_instance = {}
         does_ingredient = db.collection(u'food').document(ingredient).get()
         if not does_ingredient.exists:
-            db.collection(u'food').document(ingredient).set({'Keywords' : get_keywords(ingred)})
+            db.collection(u'food').document(ingredient).set({
+                u'Keywords' : list(ingred_keywords),
+                u'Image' : ""})
 
         # Adds instance of ingredient with quantity and unit
         ingredient_instance['Item'] = db.collection(u'food').document(ingredient)
@@ -172,6 +171,17 @@ def add_recipe(recipe, db, filter = ""):
                                                         merge=True)
 
         new_recipe_ref.collection(u'ingredients').add(ingredient_instance)
+
+    # Information (except ingredient instances) about the recipe
+    new_recipe_ref.set({
+        u'CreationDate' : datetime.utcnow(),
+        u'Creator' : user,
+        u'Directions' : recipe.instructions().splitlines(),
+        u'RecipeName' : recipe.title(),
+        u'TotalTime' : recipe.total_time(),
+        u'Credit' : site,
+        u'Keywords' : list(ingredients_keywords | get_keywords(recipe.title())) # All ingredients keywords along with recipe title keywords
+    })
 
     # Updates recipes for the specific user, along with its corresponding filters and recipe name for easier searching
     user.set({u'recipe_ids' : firestore.ArrayUnion([new_recipe_ref])},
@@ -241,17 +251,16 @@ def get_ingredients(words):
 
 def get_keywords(word):
     """
-    Gets all substrings, adds them to a set, and returns them as a list
+    Gets all substrings in order, adds them to a set, and returns
     Args:
         word : string(word) string to get substring for
     """
-    keywords = set({})
-
+    keywords = set()
     for i in range(len(word)):
         for j in range(len(word)):
             keywords.add(word[i:j + 1])
 
-    return list(keywords)
+    return keywords
 
 if __name__ == "__main__":
     main()
