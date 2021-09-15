@@ -136,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return {
       '/': (context) {
         return [
-          pantry(user: this.user),
+          Pantry(user: this.user),
           ShoppingList(user: this.user),
           recipes(user: this.user),
           social_feed(user: this.user),

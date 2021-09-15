@@ -1,130 +1,209 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:pantree/models/custom_fab.dart';
 import '../pantreeUser.dart';
 
-class pantry extends StatefulWidget {
-
-  PantreeUser user;
-  pantry({this.user});
-  @override
-  _pantryState createState() => _pantryState(user: user);
+extension StringExtension on String {
+  String get inCaps =>
+      this.length > 0 ? '${this[0].toUpperCase()}${this.substring(1)}' : '';
+  String get allInCaps => this.toUpperCase();
+  String get capitalizeFirstOfEach => this
+      .replaceAll(RegExp(' +'), ' ')
+      .split(" ")
+      .map((str) => str.inCaps)
+      .join(" ");
+  String get capitalizeFirstLetter => (this?.isNotEmpty ?? false)
+      ? '${this[0].toUpperCase()}${this.substring(1)}'
+      : this;
+  String capitalize() {
+    if (this == null || this == "") {
+      return "";
+    }
+    return "${this[0].toUpperCase()}${this.substring(1)}";
+  }
 }
 
-class _pantryState extends State<pantry> {
-  int _selectedIndex;
-  //Widget _selectedPantry = FirebaseFirestore.instance.collection('pantries').doc('Yqxw4fjgA8If7hc49ylF').collection('Ingredients').snapshots();
-  DocumentSnapshot _userDocSnap;
-  DocumentReference _selectedPantry;
-  List _pantryNames;
+class Pantry extends StatefulWidget {
+  final PantreeUser user;
+  Pantry({this.user});
+  @override
+  _PantryState createState() => _PantryState(user: user);
+}
+
+class _PantryState extends State<Pantry> {
+  final PantreeUser user;
+  _PantryState({this.user});
+
+  final firestoreInstance = FirebaseFirestore.instance;
+  DocumentReference _selectedPantry; // private
+  String _selectedPantryName; // private
+  Map<String, DocumentReference>
+      _pantryMap; // private NOTE: bad design - it will fuck with users collaborating on multiple pantries with the same name
+  Stream _stream;
+  // DocumentSnapshot cache;
+
+  Future<dynamic> getData() async {
+    DocumentReference tempPantry;
+    String tempName;
+
+    await user.updateData(); // important: refreshes the user's data
+    _pantryMap = Map<String, DocumentReference>(); // instantiate the map
+
+    for (DocumentReference ref in user.pantries) {
+      // go through each doc ref and add to list of pantry names + map
+      String pantryName = "";
+      await ref.get().then((DocumentSnapshot snapshot) {
+        pantryName = snapshot.data()['Name']; // get the pantry name as a string
+      });
+      // todo: check for [upcoming] 'primary' boolean val and set _selectedPantry/Name vals to that
+      tempPantry = ref; // this will have to do for now
+      tempName = pantryName;
+      _pantryMap[pantryName] = ref; // map the doc ref to its name
+    }
+
+    // very important: se setState() to force a call to build()
+    setState(() {
+      _selectedPantry = tempPantry;
+      _selectedPantryName = tempName;
+    });
+  }
 
   @override
-  void initState(){
-    _selectedIndex = 0;
+  void initState() {
     super.initState();
-    initialize();
-    //setPantryNames();
+    getData();
+    _stream = firestoreInstance.collection('users').doc(user.uid).snapshots();
   }
 
-  void initialize() async{
-    var document = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-    setState(() {
-      _selectedPantry = document['Pantry IDs'][0];
-    });
-    //_selectedPantry = document['Pantry IDs'][0];
-  }
-  void setPantry(int index) async{
-    var document = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+/*  void setPantry(int index) async {
+    var document = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .get();
     setState(() {
       _selectedPantry = document['Pantry IDs'][index];
       _selectedIndex = index;
     });
-  }
-  void getPantryName (DocumentReference pantryRef)async{
-    var document = pantryRef.get();
-    setState(() {
+  }*/
 
-    });
+  void addNewItem() {}
 
-  }
-
-
-  PantreeUser user;
-  _pantryState({this.user});
   @override
   Widget build(BuildContext context) {
-    if(_selectedPantry == null){
-      //return Center ( child: Text("No Pantries Found"));
-      return Center ( child: Text(user.email + user.shoppingLists.toString()));
+    if (_selectedPantry == null) {
+      // handle user with no pantries case todo: update with loading widget
+      return Center(child: CircularProgressIndicator());
     }
-    return Scaffold(
-      body:
-      Column (
-       children: [
-      StreamBuilder(
-        stream: FirebaseFirestore.instance.collection('users').doc(user.uid).snapshots(),
+
+    // User pantry dropdown selector that listens for changes in users
+    final makeDropDown = StreamBuilder(
+        // initialData: cache,
+        stream: _stream,
         builder: (context, snapshot) {
-          if(!snapshot.hasData){
-            return Center ( child: CircularProgressIndicator());
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
           }
-          return
-            Container(
-                alignment: Alignment.topLeft,
-                padding: new EdgeInsets.only(left: 17.0),
-                child: DropdownButton<DocumentReference>(
-            value: _selectedPantry,
-            items:  snapshot.data['Pantry IDs'].map<DropdownMenuItem<DocumentReference>>((value) {
-              return new DropdownMenuItem<DocumentReference>(
-                value: value,
-                child: new Text(value.path),
+          // cache = snapshot.data;
+          return Container(
+              padding: EdgeInsets.only(left: 17.0),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: _selectedPantryName,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600),
+                  icon: Icon(
+                    Icons.arrow_drop_down,
+                    color: Colors.white,
+                    size: 30.0,
+                  ),
+                  items: _pantryMap.keys.map<DropdownMenuItem<String>>((val) {
+                    return DropdownMenuItem<String>(
+                      value: val,
+                      child: Text(val),
+                    );
+                  }).toList(),
+                  onChanged: (String newVal) {
+                    setState(() {
+                      _selectedPantry = _pantryMap[newVal];
+                      _selectedPantryName = newVal;
+                    });
+                  },
+                  hint: Text("Select Pantry"),
+                  elevation: 0,
+                  dropdownColor: Colors.lightBlue,
+                ),
+              ));
+        });
+
+    final makeAppBar = AppBar(
+      backgroundColor: Color.fromRGBO(255, 204, 102, 1.0),
+      title: makeDropDown,
+      actions: <Widget>[
+        Padding(
+          padding: EdgeInsets.only(right: 20.0),
+          child: GestureDetector(
+            onTap: () {},
+            child: Icon(Icons.search, size: 26.0),
+          ),
+        ),
+        PopupMenuButton<String>(
+          // onSelected: handleClick,
+          itemBuilder: (BuildContext context) {
+            return {'Add new item', 'Filter'}.map((String choice) {
+              return PopupMenuItem<String>(
+                value: choice,
+                child: Text(choice),
               );
-            }).toList(),
-            onChanged: (DocumentReference value) {
-              setState(() {
-                _selectedPantry = value;
-              });
-              //setPantry(index);
-            },
-          )
-            );
-        }
-      ),
+            }).toList();
+          },
+        ),
+      ],
+    );
 
-
-      StreamBuilder( //Sets up a stream builder to listen for changes inside the database.
-      // stream: FirebaseFirestore.instance.collection('pantries').doc(
-      //     _selectedPantry).snapshots(), //Where its listening!
-      //stream: FirebaseFirestore.instance.(_selectedPantry).snapshots(),
-        stream: _selectedPantry.collection('Ingredients').snapshots(),
-        //stream: FirebaseFirestore.instance.collection('pantries').doc('Yqxw4fjgA8If7hc49ylF').collection('Ingredients').snapshots(),
-        //stream: FirebaseFirestore.instance.collection('users').doc(user.uid).('Ingredients').snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Text('Loading....');
-          //return _buildPantry(context, snapshot);
-          return Expanded(child:
-            new ListView(children: snapshot.data.docs.map<Widget>((doc){
-            return Container(
-              decoration: BoxDecoration(
-                border: Border(bottom: BorderSide()),
-              ),
-              child: ListTile(
-                leading: new Container (
-                  decoration: BoxDecoration (
-                    border: Border.all (
-                      width: 2,
+    final makeBody = Column(children: [
+      // Sets up a stream builder to listen for changes inside the database.
+      StreamBuilder(
+          stream: _selectedPantry.collection('Ingredients').snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) return const Text('Loading....');
+            return Expanded(
+                child: ListView(
+                    children: snapshot.data.docs.map<Widget>((doc) {
+              return Container(
+                child: Card(
+                  elevation: 7.0,
+                  margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 3.0),
+                  child: ListTile(
+                    leading: Container(
+                      child: Image.network(
+                          "https://i2.wp.com/ceklog.kindel.com/wp-content/uploads/2013/02/firefox_2018-07-10_07-50-11.png"), //replace images with ones in firestore
+                    ),
+                    title: Text(
+                      doc['Item'].id.toString().capitalizeFirstOfEach,
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
+                    subtitle: Text(
+                      "Quantity: " + doc['Quantity'].toString(),
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.w600),
                     ),
                   ),
-                  child: Image.network("https://i2.wp.com/ceklog.kindel.com/wp-content/uploads/2013/02/firefox_2018-07-10_07-50-11.png"), //replace images with ones in firestore
                 ),
-                title: new Text(doc['Item'].id),
-                subtitle: new Text("Quantity: " + doc['Quantity'].toString()),
-              ),
-            );
-          }).toList())
-          );
-        }),
-        ]
-      ),
-    );
+              );
+            }).toList()));
+          }),
+    ]);
+
+    return Scaffold(
+        appBar: makeAppBar,
+        body: makeBody,
+        floatingActionButton: CustomFAB(
+          color: Colors.lightBlue,
+          icon: const Icon(Icons.add),
+          onPressed: addNewItem,
+        ));
   }
 }
