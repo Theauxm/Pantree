@@ -274,10 +274,11 @@ class SearchResultsListView extends StatelessWidget {
       );
     }
 
-
+    List<String> lst = ['$searchTerm'];
     return Expanded(
         child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance.collection('recipes').snapshots(),
+            stream: FirebaseFirestore.instance.collection('recipes')
+                .where('keywords', arrayContainsAny: lst).snapshots(),
             builder: (BuildContext context,
                 AsyncSnapshot<QuerySnapshot> querySnapshot) {
               if (querySnapshot.hasError)
