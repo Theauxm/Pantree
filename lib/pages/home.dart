@@ -57,35 +57,35 @@ class _HomeScreenState extends State<HomeScreen> {
   _HomeScreenState({this.user});
   int _selectedIndex = 0;
 
-  Widget currentPage;
-  List<Widget> pages;
-
-  @override
-  void initState(){
-    pantry pantryPage = pantry(user: this.user);
-    recipes recipesPage = recipes(user: this.user);
-    social_feed socialPage = social_feed(user: this.user);
-    ShoppingList shoppingPage = ShoppingList(user: this.user);
-    currentPage = pantryPage;
-    pages = [pantryPage, shoppingPage, recipesPage, socialPage];
-
-    super.initState();
-  }
+  // Widget currentPage;
+  // List<Widget> pages;
+  List<GlobalKey<NavigatorState>> _navigatorKeys = [
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>()
+  ];
 
   @override
   Widget build(BuildContext context) {
     //TODO: Remove this Streambuilder once we have real user objects
-    //It shouldnt be needed because we will have the information and I dont know why we would want to rebuild this is a user gets a friend or something!
-    // return StreamBuilder(
-    //   stream: FirebaseFirestore.instance.collection('users').doc(user.uid).snapshots(),
-    //   builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-    //     if (!snapshot.hasData) return Center ( child: CircularProgressIndicator(),);
-    //     if(!snapshot.data.exists) return Center ( child: CircularProgressIndicator(),);
-        return Scaffold(
-          body: IndexedStack(
-            index: _selectedIndex,
-            children: pages
-          ),
+        return WillPopScope(
+            onWillPop: () async {
+          final isFirstRouteInCurrentTab =
+          !await _navigatorKeys[_selectedIndex].currentState.maybePop();
+
+          // let system handle back button if we're on the first route
+          return isFirstRouteInCurrentTab;
+        },
+          child: Scaffold(
+            body: Stack(
+              children: [
+                _buildOffstageNavigator(0),
+                _buildOffstageNavigator(1),
+                _buildOffstageNavigator(2),
+                _buildOffstageNavigator(3),
+              ],
+            ),
           // This trailing comma makes auto-formatting nicer for build methods.
           bottomNavigationBar: BottomNavigationBar(
             type: BottomNavigationBarType.fixed,
@@ -111,33 +111,53 @@ class _HomeScreenState extends State<HomeScreen> {
             selectedItemColor: Colors.amber[800],
             onTap: _onNavTapped,
           ),
-        );
+        ));
     //   }
     // );
+  }
+
+  Widget _buildOffstageNavigator(int index) {
+    var routeBuilders = _routeBuilders(context, index);
+
+    return Offstage(
+      offstage: _selectedIndex != index,
+      child: Navigator(
+        key: _navigatorKeys[index],
+        onGenerateRoute: (routeSettings) {
+          return MaterialPageRoute(
+            builder: (context) => routeBuilders[routeSettings.name](context),
+          );
+        },
+      ),
+    );
+  }
+
+  Map<String, WidgetBuilder> _routeBuilders(BuildContext context, int index) {
+    return {
+      '/': (context) {
+        return [
+          pantry(user: this.user),
+          ShoppingList(user: this.user),
+          recipes(user: this.user),
+          social_feed(user: this.user),
+        ].elementAt(index);
+      },
+    };
   }
 
   void _onNavTapped(int index) {
     setState(() {
       _selectedIndex = index;
-      currentPage = pages[index];
+      //currentPage = pages[index];
     });
   }
 
 }
 
 /*
-class PantreeUser{
-      name
-      email
-      uid(the token we need for our database)
-
-      **Stuff from database
-      Friends= []
-      Pantrys= []
-      Recipes= []
-      ShoppingList= []
-
-      Get this object to your view
+Navigator.push(context, MaterialPageRoute(
+                builder: (context) => Screen2()
+            ));
 }
  */
 

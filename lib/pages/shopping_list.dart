@@ -3,23 +3,20 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../pantreeUser.dart';
 
 class ShoppingList extends StatefulWidget {
-  PantreeUser user;
+  final PantreeUser user;
   ShoppingList({this.user});
 
   @override
   _ListState createState() => _ListState(user: user);
 }
 
-class _ListState extends State<ShoppingList> with AutomaticKeepAliveClientMixin<ShoppingList> {
-  PantreeUser user;
+class _ListState extends State<ShoppingList>{
+  final PantreeUser user;
   _ListState({this.user});
 
   List<CheckBoxListTileModel> listTileModel = CheckBoxListTileModel.getListItems();
   // for adding a new list item
   TextEditingController nameController = TextEditingController();
-
-  @override
-  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -34,7 +31,6 @@ class _ListState extends State<ShoppingList> with AutomaticKeepAliveClientMixin<
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return Scaffold(
       body: Column (
         children: <Widget> [
