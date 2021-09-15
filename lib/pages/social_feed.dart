@@ -27,6 +27,9 @@ class social_feed extends StatefulWidget {
 class _socialState extends State<social_feed> {
   PantreeUser user;
   _socialState({this.user});
+ //TODO: READ FROM DB FOR THE POSTS COLLECTION AND PULL RELEVANT INFORMATION
+  // this.user.posts.toString() is a reference to a document that is housing this material, I will now have
+  //to read the document
 
   // @override
   // void initState(){
