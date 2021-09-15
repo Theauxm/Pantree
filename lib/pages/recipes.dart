@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import 'package:pantree/pantreeUser.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pantree/models/recipe_viewer.dart';
 
-//created by ResoCoder https://resocoder.com/2021/01/23/search-bar-in-flutter-logic-material-ui/
-//Edited by Brandon Wong and Theaux Masquelier
+// Created by ResoCoder https://resocoder.com/2021/01/23/search-bar-in-flutter-logic-material-ui/
+// Edited by Brandon Wong and Theaux Masquelier
 
 class recipes extends StatefulWidget {
   PantreeUser user;
@@ -83,8 +84,12 @@ class _recipeState extends State<recipes> {
       body: FloatingSearchBar(
         controller: controller,
         body: FloatingSearchBarScrollNotifier(
-          child: SearchResultsListView(
-            searchTerm: selectedTerm,
+          child: Column(
+            children: [
+              SizedBox(height: 50),
+              SearchResultsListView(
+              searchTerm: selectedTerm,
+            )],
           ),
         ),
         transition: CircularFloatingSearchBarTransition(),
@@ -274,11 +279,10 @@ class SearchResultsListView extends StatelessWidget {
       );
     }
 
-    List<String> lst = ['$searchTerm'];
     return Expanded(
         child: StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance.collection('recipes')
-                .where('keywords', arrayContainsAny: lst).snapshots(),
+                .where('Keywords', arrayContainsAny: ['$searchTerm']).snapshots(),
             builder: (BuildContext context,
                 AsyncSnapshot<QuerySnapshot> querySnapshot) {
               if (querySnapshot.hasError)
@@ -286,7 +290,7 @@ class SearchResultsListView extends StatelessWidget {
                     "Could not show any recipes, please try again in a few seconds");
 
               if (querySnapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
+                return Center(child: CircularProgressIndicator());
               }
               else {
                 return ListView.builder(
@@ -294,7 +298,9 @@ class SearchResultsListView extends StatelessWidget {
                     return ListTile(
                       title: Text(querySnapshot.data.docs[index]["RecipeName"]),
                       subtitle: Text(index.toString()),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => ViewRecipe(querySnapshot.data.docs[index])));
+                      },
                     );
                   },
 
