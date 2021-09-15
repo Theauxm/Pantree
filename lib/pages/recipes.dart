@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import 'package:pantree/pantreeUser.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 //created by ResoCoder https://resocoder.com/2021/01/23/search-bar-in-flutter-logic-material-ui/
-//Abstracted by Brandon Wong
+//Edited by Brandon Wong and Theaux Masquelier
 
 class recipes extends StatefulWidget {
   PantreeUser user;
@@ -18,12 +19,7 @@ class _recipeState extends State<recipes> {
 
   static const historyLength = 5;
 
-  List<String> _searchHistory = [
-    'tofu',
-    'tofu1',
-    'milk',
-    'worm',
-  ];
+  List<String> _searchHistory = [];
 
   List<String> filteredSearchHistory;
 
@@ -97,7 +93,7 @@ class _recipeState extends State<recipes> {
           selectedTerm ?? 'Search for Recipes',
           style: Theme.of(context).textTheme.headline6,
         ),
-        hint: 'Begin by typing an ingredient...',
+        hint: 'Begin by typing a recipe...',
         actions: [
           FloatingSearchBarAction.searchToClear(),
         ],
@@ -266,28 +262,47 @@ class SearchResultsListView extends StatelessWidget {
               size: 64,
             ),
             Text(
-            //text in the middle
+              //text in the middle
               '',
-              style: Theme.of(context).textTheme.headline5,
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .headline5,
             )
           ],
         ),
       );
     }
 
-    final fsb = FloatingSearchBar.of(context);
+    List<String> lst = ['$searchTerm'];
+    return Expanded(
+        child: StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance.collection('recipes')
+                .where('keywords', arrayContainsAny: lst).snapshots(),
+            builder: (BuildContext context,
+                AsyncSnapshot<QuerySnapshot> querySnapshot) {
+              if (querySnapshot.hasError)
+                return Text(
+                    "Could not show any recipes, please try again in a few seconds");
 
-    return ListView(
-     // padding: EdgeInsets.only(top: fsb.height + fsb.margins.vertical),
-      children: List.generate(
-        50,
-            (index) => ListTile(
-          title: Text('$searchTerm search result'),
-          subtitle: Text(index.toString()),
-        ),
-      ),
+              if (querySnapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              }
+              else {
+                return ListView.builder(
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(querySnapshot.data.docs[index]["RecipeName"]),
+                      subtitle: Text(index.toString()),
+                      onTap: () {},
+                    );
+                  },
+
+                  itemCount: querySnapshot.data.docs.length,
+                );
+              }
+            }
+        )
     );
   }
 }
-
-

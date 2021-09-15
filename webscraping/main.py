@@ -128,7 +128,6 @@ def add_recipe(recipe, db, filter = ""):
 
     # Recipes are added to 2 collections
     new_recipe_ref = db.collection(u'recipes').document()
-    new_recipe_names_ref = db.collection(u'recipe_names').document(recipe.title())
 
     # user adding the recipe
     user = db.collection(u'users').document(u'PantreeOfficial')
@@ -140,7 +139,8 @@ def add_recipe(recipe, db, filter = ""):
         u'Directions' : recipe.instructions().splitlines(),
         u'RecipeName' : recipe.title(),
         u'TotalTime' : recipe.total_time(),
-        u'Credit' : site
+        u'Credit' : site,
+        u'Keywords' : get_keywords(recipe.title())
     })
 
     # Parse each ingredient and add unique identifier to database
@@ -160,7 +160,7 @@ def add_recipe(recipe, db, filter = ""):
         ingredient_instance = {}
         does_ingredient = db.collection(u'food').document(ingredient).get()
         if not does_ingredient.exists:
-            db.collection(u'food').document(ingredient).set({})
+            db.collection(u'food').document(ingredient).set({'Keywords' : get_keywords(ingred)})
 
         # Adds instance of ingredient with quantity and unit
         ingredient_instance['Item'] = db.collection(u'food').document(ingredient)
@@ -176,8 +176,6 @@ def add_recipe(recipe, db, filter = ""):
     # Updates recipes for the specific user, along with its corresponding filters and recipe name for easier searching
     user.set({u'recipe_ids' : firestore.ArrayUnion([new_recipe_ref])},
              merge=True)
-    new_recipe_names_ref.set({u'recipe_ids' : firestore.ArrayUnion([new_recipe_ref])},
-                             merge=True)
 
     # If a filter exists, it is appended to the given filter's list 
     if filter != "":
@@ -241,5 +239,20 @@ def get_ingredients(words):
 
     return (ingredient.lower(), unit)
 
+def get_keywords(word):
+    """
+    Gets all substrings, adds them to a set, and returns them as a list
+    Args:
+        word : string(word) string to get substring for
+    """
+    keywords = set({})
+
+    for i in range(len(word)):
+        for j in range(len(word)):
+            keywords.add(word[i:j + 1])
+
+    return list(keywords)
+
 if __name__ == "__main__":
     main()
+
