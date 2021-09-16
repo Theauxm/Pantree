@@ -39,8 +39,9 @@ class _PantryState extends State<Pantry> {
   String _selectedPantryName; // private
   Map<String, DocumentReference>
       _pantryMap; // private NOTE: bad design - it will fuck with users collaborating on multiple pantries with the same name
-  Stream _stream;
   // DocumentSnapshot cache;
+
+  TextEditingController _addItemTextController = TextEditingController();
 
   Future<dynamic> getData() async {
     DocumentReference tempPantry;
@@ -61,7 +62,7 @@ class _PantryState extends State<Pantry> {
       _pantryMap[pantryName] = ref; // map the doc ref to its name
     }
 
-    // very important: se setState() to force a call to build()
+    // very important: use setState() to force a call to build()
     setState(() {
       _selectedPantry = tempPantry;
       _selectedPantryName = tempName;
@@ -72,7 +73,6 @@ class _PantryState extends State<Pantry> {
   void initState() {
     super.initState();
     getData();
-    _stream = firestoreInstance.collection('users').doc(user.uid).snapshots();
   }
 
 /*  void setPantry(int index) async {
@@ -86,7 +86,50 @@ class _PantryState extends State<Pantry> {
     });
   }*/
 
-  void addNewItem() {}
+  Future<void> addNewItem(BuildContext context) async {
+    String foodVal = "";
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('What food would you like to add?'),
+            content: TextField(
+              onChanged: (value) {
+                setState(() {
+                  foodVal = value;
+                });
+              },
+              controller: _addItemTextController,
+              decoration: InputDecoration(hintText: "Add item to your pantry"),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: Text('CANCEL'),
+                onPressed: () {
+                  setState(() {
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  setState(() {
+                    firestoreInstance
+                        .collection('food')
+                        .doc(foodVal)
+                        .set({})
+                        .then((_) => print('$foodVal added'))
+                        .catchError(
+                            (error) => print('Failed to add $foodVal: $error'));
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+            ],
+          );
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,49 +139,38 @@ class _PantryState extends State<Pantry> {
     }
 
     // User pantry dropdown selector that listens for changes in users
-    final makeDropDown = StreamBuilder(
-        // initialData: cache,
-        stream: _stream,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
-          }
-          // cache = snapshot.data;
-          return Container(
-              padding: EdgeInsets.only(left: 17.0),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: _selectedPantryName,
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600),
-                  icon: Icon(
-                    Icons.arrow_drop_down,
-                    color: Colors.white,
-                    size: 30.0,
-                  ),
-                  items: _pantryMap.keys.map<DropdownMenuItem<String>>((val) {
-                    return DropdownMenuItem<String>(
-                      value: val,
-                      child: Text(val),
-                    );
-                  }).toList(),
-                  onChanged: (String newVal) {
-                    setState(() {
-                      _selectedPantry = _pantryMap[newVal];
-                      _selectedPantryName = newVal;
-                    });
-                  },
-                  hint: Text("Select Pantry"),
-                  elevation: 0,
-                  dropdownColor: Colors.lightBlue,
-                ),
-              ));
-        });
+    final makeDropDown = Container(
+        padding: EdgeInsets.only(left: 17.0),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            value: _selectedPantryName,
+            style: TextStyle(
+                color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
+            icon: Icon(
+              Icons.arrow_drop_down,
+              color: Colors.white,
+              size: 30.0,
+            ),
+            items: _pantryMap.keys.map<DropdownMenuItem<String>>((val) {
+              return DropdownMenuItem<String>(
+                value: val,
+                child: Text(val),
+              );
+            }).toList(),
+            onChanged: (String newVal) {
+              setState(() {
+                _selectedPantry = _pantryMap[newVal];
+                _selectedPantryName = newVal;
+              });
+            },
+            hint: Text("Select Pantry"),
+            elevation: 0,
+            dropdownColor: Colors.lightBlue,
+          ),
+        ));
 
     final makeAppBar = AppBar(
-      backgroundColor: Color.fromRGBO(255, 204, 102, 1.0),
+      backgroundColor: Color.fromRGBO(255, 190, 50, 1.0),
       title: makeDropDown,
       actions: <Widget>[
         Padding(
@@ -151,7 +183,8 @@ class _PantryState extends State<Pantry> {
         PopupMenuButton<String>(
           // onSelected: handleClick,
           itemBuilder: (BuildContext context) {
-            return {'Add new item', 'Filter'}.map((String choice) {
+            return {'Create a new pantry', 'Option 2', 'Option 3'}
+                .map((String choice) {
               return PopupMenuItem<String>(
                 value: choice,
                 child: Text(choice),
@@ -203,7 +236,7 @@ class _PantryState extends State<Pantry> {
         floatingActionButton: CustomFAB(
           color: Colors.lightBlue,
           icon: const Icon(Icons.add),
-          onPressed: addNewItem,
+          onPressed: (() => {}),
         ));
   }
 }
