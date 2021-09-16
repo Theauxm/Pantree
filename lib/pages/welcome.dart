@@ -293,6 +293,8 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
       try {
         UserCredential userCredential = await FirebaseAuth.instanceFor(app: app)
             .createUserWithEmailAndPassword(email: _Email.text, password: _Password.text);
+        await FirebaseAuth.instanceFor(app: app)
+            .currentUser.updateDisplayName(_Username.text);
         await handleNewUsers(userCredential.user.uid, _Username.text);
       }
       on FirebaseAuthException catch (e) {

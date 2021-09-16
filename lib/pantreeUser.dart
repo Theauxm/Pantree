@@ -26,7 +26,6 @@ class PantreeUser {
       User u = FirebaseAuth.instance.currentUser;
 
       this.uid = u.uid;
-      this.name = u.displayName;
       this.email = u.email;
 
       updateData();
@@ -41,6 +40,7 @@ class PantreeUser {
         .then((DocumentSnapshot documentSnapshot) =>
     {
       if (documentSnapshot.exists) {
+        this.name = documentSnapshot.data()['Username'],
         this.shoppingLists = documentSnapshot.data()['ShoppingIDs'],
         this.friends = documentSnapshot.data()['FriendIDs'],
         this.recipes = documentSnapshot.data()['RecipeIDs'],

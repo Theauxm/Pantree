@@ -1,15 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:pantree/pages/welcome.dart';
 import 'pages/home.dart';
-import 'package:firebase_auth_ui/firebase_auth_ui.dart';
-import 'package:firebase_auth_ui/providers.dart';
-import 'pages/shopping_list.dart';
-import 'pages/recipes.dart';
-import 'pages/social_feed.dart';
-
 import 'package:firebase_core/firebase_core.dart';
 
 // void main() {
@@ -38,21 +28,6 @@ class MyApp extends StatelessWidget {
       //home: Home(title: 'Pantree Home'), // alt title: myPantree
       home: Home(),
     );
-  }
-
-  static Future<bool> _checkExists(String docID) async {
-    bool exists = false;
-    try {
-      await FirebaseFirestore.instance.doc("users/$docID").get().then((doc) {
-        if (doc.exists)
-          exists = true;
-        else
-          exists = false;
-      });
-      return exists;
-    } catch (e) {
-      return false;
-    }
   }
 
 }

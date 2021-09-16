@@ -1,55 +1,52 @@
-/*
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-//part of '../pages/home.dart';
-class Drawer extends StatefulWidget {
+import 'package:pantree/pantreeUser.dart';
+
+
+class PantreeDrawer extends StatefulWidget {
+  PantreeUser user;
+  PantreeDrawer({this.user});
 
   @override
-  _DrawerState createState() => _DrawerState();
+  _PantreeDrawerState createState() => _PantreeDrawerState(user: user);
 }
 
-class _DrawerState extends State<Drawer> {
+class _PantreeDrawerState extends State<PantreeDrawer> {
+  PantreeUser user;
+  _PantreeDrawerState({this.user});
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
       child: ListView(
         children: <Widget>[
-          StreamBuilder(
-            stream: FirebaseFirestore.instance.collection('users').doc('1').snapshots(),
-            builder: (context, snapshot){
-              if(!snapshot.hasData) return const Text('Loading....');
-              return DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Colors.lightBlue,
-                ),
-*/
-/*              child: Text('Pantree',style: TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-              ),
-              ),*//*
-
-                child:
-                Row(
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.blue,
+            ),
+            child:
+            Row(
+              children: [
+                Padding(
+                    padding: const EdgeInsets.only(right: 10.0),
+                    child: Icon(Icons.account_circle, size: 75)),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Padding(
-                        padding: const EdgeInsets.only(right: 10.0),
-                        child: Icon(Icons.account_circle, size: 75)),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('Pantree User',
-                            style: Theme.of(context).textTheme.headline5),
-                        Text(
-                          snapshot.data['Username'].toString(),
-                        ),
-                      ],
+                    Text(user.name,
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .headline5),
+                    Text(
+                      user.email,
+//user.displayName.toString(),
                     ),
                   ],
                 ),
-              );
-            },
+              ],
+            ),
           ),
           ListTile(
             leading: Icon(Icons.account_circle),
@@ -70,12 +67,15 @@ class _DrawerState extends State<Drawer> {
           ListTile(
             leading: Icon(Icons.logout),
             title: Text('Sign out'),
+            onTap: _signOut,
           ),
         ],
       ),
     );
   }
+
+Future<void> _signOut() async {
+  await FirebaseAuth.instance.signOut();
 }
 
-
-*/
+}
