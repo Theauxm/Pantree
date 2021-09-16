@@ -140,10 +140,13 @@ class _WelcomePage extends State<WelcomePage> {
         if (!doc.exists)
           FirebaseFirestore.instance.collection('users').doc(docID).set({
             'Username': displayName,
-            'Pantry IDs': [null],
-            'Friend IDs': [null],
-            'Recipe IDs': [null],
-            'Shopping IDs': [null],
+            'PantryIDs': [null],
+            'FriendIDs': [null],
+            'RecipeIDs': [null],
+            'ShoppingIDs': [null],
+            'PostsIDs': [null],
+            'PPID': null,
+            'PSID': null,
           });
       });
     } catch (e) {

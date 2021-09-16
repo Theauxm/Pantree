@@ -15,6 +15,8 @@ class PantreeUser {
   var recipes;
   var shoppingLists;
   var posts;
+  var PPID;
+  var PSID;
 
 
   //this is from the FirebaseAuth, and contains info related from Authentication
@@ -39,11 +41,13 @@ class PantreeUser {
         .then((DocumentSnapshot documentSnapshot) =>
     {
       if (documentSnapshot.exists) {
-        this.shoppingLists = documentSnapshot.data()['Shopping IDs'],
-        this.friends = documentSnapshot.data()['Friend IDs'],
-        this.recipes = documentSnapshot.data()['Recipe IDs'],
-        this.pantries = documentSnapshot.data()['Pantry IDs'],
-        this.posts = documentSnapshot.data()['postIDs']
+        this.shoppingLists = documentSnapshot.data()['ShoppingIDs'],
+        this.friends = documentSnapshot.data()['FriendIDs'],
+        this.recipes = documentSnapshot.data()['RecipeIDs'],
+        this.pantries = documentSnapshot.data()['PantryIDs'],
+        this.posts = documentSnapshot.data()['PostIDs'],
+        this.PPID = documentSnapshot.data()['PPID'],
+        this.PSID = documentSnapshot.data()['PSID'],
       }
     });
   }
