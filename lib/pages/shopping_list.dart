@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../pantreeUser.dart';
+import '../models/drawer.dart';
 
 class ShoppingList extends StatefulWidget {
   final PantreeUser user;
@@ -32,6 +33,8 @@ class _ListState extends State<ShoppingList>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: Text(this.user.name)),
+      drawer: PantreeDrawer(user: this.user),
       body: Column (
         children: <Widget> [
           Expanded(

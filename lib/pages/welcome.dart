@@ -140,10 +140,13 @@ class _WelcomePage extends State<WelcomePage> {
         if (!doc.exists)
           FirebaseFirestore.instance.collection('users').doc(docID).set({
             'Username': displayName,
-            'Pantry IDs': [null],
-            'Friend IDs': [null],
-            'Recipe IDs': [null],
-            'Shopping IDs': [null],
+            'PantryIDs': [null],
+            'FriendIDs': [null],
+            'RecipeIDs': [null],
+            'ShoppingIDs': [null],
+            'PostIDs': [null],
+            'PPID': null,
+            'PSID': null,
           });
       });
     } catch (e) {
@@ -290,6 +293,8 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
       try {
         UserCredential userCredential = await FirebaseAuth.instanceFor(app: app)
             .createUserWithEmailAndPassword(email: _Email.text, password: _Password.text);
+        await FirebaseAuth.instanceFor(app: app)
+            .currentUser.updateDisplayName(_Username.text);
         await handleNewUsers(userCredential.user.uid, _Username.text);
       }
       on FirebaseAuthException catch (e) {

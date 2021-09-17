@@ -14,14 +14,18 @@ class PantreeUser {
   var pantries;
   var recipes;
   var shoppingLists;
+  var posts;
+  var PPID;
+  var PSID;
 
 
+  //this is from the FirebaseAuth, and contains info related from Authentication
+  //likely will not change ever.
   PantreeUser() {
     try {
       User u = FirebaseAuth.instance.currentUser;
 
       this.uid = u.uid;
-      this.name = u.displayName;
       this.email = u.email;
 
       updateData();
@@ -30,15 +34,20 @@ class PantreeUser {
     }
   }
 
+  //this function is used to update/sync data in the app from the database
   Future<void> updateData() async {
     await FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser.uid).get()
         .then((DocumentSnapshot documentSnapshot) =>
     {
       if (documentSnapshot.exists) {
-        this.shoppingLists = documentSnapshot.data()['Shopping IDs'],
-        this.friends = documentSnapshot.data()['Friend IDs'],
-        this.recipes = documentSnapshot.data()['Recipe IDs'],
-        this.pantries = documentSnapshot.data()['Pantry IDs'],
+        this.name = documentSnapshot.data()['Username'],
+        this.shoppingLists = documentSnapshot.data()['ShoppingIDs'],
+        this.friends = documentSnapshot.data()['FriendIDs'],
+        this.recipes = documentSnapshot.data()['RecipeIDs'],
+        this.pantries = documentSnapshot.data()['PantryIDs'],
+        this.posts = documentSnapshot.data()['PostIDs'],
+        this.PPID = documentSnapshot.data()['PPID'],
+        this.PSID = documentSnapshot.data()['PSID'],
       }
     });
   }
