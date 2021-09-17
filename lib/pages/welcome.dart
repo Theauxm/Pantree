@@ -144,7 +144,7 @@ class _WelcomePage extends State<WelcomePage> {
             'FriendIDs': [null],
             'RecipeIDs': [null],
             'ShoppingIDs': [null],
-            'PostsIDs': [null],
+            'PostIDs': [null],
             'PPID': null,
             'PSID': null,
           });
