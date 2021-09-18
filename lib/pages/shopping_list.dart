@@ -77,7 +77,7 @@ class _ListState extends State<ShoppingList> {
   void addNewItem() {}
 
   void createNewList() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => (NewShoppingList(user: user,))));
+    Navigator.push(context, MaterialPageRoute(builder: (context) => (NewShoppingList(user: user,))));
   }
 
   @override
