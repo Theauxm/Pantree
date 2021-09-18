@@ -2,31 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pantree/pantreeUser.dart';
 
-class NewShoppingList extends StatelessWidget {
+class NewPantry extends StatelessWidget {
   PantreeUser user;
-  final TextEditingController _ListName = TextEditingController();
+  final TextEditingController _PantryName = TextEditingController();
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
 
-  NewShoppingList({this.user});
+  NewPantry({this.user});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Create new Shopping list"),
+        title: Text("Create new Pantry"),
       ),
       body: Form(
         key: _form,
         child: Column(children: <Widget>[
 
           TextFormField(
-              controller: _ListName,
+              controller: _PantryName,
               validator: (validator) {
                 if (validator.isEmpty) return 'Empty';
                 return null;
               },
               decoration: InputDecoration(
-                labelText: "Shopping List Name",
+                labelText: "New Pantry Name",
                 border: OutlineInputBorder(),
               )),
           SizedBox(height: 10),
@@ -37,9 +37,9 @@ class NewShoppingList extends StatelessWidget {
               String title = "Failed!";
               String message = "Shopping List Creation Failed Try again!";
               if(_form.currentState.validate()) {
-                if(createShoppingList(_ListName.text)){
+                if(createPantry(_PantryName.text)){
                   title = "Success!";
-                  message = "Shopping List Creation was Successful Return to Shopping Lists!";
+                  message = "Pantry Creation was Successful Return to your Pantries!";
                 }
               }
               showAlertDialog(context, title, message);
@@ -54,16 +54,16 @@ class NewShoppingList extends StatelessWidget {
     );
   }
 
-bool createShoppingList(name){
+bool createPantry(name){
     try {
-      FirebaseFirestore.instance.collection("shopping_lists").add(
+      FirebaseFirestore.instance.collection("pantries").add(
           {
             "Name": name,
             "Owner": FirebaseFirestore.instance.collection("users").doc(
                 user.uid),
           }).then((value) {
         FirebaseFirestore.instance.collection("users").doc(user.uid).update({
-          'ShoppingIDs': FieldValue.arrayUnion([value]),
+          'PantryIDs': FieldValue.arrayUnion([value]),
         });
       });
     } catch (e){
@@ -76,7 +76,7 @@ bool createShoppingList(name){
 
     // set up the button
     Widget signButton = TextButton(
-      child: Text("Return to Lists"),
+      child: Text("Return to Pantry"),
       onPressed: () {
         Navigator.of(context, rootNavigator: true).pop();
         Navigator.of(context).pop();

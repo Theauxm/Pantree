@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pantree/models/custom_fab.dart';
 import '../pantreeUser.dart';
+import '../models/drawer.dart';
+import '../models/newPantry.dart';
 
 extension StringExtension on String {
   String get inCaps =>
@@ -39,7 +41,6 @@ class _PantryState extends State<Pantry> {
   String _selectedPantryName; // private
   Map<String, DocumentReference>
       _pantryMap; // private NOTE: bad design - it will fuck with users collaborating on multiple pantries with the same name
-  Stream _stream;
   // DocumentSnapshot cache;
 
   Future<dynamic> getData() async {
@@ -67,12 +68,18 @@ class _PantryState extends State<Pantry> {
       _selectedPantryName = tempName;
     });
   }
+  setListener() {
+    FirebaseFirestore.instance.collection("users").doc(user.uid).snapshots().listen((event) {
+      getData();
+    }
+    );
+  }
 
   @override
   void initState() {
     super.initState();
     getData();
-    _stream = firestoreInstance.collection('users').doc(user.uid).snapshots();
+    setListener();
   }
 
 /*  void setPantry(int index) async {
@@ -86,25 +93,20 @@ class _PantryState extends State<Pantry> {
     });
   }*/
 
+  void createPantry() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => (NewPantry(user: user,))));
+  }
   void addNewItem() {}
 
   @override
   Widget build(BuildContext context) {
     if (_selectedPantry == null) {
       // handle user with no pantries case todo: update with loading widget
-      return Center(child: CircularProgressIndicator());
+      return createLandingPage();
     }
 
     // User pantry dropdown selector that listens for changes in users
-    final makeDropDown = StreamBuilder(
-        // initialData: cache,
-        stream: _stream,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
-          }
-          // cache = snapshot.data;
-          return Container(
+    final makeDropDown = Container(
               padding: EdgeInsets.only(left: 17.0),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
@@ -135,7 +137,6 @@ class _PantryState extends State<Pantry> {
                   dropdownColor: Colors.lightBlue,
                 ),
               ));
-        });
 
     final makeAppBar = AppBar(
       backgroundColor: Color.fromRGBO(255, 204, 102, 1.0),
@@ -205,5 +206,40 @@ class _PantryState extends State<Pantry> {
           icon: const Icon(Icons.add),
           onPressed: addNewItem,
         ));
+  }
+
+  Widget createLandingPage(){
+    return Scaffold(
+      appBar:  AppBar(title: Text('Pantry'),
+                      backgroundColor: Color.fromRGBO(255, 204, 102, 1.0),),
+      drawer: PantreeDrawer(user: user),
+      body: Container(
+        color: Colors.amber,
+        alignment: Alignment.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              child: Text(
+                'Create A Pantry!!',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20
+                ),
+              ),
+              margin: EdgeInsets.all(16),
+            ),
+            FlatButton(
+              onPressed: () {
+                createPantry();
+              },
+              child: Text('Create Pantry'),
+              color: Colors.white,
+            ),
+          ],
+        ),
+      ),
+    );
+
   }
 }
