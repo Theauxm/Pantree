@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pantree/models/custom_fab.dart';
+import 'package:pantree/models/new_pantry_item.dart';
 import '../pantreeUser.dart';
 
 extension StringExtension on String {
@@ -41,7 +42,7 @@ class _PantryState extends State<Pantry> {
       _pantryMap; // private NOTE: bad design - it will fuck with users collaborating on multiple pantries with the same name
   // DocumentSnapshot cache;
 
-  TextEditingController _addItemTextController = TextEditingController();
+  // TextEditingController _addItemTextController = TextEditingController();
 
   Future<dynamic> getData() async {
     DocumentReference tempPantry;
@@ -86,13 +87,13 @@ class _PantryState extends State<Pantry> {
     });
   }*/
 
-  Future<void> addNewItem(BuildContext context) async {
+/*  Future<void> handleAddNewItem(BuildContext context) {
     String foodVal = "";
     return showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text('What food would you like to add?'),
+            title: Text('What would you like to add?'),
             content: TextField(
               onChanged: (value) {
                 setState(() {
@@ -115,13 +116,7 @@ class _PantryState extends State<Pantry> {
                 child: Text('OK'),
                 onPressed: () {
                   setState(() {
-                    firestoreInstance
-                        .collection('food')
-                        .doc(foodVal)
-                        .set({})
-                        .then((_) => print('$foodVal added'))
-                        .catchError(
-                            (error) => print('Failed to add $foodVal: $error'));
+                    addNewItem(foodVal);
                     Navigator.pop(context);
                   });
                 },
@@ -130,6 +125,23 @@ class _PantryState extends State<Pantry> {
           );
         });
   }
+
+  Future<void> addNewItem(String item) {
+    // add item to the DB first
+    return firestoreInstance
+        .collection('food')
+        .add({'Image': ""}) // adds doc with auto-ID and fields
+      // now add it to the user pantry
+        .then((value) => _selectedPantry
+            .collection('Ingredients')
+            .add({
+              'Item': value,
+              'Quantity': 0
+            }) // adds doc with auto-ID and fields
+            .then((_) => print('$item added to user pantry'))
+            .catchError((error) =>
+                print('Failed to add $item to user pantry: $error')));
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -236,7 +248,9 @@ class _PantryState extends State<Pantry> {
         floatingActionButton: CustomFAB(
           color: Colors.lightBlue,
           icon: const Icon(Icons.add),
-          onPressed: (() => {}),
+          onPressed: (() => {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => NewPantryItem(pantry: _selectedPantry)))
+          }),
         ));
   }
 }
