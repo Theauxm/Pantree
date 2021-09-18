@@ -42,25 +42,7 @@ class NewShoppingList extends StatelessWidget {
                   message = "Shopping List Creation was Successful Return to Shopping Lists!";
                 }
               }
-              showDialog<String>(
-                  context: context,
-                  builder: (BuildContext context) =>
-              AlertDialog(
-                title: Text(title),
-                content: Text(message),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () => {
-                      Navigator.pop(context),}
-                    ,
-                    child: const Text('Return to Lists'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Stay'),
-                  ),
-                ],
-              ));
+              showAlertDialog(context, title, message);
             },
             child: Text(
               'Create Shopping List!',
@@ -90,4 +72,37 @@ bool createShoppingList(name){
   return true;
 }
 
+  showAlertDialog(BuildContext context, String t,String m) async{
+
+    // set up the button
+    Widget signButton = TextButton(
+      child: Text("Return to Lists"),
+      onPressed: () {
+        Navigator.of(context, rootNavigator: true).pop();
+        Navigator.of(context).pop();
+      },
+    );
+
+    Widget okButton = TextButton(
+      child: Text("Stay"),
+      onPressed: () {Navigator.of(context, rootNavigator: true).pop();},
+    );
+    var a = [
+        signButton,
+        okButton
+      ];
+    AlertDialog alert = AlertDialog(
+        title: Text(t),
+        content: Text(m),
+        actions:a
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
 }
