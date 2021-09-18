@@ -34,11 +34,33 @@ class NewShoppingList extends StatelessWidget {
             style: TextButton.styleFrom(
                 backgroundColor: Colors.blue),
             onPressed: (){
+              String title = "Failed!";
+              String message = "Shopping List Creation Failed Try again!";
               if(_form.currentState.validate()) {
                 if(createShoppingList(_ListName.text)){
-                  //TODO: POPUP For successful and failed creation
+                  title = "Success!";
+                  message = "Shopping List Creation was Successful Return to Shopping Lists!";
                 }
               }
+              showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) =>
+              AlertDialog(
+                title: Text(title),
+                content: Text(message),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () => {
+                      Navigator.pop(context),}
+                    ,
+                    child: const Text('Return to Lists'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Stay'),
+                  ),
+                ],
+              ));
             },
             child: Text(
               'Create Shopping List!',
