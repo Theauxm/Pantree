@@ -23,7 +23,8 @@ class _ListState extends State<ShoppingList> {
   Map<String, DocumentReference>
   _pantryMap; // private NOTE: bad design - it will fuck with users collaborating on multiple pantries with the same name
   // DocumentSnapshot cache;
-  Stream _stream;
+  var _stream;
+
 
   Future<dynamic> getData() async {
     DocumentReference tempPantry;
@@ -50,12 +51,19 @@ class _ListState extends State<ShoppingList> {
       _selectedListName = tempName;
     });
   }
+  //Listener for when a user changes! Re-Reads all the pantry Data!
+  setListener() {
+    _stream = FirebaseFirestore.instance.collection("users").doc(user.uid).snapshots().listen((event) {
+        getData();
+      }
+    );
+  }
 
   @override
   void initState() {
     super.initState();
     getData();
-    _stream = firestoreInstance.collection('users').doc(user.uid).snapshots();
+    setListener();
   }
   // for adding a new list item
   TextEditingController nameController = TextEditingController();
