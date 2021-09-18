@@ -4,6 +4,8 @@ import 'package:pantree/models/custom_fab.dart';
 import 'package:pantree/models/drawer.dart';
 import 'package:pantree/models/new_pantry_item.dart';
 import '../pantreeUser.dart';
+import '../models/drawer.dart';
+import '../models/newPantry.dart';
 
 extension StringExtension on String {
   String get inCaps =>
@@ -68,11 +70,18 @@ class _PantryState extends State<Pantry> {
       _selectedPantryName = tempName;
     });
   }
+  setListener() {
+    FirebaseFirestore.instance.collection("users").doc(user.uid).snapshots().listen((event) {
+      getData();
+    }
+    );
+  }
 
   @override
   void initState() {
     super.initState();
     getData();
+    setListener();
   }
 
   showDeleteDialog(BuildContext context, String item, DocumentSnapshot ds) {
@@ -116,12 +125,16 @@ class _PantryState extends State<Pantry> {
         .then((value) => print("SUCCESS: $doc has been deleted"))
         .catchError((error) => print("FAILURE: couldn't delete $doc: $error"));
   }
+  void createPantry() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => (NewPantry(user: user,))));
+  }
+  void addNewItem() {}
 
   @override
   Widget build(BuildContext context) {
     if (_selectedPantry == null) {
       // handle user with no pantries case todo: update with loading widget
-      return Center(child: CircularProgressIndicator());
+      return createLandingPage();
     }
 
     // User pantry dropdown selector
@@ -242,5 +255,40 @@ class _PantryState extends State<Pantry> {
                             NewPantryItem(pantry: _selectedPantry)))
               }),
         ));
+  }
+
+  Widget createLandingPage(){
+    return Scaffold(
+      appBar:  AppBar(title: Text('Pantry'),
+                      backgroundColor: Color.fromRGBO(255, 204, 102, 1.0),),
+      drawer: PantreeDrawer(user: user),
+      body: Container(
+        color: Colors.amber,
+        alignment: Alignment.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              child: Text(
+                'Create A Pantry!!',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20
+                ),
+              ),
+              margin: EdgeInsets.all(16),
+            ),
+            FlatButton(
+              onPressed: () {
+                createPantry();
+              },
+              child: Text('Create Pantry'),
+              color: Colors.white,
+            ),
+          ],
+        ),
+      ),
+    );
+
   }
 }

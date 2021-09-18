@@ -84,7 +84,7 @@ class _ListState extends State<ShoppingList> {
   Widget build(BuildContext context) {
     if (_selectedList == null) {
       // handle user with no pantries case todo: update with loading widget
-      return Center(child: CircularProgressIndicator());
+      return createLandingPage();
     }
 
     // User pantry dropdown selector that listens for changes in users
@@ -189,7 +189,42 @@ class _ListState extends State<ShoppingList> {
             onPressed: addNewItem,
           ));
     }
+
+  Widget createLandingPage(){
+    return Scaffold(
+      appBar:  AppBar(title: Text('Shopping Lists')),
+      drawer: PantreeDrawer(user: user),
+      body: Container(
+      color: Colors.lightBlueAccent,
+      alignment: Alignment.center,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Container(
+            child: Text(
+              'Create A Shopping List!!',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20
+              ),
+            ),
+            margin: EdgeInsets.all(16),
+          ),
+          FlatButton(
+            onPressed: () {
+              createNewList();
+            },
+            child: Text('Create Shopping List'),
+            color: Colors.white,
+          ),
+        ],
+      ),
+    ),
+    );
+
   }
+  }
+
 
 
 /*
