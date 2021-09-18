@@ -80,6 +80,10 @@ class _ListState extends State<ShoppingList> {
     Navigator.push(context, MaterialPageRoute(builder: (context) => (NewShoppingList(user: user,))));
   }
 
+  void exportList(){
+
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_selectedList == null) {
