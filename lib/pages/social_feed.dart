@@ -3,6 +3,7 @@ import 'package:pantree/pantreeUser.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:image_picker/image_picker.dart';
 import '../models/ImageFromGalleryEx.dart';
+import '../models/drawer.dart';
 
 enum ImageSourceType { gallery, camera }
 
@@ -54,7 +55,7 @@ class _socialState extends State<social_feed> {
     ],
   );
 
-  ImagePicker picker = ImagePicker();
+  //ImagePicker picker = ImagePicker();
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +64,7 @@ class _socialState extends State<social_feed> {
     //var user = user.name;
     //var uName = user.name;
     return Scaffold(
+        drawer: PantreeDrawer(user: this.user),
       appBar: AppBar(
         backgroundColor: Colors.lightGreen,
      //   leading:
@@ -72,84 +74,97 @@ class _socialState extends State<social_feed> {
 
         //leading: stars,
 
-        title: Text(user.name),
+        title: Text(this.user.name),
 
         actions: <Widget>[
 
+          // IconButton(
+          //   icon: const Icon(Icons.add_box_outlined),
+          //   tooltip: 'Add New Photo',
+          //   onPressed: () {
+          //     Navigator.push(context, MaterialPageRoute<void>(
+          //       builder: (BuildContext context) {
+          //         return Scaffold(
+          //           appBar: AppBar(
+          //             title: const Text('Create New Post'),
+          //           ),
+          //           body: Container(
+          //             child: Column(
+          //               children: [
+          //                 Row(
+          //                   children:[
+          //                     Container( //place holder for image
+          //                       height: 120.0,
+          //                       width: 120.0,
+          //                       decoration: BoxDecoration(
+          //                         image: DecorationImage(
+          //                           image: AssetImage(
+          //                             "https://i2.wp.com/ceklog.kindel.com/wp-content/uploads/2013/02/firefox_2018-07-10_07-50-11.png"),
+          //                           fit: BoxFit.fill,
+          //                         ),
+          //                         shape: BoxShape.rectangle,
+          //                       ),
+          //                     )
+          //                   ]
+          //                 ),
+          //                 Row(
+          //                   mainAxisAlignment: MainAxisAlignment.center,
+          //                   crossAxisAlignment: CrossAxisAlignment.center,
+          //
+          //                   children: [
+          //                     MaterialButton(
+          //                       color: Colors.blue,
+          //                       child: Text(
+          //                         "Pick Image from Gallery",
+          //                         style: TextStyle(
+          //                             color: Colors.white70, fontWeight: FontWeight.bold),
+          //                       ),
+          //                       onPressed: () {
+          //                         _handleURLButtonPress(context, ImageSourceType.gallery);
+          //                       },
+          //                     ),
+          //                   ],
+          //                 ),
+          //
+          //             Container(
+          //               //height: 150.0,
+          //                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
+          //                 child: TextField(
+          //                   decoration: const InputDecoration(
+          //                   border: OutlineInputBorder(),
+          //                   hintText: 'Description'
+          //         ),
+          //         )
+          //
+          //                 )
+          //               ],
+          //             )
+          //           )
+          //         );
+          //       },
+          //     ));
+          //   },
+          // ),
           IconButton(
+            //icon: const Icon(Icons.view_headline_rounded),
             icon: const Icon(Icons.add_box_outlined),
-            tooltip: 'Add New Photo',
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute<void>(
-                builder: (BuildContext context) {
-                  return Scaffold(
-                    appBar: AppBar(
-                      title: const Text('Create New Post'),
-                    ),
-                    body: Container(
-                      child: Column(
-                        children: [
-                          Row(
-                            children:[
-                              Container( //place holder for image
-                                height: 120.0,
-                                width: 120.0,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: AssetImage(
-                                      "https://i2.wp.com/ceklog.kindel.com/wp-content/uploads/2013/02/firefox_2018-07-10_07-50-11.png"),
-                                    fit: BoxFit.fill,
-                                  ),
-                                  shape: BoxShape.rectangle,
-                                ),
-                              )
-                            ]
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-
-                            children: [
-                              MaterialButton(
-                                color: Colors.blue,
-                                child: Text(
-                                  "Pick Image from Gallery",
-                                  style: TextStyle(
-                                      color: Colors.white70, fontWeight: FontWeight.bold),
-                                ),
-                                onPressed: () {
-                                  _handleURLButtonPress(context, ImageSourceType.gallery);
-                                },
-                              ),
-                            ],
-                          ),
-
-                      Container(
-                        //height: 150.0,
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
-                          child: TextField(
-                            decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            hintText: 'Description'
-                  ),
-                  )
-
-                          )
-                        ],
-                      )
-                    )
-                  );
-                },
-              ));
-            },
+            //tooltip: 'Show Snackbar',
+            // onPressed: () {
+            //   ScaffoldMessenger.of(context).showSnackBar(
+            //       const SnackBar(content: Text('This is a snackbar')));
+            // },
+              onPressed: () {
+                _handleURLButtonPress(context, ImageSourceType.gallery);
+              }
           ),
+
           IconButton(
             icon: const Icon(Icons.view_headline_rounded),
-            tooltip: 'Show Snackbar',
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('This is a snackbar')));
-            },
+              tooltip: 'Show Snackbar',
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('This is a snackbar')));
+              },
           ),
 
         ],
@@ -231,7 +246,7 @@ class _socialState extends State<social_feed> {
               ),
               Container(
                   constraints:
-                  BoxConstraints(maxHeight: MediaQuery.of(context).size.height / 2.1),
+                  BoxConstraints(maxHeight: MediaQuery.of(context).size.height / 1.9),
                   child:
                    //   RefreshIndicator(
                    //     child:

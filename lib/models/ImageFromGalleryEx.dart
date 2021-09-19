@@ -36,7 +36,7 @@ class ImageFromGalleryExState extends State<ImageFromGalleryEx> {
       appBar: AppBar(
           title: Text(type == ImageSourceType.camera
               ? "Image from Camera"
-              : "Image from Gallery")),
+              : "Create New Post")),
       body: Column(
         children: <Widget>[
           SizedBox(
@@ -58,17 +58,19 @@ class ImageFromGalleryExState extends State<ImageFromGalleryEx> {
                 width: 200,
                 height: 200,
                 decoration: BoxDecoration(
-                    color: Colors.red[200]),
+                    color: Colors.grey[200]),
                 child: _image != null
                     ? Image.file(
                   _image,
                   width: 200.0,
                   height: 200.0,
-                  fit: BoxFit.fitHeight,
+                  fit: BoxFit.fill,
+                  //fit: BoxFit.fitWidth
+
                 )
                     : Container(
                   decoration: BoxDecoration(
-                      color: Colors.red[200]),
+                      color: Colors.grey[200]),
                   width: 200,
                   height: 200,
                   child: Icon(
@@ -78,7 +80,33 @@ class ImageFromGalleryExState extends State<ImageFromGalleryEx> {
                 ),
               ),
             ),
-          )
+          ),
+          Container(
+            //height: 150.0,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
+              child: TextField(
+                decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: 'Description'
+                ),
+              )
+          ),
+          Container(
+            child:(
+                MaterialButton(
+                  color: Colors.blue,
+                  child: Text(
+                    "Upload",
+                    style: TextStyle(
+                        color: Colors.white70, fontWeight: FontWeight.bold),
+                  ),
+                  onPressed: () {
+                   // _handleURLButtonPress(context, ImageSourceType.gallery);
+                    //TODO: write event handler for saving the photo
+                  },
+                )
+            )
+          ),
         ],
       ),
     );
