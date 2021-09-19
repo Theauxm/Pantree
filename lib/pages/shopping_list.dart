@@ -188,11 +188,21 @@ class _ListState extends State<ShoppingList> {
           appBar: makeAppBar,
           body: makeBody,
           drawer: PantreeDrawer(user: this.user),
-          floatingActionButton: FloatingActionButton(
+          floatingActionButton: Column (
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.end,
+          children: [FloatingActionButton(
             backgroundColor: Colors.lightBlue,
-            child: const Icon(Icons.add),
+            child: const Icon(Icons.shopping_cart),
             onPressed: exportList,
-          ));
+          ),
+            SizedBox(height:10,),
+            FloatingActionButton(
+              backgroundColor: Colors.lightBlue,
+              child: const Icon(Icons.add),
+              onPressed: addNewItem,
+            ),
+    ]));
     }
 
   Widget createLandingPage(){
