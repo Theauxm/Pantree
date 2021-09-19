@@ -128,7 +128,6 @@ class _PantryState extends State<Pantry> {
   void createPantry() {
     Navigator.push(context, MaterialPageRoute(builder: (context) => (NewPantry(user: user,))));
   }
-  void addNewItem() {}
 
   @override
   Widget build(BuildContext context) {
@@ -181,7 +180,7 @@ class _PantryState extends State<Pantry> {
           // ),
         ),
         PopupMenuButton<String>(
-          // onSelected: handleClick,
+          onSelected:  (selected) {createPantry();},
           itemBuilder: (BuildContext context) {
             return {'Create a new pantry'}
                 .map((String choice) {

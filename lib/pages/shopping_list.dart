@@ -4,6 +4,7 @@ import '../pantreeUser.dart';
 import '../models/drawer.dart';
 import '../models/newShoppingList.dart';
 import '../models/exportList.dart';
+import '../models/new_list_item.dart';
 
 class ShoppingList extends StatefulWidget {
   final PantreeUser user;
@@ -75,7 +76,13 @@ class _ListState extends State<ShoppingList> {
     super.dispose();
   }
 
-  void addNewItem() {}
+  void addNewItem() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                NewListItem(list: _selectedList)));
+  }
 
   void createNewList() {
     Navigator.push(context, MaterialPageRoute(builder: (context) => (NewShoppingList(user: user,))));
@@ -138,7 +145,7 @@ class _ListState extends State<ShoppingList> {
           PopupMenuButton<String>(
             onSelected: (selected) { createNewList();},
             itemBuilder: (BuildContext context) {
-              return {'New List'}.map((String choice) {
+              return {'Create New List'}.map((String choice) {
                 return PopupMenuItem<String>(
                   value: choice,
                   child: Text(choice),
@@ -176,6 +183,15 @@ class _ListState extends State<ShoppingList> {
                                 "Quantity: " + doc['Quantity'].toString(),
                                 style: const TextStyle(
                                     fontSize: 14, fontWeight: FontWeight.w600),
+                              ),
+                              trailing: IconButton(
+                                icon: Icon(Icons.delete, size: 20.0),
+                                onPressed: (() {
+                                  showDeleteDialog(
+                                      context,
+                                      doc['Item'].id.toString(),
+                                      doc);
+                                }),
                               ),
                             ),
                           ),
@@ -237,6 +253,47 @@ class _ListState extends State<ShoppingList> {
     ),
     );
 
+  }
+  showDeleteDialog(BuildContext context, String item, DocumentSnapshot ds) {
+    Widget cancelButton = TextButton(
+        style: TextButton.styleFrom(
+            backgroundColor: Colors.lightBlue, primary: Colors.white),
+        child: Text("NO"),
+        onPressed: () {
+          Navigator.of(context, rootNavigator: true).pop();
+        });
+
+    Widget okButton = TextButton(
+      style: TextButton.styleFrom(primary: Colors.lightBlue),
+      child: Text("YES"),
+      onPressed: () {
+        deleteItem(ds);
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Are you sure?"),
+          content:
+          Text("Do you really want to delete \"$item\" from your pantry?"),
+          actions: [
+            cancelButton,
+            okButton,
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> deleteItem(DocumentSnapshot ds) async {
+    DocumentReference doc = ds.reference;
+    await doc
+        .delete()
+        .then((value) => print("SUCCESS: $doc has been deleted"))
+        .catchError((error) => print("FAILURE: couldn't delete $doc: $error"));
   }
   }
 
