@@ -15,8 +15,7 @@ class ExportList extends StatefulWidget {
 class _ExportListState extends State<ExportList> {
   PantreeUser user;
   var items;
-  List<QueryDocumentSnapshot> itemsRef;
-  List<bool> itemSelected;
+  String img = "https://i2.wp.com/ceklog.kindel.com/wp-content/uploads/2013/02/firefox_2018-07-10_07-50-11.png";
   String _selectedPantryName;
   DocumentReference _selectedPantry;
   final DocumentReference list;
@@ -50,9 +49,7 @@ class _ExportListState extends State<ExportList> {
       _selectedPantryName = tempName;
       list.collection("Ingredients").get().then((value) {
         setState(() {
-          itemSelected = List.filled(value.docs.length, false);
-          itemsRef = value.docs;
-          items = value.docs.map<Widget>((e) {return createCard(e.data()['Item'].id.toString(),0);}).toList();
+          items = value.docs.map<CheckBoxListTileModel>((e) {return new CheckBoxListTileModel(img: img,title: e.data()['Item'].id.toString(),isCheck: false,ref: e);}).toList();
         });
       });
 
@@ -60,43 +57,44 @@ class _ExportListState extends State<ExportList> {
 
   }
 
-  Widget createCard(name,index) {
-    return new Card(
-      child: new Container(
-        padding: new EdgeInsets.all(10.0),
-        child: Column(
-          children: <Widget>[
-            new CheckboxListTile(
-                activeColor: Colors.pink[300],
-                dense: true,
-                //font change
-                title: new Text(
-                  name,
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.5
-                  ),
-                ),
-                value: itemSelected[index],
-                // secondary: Container(
-                //   height: 50,
-                //   width: 50,
-                //   child: Image.network(
-                //     listTileModel[index].img,
-                //     fit: BoxFit.cover,
-                //   ),
-                // ),
-                onChanged: (bool val) {
-                  setState(() {
-                    itemSelected[index] = val;
-                  });
-                })
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget createCard(name,index) {
+  //   return new Card(
+  //     child: new Container(
+  //       padding: new EdgeInsets.all(10.0),
+  //       child: Column(
+  //         children: <Widget>[
+  //           new CheckboxListTile(
+  //               activeColor: Colors.pink[300],
+  //               dense: true,
+  //               //font change
+  //               title: new Text(
+  //                 name,
+  //                 style: TextStyle(
+  //                     fontSize: 14,
+  //                     fontWeight: FontWeight.w600,
+  //                     letterSpacing: 0.5
+  //                 ),
+  //               ),
+  //               value: itemSelected[index],
+  //               selected: itemSelected[index],
+  //               // secondary: Container(
+  //               //   height: 50,
+  //               //   width: 50,
+  //               //   child: Image.network(
+  //               //     listTileModel[index].img,
+  //               //     fit: BoxFit.cover,
+  //               //   ),
+  //               // ),
+  //               onChanged: (bool val) {
+  //                 setState(() {
+  //                   itemSelected[index] = val;
+  //                 });
+  //               })
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   @override
   void initState() {
@@ -143,10 +141,47 @@ class _ExportListState extends State<ExportList> {
         elevation: 0,
         dropdownColor: Colors.lightBlue,
       ),
-        Expanded(
-          child:
-        ListView(
-            children:items,))
+          Expanded(
+            child: ListView.builder(
+                itemCount: items.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return new Card(
+                        child: new Container(
+                          padding: new EdgeInsets.all(10.0),
+                          child: Column(
+                            children: <Widget>[
+                              new CheckboxListTile(
+                                  activeColor: Colors.pink[300],
+                                  dense: true,
+                                  //font change
+                                  title: new Text(
+                                    items[index].title,
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 0.5
+                                    ),
+                                  ),
+                                  value: items[index].isCheck,
+                                  secondary: Container(
+                                    height: 50,
+                                    width: 50,
+                                    child: Image.network(
+                                      items[index].img,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  onChanged: (bool val) {
+                                    setState(() {
+                                      items[index].isCheck = val;
+                                    });
+                                  })
+                            ],
+                          ),
+                        ),
+                  );
+                }),
+          ),
         ]),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: exportChart,
@@ -160,15 +195,16 @@ class _ExportListState extends State<ExportList> {
 
 bool exportChart(){
     try {
-      itemsRef.forEach((element) {
+      items.forEach((element) {
+        if(element.isCheck){
         _selectedPantry.collection("Ingredients").add(
             {
-              "Item": element.data()['Item'],
-              "Quantity": element.data()['Quantity'],
+              "Item": element.ref.data()['Item'],
+              "Quantity": element.ref.data()['Quantity'],
             }).then((value) {
-            element.reference.delete();
+            element.ref.reference.delete();
           });
-        });
+        }});
     } catch (e){
       return false;
     }
@@ -208,4 +244,12 @@ bool exportChart(){
       },
     );
   }
+}
+
+class CheckBoxListTileModel {
+  String img;
+  String title;
+  bool isCheck;
+  QueryDocumentSnapshot ref;
+  CheckBoxListTileModel({this.img, this.title, this.isCheck, this.ref});
 }
