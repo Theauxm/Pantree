@@ -42,8 +42,6 @@ class _PantryState extends State<Pantry> {
       _pantryMap; // private NOTE: bad design - it will fuck with users collaborating on multiple pantries with the same name
   // DocumentSnapshot cache;
 
-  // TextEditingController _addItemTextController = TextEditingController();
-
   Future<dynamic> getData() async {
     DocumentReference tempPantry;
     String tempName;
@@ -85,62 +83,6 @@ class _PantryState extends State<Pantry> {
       _selectedPantry = document['Pantry IDs'][index];
       _selectedIndex = index;
     });
-  }*/
-
-/*  Future<void> handleAddNewItem(BuildContext context) {
-    String foodVal = "";
-    return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('What would you like to add?'),
-            content: TextField(
-              onChanged: (value) {
-                setState(() {
-                  foodVal = value;
-                });
-              },
-              controller: _addItemTextController,
-              decoration: InputDecoration(hintText: "Add item to your pantry"),
-            ),
-            actions: <Widget>[
-              TextButton(
-                child: Text('CANCEL'),
-                onPressed: () {
-                  setState(() {
-                    Navigator.pop(context);
-                  });
-                },
-              ),
-              TextButton(
-                child: Text('OK'),
-                onPressed: () {
-                  setState(() {
-                    addNewItem(foodVal);
-                    Navigator.pop(context);
-                  });
-                },
-              ),
-            ],
-          );
-        });
-  }
-
-  Future<void> addNewItem(String item) {
-    // add item to the DB first
-    return firestoreInstance
-        .collection('food')
-        .add({'Image': ""}) // adds doc with auto-ID and fields
-      // now add it to the user pantry
-        .then((value) => _selectedPantry
-            .collection('Ingredients')
-            .add({
-              'Item': value,
-              'Quantity': 0
-            }) // adds doc with auto-ID and fields
-            .then((_) => print('$item added to user pantry'))
-            .catchError((error) =>
-                print('Failed to add $item to user pantry: $error')));
   }*/
 
   @override

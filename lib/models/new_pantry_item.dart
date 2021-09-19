@@ -12,9 +12,11 @@ class NewPantryItem extends StatefulWidget {
 
 class _NewPantryItemState extends State<NewPantryItem> {
   final firestoreInstance = FirebaseFirestore.instance;
+  final GlobalKey<FormState> _form = GlobalKey<FormState>();
   TextEditingController _addItemTextController = TextEditingController();
+  TextEditingController _addQtyTextController = TextEditingController();
 
-  Future<void> addNewItem(String item) {
+  Future<void> addNewItem(String item, String qty) {
     return firestoreInstance.collection('food').doc(item).get().then((doc) {
       // add item to the DB first if it doesn't exist
       if (!doc.exists) {
@@ -26,8 +28,8 @@ class _NewPantryItemState extends State<NewPantryItem> {
       // now add it to the user pantry
       widget.pantry
           .collection('Ingredients')
-          .add({'Item': doc.reference, 'Quantity': 0}) // adds doc with auto-ID and fields
-          .then((_) => print('$item added to user pantry!'))
+          .add({'Item': doc.reference, 'Quantity': int.parse(qty)}) // adds doc with auto-ID and fields
+          .then((_) => print('$qty $item(s) added to user pantry!'))
           .catchError(
               (error) => print('Failed to add $item to user pantry: $error'));
     });
@@ -36,23 +38,72 @@ class _NewPantryItemState extends State<NewPantryItem> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color.fromRGBO(255, 190, 50, 1.0),
-        title: Text("New Pantry Item"),
-      ),
-      body: TextField(
-        controller: _addItemTextController,
-        decoration: InputDecoration(
-          labelText: "Add item to your pantry",
-          border: OutlineInputBorder(),
+        appBar: AppBar(
+          backgroundColor: Color.fromRGBO(255, 190, 50, 1.0),
+          title: Text("Add item to your pantry"),
         ),
-        onEditingComplete: () {
-          setState(() {
-            addNewItem(_addItemTextController.text);
-            Navigator.pop(context);
-          });
-        },
-      ),
-    );
+        body: Container (
+          margin: EdgeInsets.all(15.0),
+          child: Form (
+            key: _form,
+            child: Column(children: [
+              TextFormField(
+                controller: _addItemTextController,
+                validator: (value) {
+                  if (value.isEmpty || value == null) {
+                    return 'Please enter a name';
+                  }
+                  else if (!RegExp(r"^[a-zA-Z\s\']+$").hasMatch(value)){
+                    return "Name can only contain letters";
+                  }
+                  return null;
+                },
+                decoration: InputDecoration(
+                  hintText: "Item name",
+                  border: OutlineInputBorder(),
+                ),
+                obscureText: false,
+              ),
+              SizedBox(height: 10.0),
+              TextFormField(
+                controller: _addQtyTextController,
+                validator: (value) {
+                  if (value.isEmpty || value == null) {
+                    return "Please enter a quantity";
+                  }
+                  else if (!RegExp(r"^[0-9]*$").hasMatch(value)){
+                    return "Quantity must be a number";
+                  }
+                  return null;
+                },
+                decoration: InputDecoration(
+                  hintText: "Quantity",
+                  border: OutlineInputBorder(),
+                ),
+                obscureText: false,
+              ),
+              SizedBox(height: 10.0),
+              SizedBox(
+                height: 40,
+                width: 125,
+                child: TextButton(
+                  style: TextButton.styleFrom(
+                      backgroundColor: Colors.lightBlue),
+                  onPressed: () {
+                    if (_form.currentState.validate()) {
+                      addNewItem(_addItemTextController.text, _addQtyTextController.text);
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: Text(
+                    'Add new item',
+                    style: TextStyle(
+                        fontSize: 16, color: Colors.white),
+                  ),
+                ),
+              )
+            ])
+          )
+        ));
   }
 }
