@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../pantreeUser.dart';
 import '../models/drawer.dart';
 import '../models/newShoppingList.dart';
+import '../models/exportList.dart';
 
 class ShoppingList extends StatefulWidget {
   final PantreeUser user;
@@ -81,7 +82,7 @@ class _ListState extends State<ShoppingList> {
   }
 
   void exportList(){
-
+    Navigator.push(context, MaterialPageRoute(builder: (context) => (ExportList(user: user,list: _selectedList))));
   }
 
   @override
@@ -190,7 +191,7 @@ class _ListState extends State<ShoppingList> {
           floatingActionButton: FloatingActionButton(
             backgroundColor: Colors.lightBlue,
             child: const Icon(Icons.add),
-            onPressed: addNewItem,
+            onPressed: exportList,
           ));
     }
 
