@@ -74,16 +74,47 @@ class _PantryState extends State<Pantry> {
     getData();
   }
 
-/*  void setPantry(int index) async {
-    var document = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .get();
-    setState(() {
-      _selectedPantry = document['Pantry IDs'][index];
-      _selectedIndex = index;
-    });
-  }*/
+  showDeleteDialog(BuildContext context, String item, DocumentSnapshot ds) {
+    Widget cancelButton = TextButton(
+        style: TextButton.styleFrom(
+            backgroundColor: Colors.lightBlue, primary: Colors.white),
+        child: Text("NO"),
+        onPressed: () {
+          Navigator.of(context, rootNavigator: true).pop();
+        });
+
+    Widget okButton = TextButton(
+      style: TextButton.styleFrom(primary: Colors.lightBlue),
+      child: Text("YES"),
+      onPressed: () {
+        deleteItem(ds);
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Are you sure?"),
+          content:
+              Text("Do you really want to delete \"$item\" from your pantry?"),
+          actions: [
+            cancelButton,
+            okButton,
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> deleteItem(DocumentSnapshot ds) async {
+    DocumentReference doc = ds.reference;
+    await doc
+        .delete()
+        .then((value) => print("SUCCESS: $doc has been deleted"))
+        .catchError((error) => print("FAILURE: couldn't delete $doc: $error"));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +123,7 @@ class _PantryState extends State<Pantry> {
       return Center(child: CircularProgressIndicator());
     }
 
-    // User pantry dropdown selector that listens for changes in users
+    // User pantry dropdown selector
     final makeDropDown = Container(
         padding: EdgeInsets.only(left: 17.0),
         child: DropdownButtonHideUnderline(
@@ -123,6 +154,7 @@ class _PantryState extends State<Pantry> {
           ),
         ));
 
+    // top appbar
     final makeAppBar = AppBar(
       backgroundColor: Color.fromRGBO(255, 190, 50, 1.0),
       title: makeDropDown,
@@ -149,6 +181,7 @@ class _PantryState extends State<Pantry> {
       ],
     );
 
+    // list of cards
     final makeBody = Column(children: [
       // Sets up a stream builder to listen for changes inside the database.
       StreamBuilder(
@@ -177,6 +210,15 @@ class _PantryState extends State<Pantry> {
                       style: const TextStyle(
                           fontSize: 14, fontWeight: FontWeight.w600),
                     ),
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete, size: 20.0),
+                      onPressed: (() {
+                        showDeleteDialog(
+                            context,
+                            doc['Item'].id.toString().capitalizeFirstOfEach,
+                            doc);
+                      }),
+                    ),
                   ),
                 ),
               );
@@ -191,8 +233,12 @@ class _PantryState extends State<Pantry> {
           color: Colors.lightBlue,
           icon: const Icon(Icons.add),
           onPressed: (() => {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => NewPantryItem(pantry: _selectedPantry)))
-          }),
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            NewPantryItem(pantry: _selectedPantry)))
+              }),
         ));
   }
 }

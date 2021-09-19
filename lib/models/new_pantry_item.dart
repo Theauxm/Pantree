@@ -96,7 +96,7 @@ class _NewPantryItemState extends State<NewPantryItem> {
                     }
                   },
                   child: Text(
-                    'Add new item',
+                    'ADD ITEM',
                     style: TextStyle(
                         fontSize: 16, color: Colors.white),
                   ),
