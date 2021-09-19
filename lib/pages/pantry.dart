@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pantree/models/custom_fab.dart';
+import 'package:pantree/models/drawer.dart';
 import 'package:pantree/models/new_pantry_item.dart';
 import '../pantreeUser.dart';
 
@@ -161,15 +162,15 @@ class _PantryState extends State<Pantry> {
       actions: <Widget>[
         Padding(
           padding: EdgeInsets.only(right: 20.0),
-          child: GestureDetector(
-            onTap: () {},
-            child: Icon(Icons.search, size: 26.0),
-          ),
+          // child: GestureDetector(
+          //   onTap: () {},
+          //   child: Icon(Icons.search, size: 26.0),
+          // ),
         ),
         PopupMenuButton<String>(
           // onSelected: handleClick,
           itemBuilder: (BuildContext context) {
-            return {'Create a new pantry', 'Option 2', 'Option 3'}
+            return {'Create a new pantry'}
                 .map((String choice) {
               return PopupMenuItem<String>(
                 value: choice,
@@ -229,6 +230,7 @@ class _PantryState extends State<Pantry> {
     return Scaffold(
         appBar: makeAppBar,
         body: makeBody,
+        drawer: PantreeDrawer(user: user),
         floatingActionButton: CustomFAB(
           color: Colors.lightBlue,
           icon: const Icon(Icons.add),

@@ -16,6 +16,13 @@ class _NewPantryItemState extends State<NewPantryItem> {
   TextEditingController _addItemTextController = TextEditingController();
   TextEditingController _addQtyTextController = TextEditingController();
 
+  @override
+  void dispose() {
+    _addItemTextController.dispose();
+    _addQtyTextController.dispose();
+    super.dispose();
+  }
+
   Future<void> addNewItem(String item, String qty) {
     return firestoreInstance.collection('food').doc(item).get().then((doc) {
       // add item to the DB first if it doesn't exist
