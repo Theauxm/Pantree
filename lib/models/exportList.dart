@@ -57,45 +57,6 @@ class _ExportListState extends State<ExportList> {
 
   }
 
-  // Widget createCard(name,index) {
-  //   return new Card(
-  //     child: new Container(
-  //       padding: new EdgeInsets.all(10.0),
-  //       child: Column(
-  //         children: <Widget>[
-  //           new CheckboxListTile(
-  //               activeColor: Colors.pink[300],
-  //               dense: true,
-  //               //font change
-  //               title: new Text(
-  //                 name,
-  //                 style: TextStyle(
-  //                     fontSize: 14,
-  //                     fontWeight: FontWeight.w600,
-  //                     letterSpacing: 0.5
-  //                 ),
-  //               ),
-  //               value: itemSelected[index],
-  //               selected: itemSelected[index],
-  //               // secondary: Container(
-  //               //   height: 50,
-  //               //   width: 50,
-  //               //   child: Image.network(
-  //               //     listTileModel[index].img,
-  //               //     fit: BoxFit.cover,
-  //               //   ),
-  //               // ),
-  //               onChanged: (bool val) {
-  //                 setState(() {
-  //                   itemSelected[index] = val;
-  //                 });
-  //               })
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
   @override
   void initState() {
     super.initState();
@@ -184,7 +145,7 @@ class _ExportListState extends State<ExportList> {
           ),
         ]),
         floatingActionButton: FloatingActionButton.extended(
-          onPressed: exportChart,
+          onPressed: (){showExportDialog(context);},
           label: Text("Export To Pantry!"),
           backgroundColor: Colors.lightBlue,
           icon: const Icon(Icons.add_shopping_cart_outlined),
@@ -211,36 +172,68 @@ bool exportChart(){
   return true;
 }
 
-  showAlertDialog(BuildContext context, String t,String m) async{
+  showExportDialog(BuildContext context) {
+    Widget cancelButton = TextButton(
+        style: TextButton.styleFrom(
+            backgroundColor: Colors.lightBlue, primary: Colors.white),
+        child: Text("NO"),
+        onPressed: () {
+          Navigator.of(context, rootNavigator: true).pop();
+        });
 
-    // set up the button
-    Widget signButton = TextButton(
-      child: Text("Return to Lists"),
+    Widget okButton = TextButton(
+      style: TextButton.styleFrom(primary: Colors.lightBlue),
+      child: Text("YES"),
       onPressed: () {
         Navigator.of(context, rootNavigator: true).pop();
-        Navigator.of(context).pop();
+        showSuccessDialog(context, exportChart());
       },
     );
 
-    Widget okButton = TextButton(
-      child: Text("Stay"),
-      onPressed: () {Navigator.of(context, rootNavigator: true).pop();},
-    );
-    var a = [
-        signButton,
-        okButton
-      ];
-    AlertDialog alert = AlertDialog(
-        title: Text(t),
-        content: Text(m),
-        actions:a
-    );
-
-    // show the dialog
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return alert;
+        return AlertDialog(
+          title: Text("Are you sure?"),
+          content:
+          Text("Do you really want to Export Selected Items?"),
+          actions: [
+            cancelButton,
+            okButton,
+          ],
+        );
+      },
+    );
+  }
+
+
+  showSuccessDialog(BuildContext context,bool) {
+    Widget okButton = TextButton(
+      style: TextButton.styleFrom(primary: Colors.lightBlue),
+      child: Text("OK"),
+      onPressed: () {
+        Navigator.of(context, rootNavigator: true).pop();
+        Navigator.of(context).pop();
+
+      },
+    );
+    String t = "Error!";
+    String m = "There was a problem exporting your Items. Try again later.";
+    if(bool){
+      t = "Success!";
+      m = "Items added to pantry!";
+    }
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(t),
+          content:
+          Text(m),
+          actions: [
+            okButton,
+          ],
+        );
       },
     );
   }
