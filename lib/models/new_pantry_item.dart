@@ -35,7 +35,10 @@ class _NewPantryItemState extends State<NewPantryItem> {
       // now add it to the user pantry
       widget.pantry
           .collection('Ingredients')
-          .add({'Item': doc.reference, 'Quantity': int.parse(qty)}) // adds doc with auto-ID and fields
+          .add({
+            'Item': doc.reference,
+            'Quantity': int.parse(qty)
+          }) // adds doc with auto-ID and fields
           .then((_) => print('$qty $item(s) added to user pantry!'))
           .catchError(
               (error) => print('Failed to add $item to user pantry: $error'));
@@ -49,68 +52,64 @@ class _NewPantryItemState extends State<NewPantryItem> {
           backgroundColor: Color.fromRGBO(255, 190, 50, 1.0),
           title: Text("Add item to your pantry"),
         ),
-        body: Container (
-          margin: EdgeInsets.all(15.0),
-          child: Form (
-            key: _form,
-            child: Column(children: [
-              TextFormField(
-                controller: _addItemTextController,
-                validator: (value) {
-                  if (value.isEmpty || value == null) {
-                    return 'Please enter a name';
-                  }
-                  else if (!RegExp(r"^[a-zA-Z\s\']+$").hasMatch(value)){
-                    return "Name can only contain letters";
-                  }
-                  return null;
-                },
-                decoration: InputDecoration(
-                  hintText: "Item name",
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: false,
-              ),
-              SizedBox(height: 10.0),
-              TextFormField(
-                controller: _addQtyTextController,
-                validator: (value) {
-                  if (value.isEmpty || value == null) {
-                    return "Please enter a quantity";
-                  }
-                  else if (!RegExp(r"^[0-9]*$").hasMatch(value)){
-                    return "Quantity must be a number";
-                  }
-                  return null;
-                },
-                decoration: InputDecoration(
-                  hintText: "Quantity",
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: false,
-              ),
-              SizedBox(height: 10.0),
-              SizedBox(
-                height: 40,
-                width: 125,
-                child: TextButton(
-                  style: TextButton.styleFrom(
-                      backgroundColor: Colors.lightBlue),
-                  onPressed: () {
-                    if (_form.currentState.validate()) {
-                      addNewItem(_addItemTextController.text, _addQtyTextController.text);
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: Text(
-                    'ADD ITEM',
-                    style: TextStyle(
-                        fontSize: 16, color: Colors.white),
+        body: Container(
+            margin: EdgeInsets.all(15.0),
+            child: Form(
+                key: _form,
+                child: Column(children: [
+                  TextFormField(
+                    controller: _addItemTextController,
+                    validator: (value) {
+                      if (value.isEmpty || value == null) {
+                        return 'Please enter a name';
+                      } else if (!RegExp(r"^[a-zA-Z\s\']+$").hasMatch(value)) {
+                        return "Name can only contain letters";
+                      }
+                      return null;
+                    },
+                    decoration: InputDecoration(
+                      hintText: "Item name",
+                      border: OutlineInputBorder(),
+                    ),
+                    obscureText: false,
                   ),
-                ),
-              )
-            ])
-          )
-        ));
+                  SizedBox(height: 10.0),
+                  TextFormField(
+                    controller: _addQtyTextController,
+                    validator: (value) {
+                      if (value.isEmpty || value == null) {
+                        return "Please enter a quantity";
+                      } else if (!RegExp(r"^[0-9]*$").hasMatch(value)) {
+                        return "Quantity must be a number";
+                      }
+                      return null;
+                    },
+                    decoration: InputDecoration(
+                      hintText: "Quantity",
+                      border: OutlineInputBorder(),
+                    ),
+                    obscureText: false,
+                  ),
+                  SizedBox(height: 10.0),
+                  SizedBox(
+                    height: 40,
+                    width: 125,
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                          backgroundColor: Colors.lightBlue),
+                      onPressed: () {
+                        if (_form.currentState.validate()) {
+                          addNewItem(_addItemTextController.text,
+                              _addQtyTextController.text);
+                          Navigator.pop(context);
+                        }
+                      },
+                      child: Text(
+                        'ADD ITEM',
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
+                    ),
+                  )
+                ]))));
   }
 }

@@ -70,11 +70,15 @@ class _PantryState extends State<Pantry> {
       _selectedPantryName = tempName;
     });
   }
+
   setListener() {
-    FirebaseFirestore.instance.collection("users").doc(user.uid).snapshots().listen((event) {
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(user.uid)
+        .snapshots()
+        .listen((event) {
       getData();
-    }
-    );
+    });
   }
 
   @override
@@ -125,8 +129,14 @@ class _PantryState extends State<Pantry> {
         .then((value) => print("SUCCESS: $doc has been deleted"))
         .catchError((error) => print("FAILURE: couldn't delete $doc: $error"));
   }
+
   void createPantry() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => (NewPantry(user: user,))));
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => (NewPantry(
+                  user: user,
+                ))));
   }
 
   @override
@@ -180,10 +190,11 @@ class _PantryState extends State<Pantry> {
           // ),
         ),
         PopupMenuButton<String>(
-          onSelected:  (selected) {createPantry();},
+          onSelected: (selected) {
+            createPantry();
+          },
           itemBuilder: (BuildContext context) {
-            return {'Create a new pantry'}
-                .map((String choice) {
+            return {'Create a new pantry'}.map((String choice) {
               return PopupMenuItem<String>(
                 value: choice,
                 child: Text(choice),
@@ -256,13 +267,14 @@ class _PantryState extends State<Pantry> {
         ));
   }
 
-  Widget createLandingPage(){
+  Widget createLandingPage() {
     return Scaffold(
-      appBar:  AppBar(title: Text('Pantry'),
-                      backgroundColor: Color.fromRGBO(255, 204, 102, 1.0),),
+      appBar: AppBar(
+        title: Text('Pantry'),
+        backgroundColor: Color.fromRGBO(255, 204, 102, 1.0),
+      ),
       drawer: PantreeDrawer(user: user),
       body: Container(
-        color: Colors.amber,
         alignment: Alignment.center,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -270,24 +282,21 @@ class _PantryState extends State<Pantry> {
             Container(
               child: Text(
                 'Create A Pantry!!',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20
-                ),
+                style: TextStyle(color: Colors.black, fontSize: 20),
               ),
               margin: EdgeInsets.all(16),
             ),
-            FlatButton(
+            TextButton(
               onPressed: () {
                 createPantry();
               },
               child: Text('Create Pantry'),
-              color: Colors.white,
+              style: TextButton.styleFrom(primary: Colors.white,
+              backgroundColor: Color.fromRGBO(255, 204, 102, 1.0)),
             ),
           ],
         ),
       ),
     );
-
   }
 }

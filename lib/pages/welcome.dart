@@ -4,26 +4,21 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 class WelcomePage extends StatefulWidget {
-
-
   @override
   _WelcomePage createState() => _WelcomePage();
 }
 
 class _WelcomePage extends State<WelcomePage> {
-
   TextEditingController textControllerEmail = TextEditingController();
   TextEditingController textControllerPassword = TextEditingController();
 
-  void signIn() async{
+  void signIn() async {
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: textControllerEmail.text,
-          password: textControllerPassword.text
-        // email: "treyjlavery@gmail.com",
-        // password: "password"
-      );
-
+          email: textControllerEmail.text, password: textControllerPassword.text
+          // email: "treyjlavery@gmail.com",
+          // password: "password"
+          );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -35,128 +30,127 @@ class _WelcomePage extends State<WelcomePage> {
     }
   }
 
-    @override
-    Widget build(BuildContext context) {
-      return Scaffold(
-          backgroundColor: Colors.white,
-          appBar: AppBar(
-            title: Text("Welcome!"),
-          ),
-          body:Builder(
-          builder: (context) =>
-          SingleChildScrollView(
-            child: Center(
-              child: Column(
-                  children: [
-                    Image.asset('assets/images/prototype_logo.png'),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Container(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            TextField(
-                                controller: textControllerEmail,
-                                decoration: InputDecoration(
-                                  labelText: "Email",
-                                  border: OutlineInputBorder(
-                                  ),)),
-                            SizedBox(height: 10),
-                            TextField(
-                                controller: textControllerPassword,
-                                obscureText: true,
-                                decoration: InputDecoration(
-                                  labelText: "Password",
-                                  border: OutlineInputBorder(
-                                  ),)),
-                            SizedBox(height: 10),
-                            Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                Flexible(
-                                  flex: 1,
-                                  child: Container(
-                                    width: double.maxFinite,
-                                    child: TextButton(
-                                      style: TextButton.styleFrom(
-                                          backgroundColor: Colors.blue),
-                                      onPressed: () {
-                                        signIn();
-                                      },
-                                      child: Text(
-                                        'Log in',
-                                        style: TextStyle(
-                                            fontSize: 14, color: Colors.black),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: Text("Welcome!"),
+        ),
+        body: Builder(
+            builder: (context) => SingleChildScrollView(
+                  child: Center(
+                    child: Column(children: [
+                      Image.asset('assets/images/prototype_logo.png'),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Container(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              TextField(
+                                  controller: textControllerEmail,
+                                  decoration: InputDecoration(
+                                    labelText: "Email",
+                                    border: OutlineInputBorder(),
+                                  )),
+                              SizedBox(height: 10),
+                              TextField(
+                                  controller: textControllerPassword,
+                                  obscureText: true,
+                                  decoration: InputDecoration(
+                                    labelText: "Password",
+                                    border: OutlineInputBorder(),
+                                  )),
+                              SizedBox(height: 10),
+                              Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  Flexible(
+                                    flex: 1,
+                                    child: Container(
+                                      width: double.maxFinite,
+                                      child: TextButton(
+                                        style: TextButton.styleFrom(
+                                            backgroundColor: Colors.blue),
+                                        onPressed: () {
+                                          signIn();
+                                        },
+                                        child: Text(
+                                          'Log in',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.black),
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                SizedBox(width: 10),
-                                Flexible(
-                                  flex: 1,
-                                  child: Container(
-                                    width: double.maxFinite,
-                                    child: TextButton(
-                                      style: TextButton.styleFrom(
-                                          backgroundColor: Colors.blue),
-                                      onPressed: () {
-                                        _navigateToNextScreen(context);
-                                      },
-                                      child: Text(
-                                        'Sign up',
-                                        style: TextStyle(
-                                            fontSize: 14, color: Colors.black),
+                                  SizedBox(width: 10),
+                                  Flexible(
+                                    flex: 1,
+                                    child: Container(
+                                      width: double.maxFinite,
+                                      child: TextButton(
+                                        style: TextButton.styleFrom(
+                                            backgroundColor: Colors.blue),
+                                        onPressed: () {
+                                          _navigateToNextScreen(context);
+                                        },
+                                        child: Text(
+                                          'Sign up',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.black),
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            //Center(child: GoogleButton()),
-                          ],
+                                ],
+                              ),
+                              //Center(child: GoogleButton()),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ]
-              ),
-            ),
-          )));
-    }
+                    ]),
+                  ),
+                )));
+  }
+
   void _navigateToNextScreen(BuildContext context) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => CreateAccount()));
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => CreateAccount()));
   }
+}
 
+Future<void> handleNewUsers(String docID, String displayName) async {
+  try {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(docID)
+        .get()
+        .then((doc) {
+      if (!doc.exists)
+        FirebaseFirestore.instance.collection('users').doc(docID).set({
+          'Username': displayName,
+          'PantryIDs': [],
+          'FriendIDs': [],
+          'RecipeIDs': [],
+          'ShoppingIDs': [],
+          'PostIDs': [],
+          'PPID': null,
+          'PSID': null,
+        });
+    });
+  } catch (e) {
+    throw e;
   }
-
-
-
-  Future<void> handleNewUsers(String docID, String displayName) async {
-    try {
-      await FirebaseFirestore.instance.collection('users').doc(docID)
-          .get()
-          .then((doc) {
-        if (!doc.exists)
-          FirebaseFirestore.instance.collection('users').doc(docID).set({
-            'Username': displayName,
-            'PantryIDs': [],
-            'FriendIDs': [],
-            'RecipeIDs': [],
-            'ShoppingIDs': [],
-            'PostIDs': [],
-            'PPID': null,
-            'PSID': null,
-          });
-      });
-    } catch (e) {
-      throw e;
-    }
-  }
-
+}
 
 class CreateAccount extends StatefulWidget {
-
   @override
   State<StatefulWidget> createState() => _CreateAccount();
 }
@@ -164,31 +158,28 @@ class CreateAccount extends StatefulWidget {
 class _CreateAccount extends State<CreateAccount> {
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
+    return Scaffold(
         appBar: AppBar(title: Text('New User!')),
         body: SingleChildScrollView(
           child: Center(
-            child: Column(
-                children: [
-                  SizedBox(height: 20),
-                  Text("Create your Pantree Account",
-                  style: TextStyle(fontSize:25)),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Container(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          CreateAccountForm(),
-
-                            ],
-                          ),
-                          //Center(child: GoogleButton()),
-                      ),
-                    ),
-                ]
-            ),
+            child: Column(children: [
+              SizedBox(height: 20),
+              Text("Create your Pantree Account",
+                  style: TextStyle(fontSize: 25)),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Container(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CreateAccountForm(),
+                    ],
+                  ),
+                  //Center(child: GoogleButton()),
+                ),
+              ),
+            ]),
           ),
         ));
   }
@@ -213,7 +204,6 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
       child: Form(
           key: _form,
           child: Column(children: <Widget>[
-
             TextFormField(
                 controller: _Username,
                 validator: (validator) {
@@ -229,7 +219,9 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                 controller: _Email,
                 validator: (validator) {
                   if (validator.isEmpty) return 'Empty';
-                  if (RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(validator)) return null;
+                  if (RegExp(
+                          r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                      .hasMatch(validator)) return null;
                   return "Invalid Email Address";
                 },
                 decoration: InputDecoration(
@@ -248,56 +240,57 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                   labelText: "Password",
                   border: OutlineInputBorder(),
                 )),
-           SizedBox(height: 10),
+            SizedBox(height: 10),
             TextFormField(
-                controller: _PasswordConfirm,
+              controller: _PasswordConfirm,
               validator: (validator) {
                 if (validator.isEmpty) return 'Empty';
-                if (validator != _Password.text) return 'The Passwords do not match!';
+                if (validator != _Password.text)
+                  return 'The Passwords do not match!';
                 return null;
               },
-                obscureText: false,
-                decoration: InputDecoration(
-                  labelText: "Confirm Password",
-                  border: OutlineInputBorder(),
-                ),),
+              obscureText: false,
+              decoration: InputDecoration(
+                labelText: "Confirm Password",
+                border: OutlineInputBorder(),
+              ),
+            ),
             SizedBox(height: 10),
             TextButton(
-                  style: TextButton.styleFrom(
-                      backgroundColor: Colors.blue),
-                  onPressed: () async{
-                    if(_form.currentState.validate()) {
-                      var m = await registerUser();
-                      if (m == null) {
-                        showAlertDialog(context, "Account Created!","return to login page!");
-                      } else {
-                        showAlertDialog(context, "Account Creation Failed",m);
-                      }
-                    }
-                    },
-                  child: Text(
-                    'Create Account',
-                    style: TextStyle(
-                        fontSize: 14, color: Colors.black),
-                  ),
-                ),
+              style: TextButton.styleFrom(backgroundColor: Colors.blue),
+              onPressed: () async {
+                if (_form.currentState.validate()) {
+                  var m = await registerUser();
+                  if (m == null) {
+                    showAlertDialog(
+                        context, "Account Created!", "return to login page!");
+                  } else {
+                    showAlertDialog(context, "Account Creation Failed", m);
+                  }
+                }
+              },
+              child: Text(
+                'Create Account',
+                style: TextStyle(fontSize: 14, color: Colors.black),
+              ),
+            ),
           ])),
     );
   }
 
-  Future<String> registerUser() async{
+  Future<String> registerUser() async {
     var m;
     try {
       FirebaseApp app = await Firebase.initializeApp(
           name: 'Secondary', options: Firebase.app().options);
       try {
         UserCredential userCredential = await FirebaseAuth.instanceFor(app: app)
-            .createUserWithEmailAndPassword(email: _Email.text, password: _Password.text);
+            .createUserWithEmailAndPassword(
+                email: _Email.text, password: _Password.text);
         // await FirebaseAuth.instanceFor(app: app)
         //     .currentUser.updateDisplayName(_Username.text);
         await handleNewUsers(userCredential.user.uid, _Username.text);
-      }
-      on FirebaseAuthException catch (e) {
+      } on FirebaseAuthException catch (e) {
         String error = getMessageFromErrorCode(e);
         m = error;
       }
@@ -340,7 +333,7 @@ String getMessageFromErrorCode(e) {
     case "invalid-email":
       return "Email address is invalid.";
       break;
-    case "auth/invalid-password"  :
+    case "auth/invalid-password":
       return "Password Too Short";
     default:
       return "Failed. Please try again.";
@@ -348,8 +341,7 @@ String getMessageFromErrorCode(e) {
   }
 }
 
-showAlertDialog(BuildContext context, String t,String m) async{
-
+showAlertDialog(BuildContext context, String t, String m) async {
   // set up the button
   Widget signButton = TextButton(
     child: Text("Return"),
@@ -361,24 +353,18 @@ showAlertDialog(BuildContext context, String t,String m) async{
 
   Widget okButton = TextButton(
     child: Text("OK"),
-    onPressed: () {Navigator.of(context).pop(true);},
+    onPressed: () {
+      Navigator.of(context).pop(true);
+    },
   );
   var a;
   // set up the AlertDialog
-  if(t != "Account Created!"){
-    a= [
-      okButton
-    ];
-  }else{
-    a = [
-      signButton
-    ];
+  if (t != "Account Created!") {
+    a = [okButton];
+  } else {
+    a = [signButton];
   }
-  AlertDialog alert = AlertDialog(
-    title: Text(t),
-    content: Text(m),
-    actions:a
-  );
+  AlertDialog alert = AlertDialog(title: Text(t), content: Text(m), actions: a);
 
   // show the dialog
   showDialog(
