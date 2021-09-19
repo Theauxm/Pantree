@@ -2,15 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:pantree/pantreeUser.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:image_picker/image_picker.dart';
+import '../models/ImageFromGalleryEx.dart';
 
 enum ImageSourceType { gallery, camera }
 
 class social_feed extends StatefulWidget {
-
-  // void _handleURLButtonPress(BuildContext context, var type) {
-  //   Navigator.push(context,
-  //       MaterialPageRoute(builder: (context) => ImageFromGalleryEx(type)));
-  // }
 
   firebase_storage.FirebaseStorage storage =
   firebase_storage.FirebaseStorage.instanceFor(
@@ -41,6 +37,11 @@ class _socialState extends State<social_feed> {
   // void initialize() async {
   //   var ll = user.name;
   // }
+
+  void _handleURLButtonPress(BuildContext context, var type) {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => ImageFromGalleryEx(type)));
+  }
 
   var stars = Row(
     mainAxisSize: MainAxisSize.min,
@@ -117,7 +118,7 @@ class _socialState extends State<social_feed> {
                                       color: Colors.white70, fontWeight: FontWeight.bold),
                                 ),
                                 onPressed: () {
-                                  //_handleURLButtonPress(context, ImageSourceType.gallery);
+                                  _handleURLButtonPress(context, ImageSourceType.gallery);
                                 },
                               ),
                             ],
