@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pantree/models/custom_fab.dart';
+import 'package:pantree/models/drawer.dart';
+import 'package:pantree/models/new_pantry_item.dart';
 import '../pantreeUser.dart';
 
 extension StringExtension on String {
@@ -39,7 +41,6 @@ class _PantryState extends State<Pantry> {
   String _selectedPantryName; // private
   Map<String, DocumentReference>
       _pantryMap; // private NOTE: bad design - it will fuck with users collaborating on multiple pantries with the same name
-  Stream _stream;
   // DocumentSnapshot cache;
 
   Future<dynamic> getData() async {
@@ -61,7 +62,7 @@ class _PantryState extends State<Pantry> {
       _pantryMap[pantryName] = ref; // map the doc ref to its name
     }
 
-    // very important: se setState() to force a call to build()
+    // very important: use setState() to force a call to build()
     setState(() {
       _selectedPantry = tempPantry;
       _selectedPantryName = tempName;
@@ -72,21 +73,49 @@ class _PantryState extends State<Pantry> {
   void initState() {
     super.initState();
     getData();
-    _stream = firestoreInstance.collection('users').doc(user.uid).snapshots();
   }
 
-/*  void setPantry(int index) async {
-    var document = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .get();
-    setState(() {
-      _selectedPantry = document['Pantry IDs'][index];
-      _selectedIndex = index;
-    });
-  }*/
+  showDeleteDialog(BuildContext context, String item, DocumentSnapshot ds) {
+    Widget cancelButton = TextButton(
+        style: TextButton.styleFrom(
+            backgroundColor: Colors.lightBlue, primary: Colors.white),
+        child: Text("NO"),
+        onPressed: () {
+          Navigator.of(context, rootNavigator: true).pop();
+        });
 
-  void addNewItem() {}
+    Widget okButton = TextButton(
+      style: TextButton.styleFrom(primary: Colors.lightBlue),
+      child: Text("YES"),
+      onPressed: () {
+        deleteItem(ds);
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Are you sure?"),
+          content:
+              Text("Do you really want to delete \"$item\" from your pantry?"),
+          actions: [
+            cancelButton,
+            okButton,
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> deleteItem(DocumentSnapshot ds) async {
+    DocumentReference doc = ds.reference;
+    await doc
+        .delete()
+        .then((value) => print("SUCCESS: $doc has been deleted"))
+        .catchError((error) => print("FAILURE: couldn't delete $doc: $error"));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,63 +124,54 @@ class _PantryState extends State<Pantry> {
       return Center(child: CircularProgressIndicator());
     }
 
-    // User pantry dropdown selector that listens for changes in users
-    final makeDropDown = StreamBuilder(
-        // initialData: cache,
-        stream: _stream,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
-          }
-          // cache = snapshot.data;
-          return Container(
-              padding: EdgeInsets.only(left: 17.0),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: _selectedPantryName,
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600),
-                  icon: Icon(
-                    Icons.arrow_drop_down,
-                    color: Colors.white,
-                    size: 30.0,
-                  ),
-                  items: _pantryMap.keys.map<DropdownMenuItem<String>>((val) {
-                    return DropdownMenuItem<String>(
-                      value: val,
-                      child: Text(val),
-                    );
-                  }).toList(),
-                  onChanged: (String newVal) {
-                    setState(() {
-                      _selectedPantry = _pantryMap[newVal];
-                      _selectedPantryName = newVal;
-                    });
-                  },
-                  hint: Text("Select Pantry"),
-                  elevation: 0,
-                  dropdownColor: Colors.lightBlue,
-                ),
-              ));
-        });
+    // User pantry dropdown selector
+    final makeDropDown = Container(
+        padding: EdgeInsets.only(left: 17.0),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            value: _selectedPantryName,
+            style: TextStyle(
+                color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
+            icon: Icon(
+              Icons.arrow_drop_down,
+              color: Colors.white,
+              size: 30.0,
+            ),
+            items: _pantryMap.keys.map<DropdownMenuItem<String>>((val) {
+              return DropdownMenuItem<String>(
+                value: val,
+                child: Text(val),
+              );
+            }).toList(),
+            onChanged: (String newVal) {
+              setState(() {
+                _selectedPantry = _pantryMap[newVal];
+                _selectedPantryName = newVal;
+              });
+            },
+            hint: Text("Select Pantry"),
+            elevation: 0,
+            dropdownColor: Colors.lightBlue,
+          ),
+        ));
 
+    // top appbar
     final makeAppBar = AppBar(
-      backgroundColor: Color.fromRGBO(255, 204, 102, 1.0),
+      backgroundColor: Color.fromRGBO(255, 190, 50, 1.0),
       title: makeDropDown,
       actions: <Widget>[
         Padding(
           padding: EdgeInsets.only(right: 20.0),
-          child: GestureDetector(
-            onTap: () {},
-            child: Icon(Icons.search, size: 26.0),
-          ),
+          // child: GestureDetector(
+          //   onTap: () {},
+          //   child: Icon(Icons.search, size: 26.0),
+          // ),
         ),
         PopupMenuButton<String>(
           // onSelected: handleClick,
           itemBuilder: (BuildContext context) {
-            return {'Add new item', 'Filter'}.map((String choice) {
+            return {'Create a new pantry'}
+                .map((String choice) {
               return PopupMenuItem<String>(
                 value: choice,
                 child: Text(choice),
@@ -162,6 +182,7 @@ class _PantryState extends State<Pantry> {
       ],
     );
 
+    // list of cards
     final makeBody = Column(children: [
       // Sets up a stream builder to listen for changes inside the database.
       StreamBuilder(
@@ -190,6 +211,15 @@ class _PantryState extends State<Pantry> {
                       style: const TextStyle(
                           fontSize: 14, fontWeight: FontWeight.w600),
                     ),
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete, size: 20.0),
+                      onPressed: (() {
+                        showDeleteDialog(
+                            context,
+                            doc['Item'].id.toString().capitalizeFirstOfEach,
+                            doc);
+                      }),
+                    ),
                   ),
                 ),
               );
@@ -200,10 +230,17 @@ class _PantryState extends State<Pantry> {
     return Scaffold(
         appBar: makeAppBar,
         body: makeBody,
+        drawer: PantreeDrawer(user: user),
         floatingActionButton: CustomFAB(
           color: Colors.lightBlue,
           icon: const Icon(Icons.add),
-          onPressed: addNewItem,
+          onPressed: (() => {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            NewPantryItem(pantry: _selectedPantry)))
+              }),
         ));
   }
 }
