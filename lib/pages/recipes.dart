@@ -83,14 +83,46 @@ class _recipeState extends State<recipes> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Recipe Search')),
       drawer: PantreeDrawer(user: this.user),
       body: FloatingSearchBar(
         controller: controller,
         body: FloatingSearchBarScrollNotifier(
           child: Column(
             children: [
-              SizedBox(height: 50),
+              SizedBox(height: 60),
+          Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance.collection('filters')
+                      .snapshots(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<QuerySnapshot> querySnapshot) {
+                    if (querySnapshot.hasError)
+                      return Text(
+                          "Could not show any recipes, please try again in a few seconds");
+
+                    if (querySnapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    else {
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) {
+                          QueryDocumentSnapshot filter = querySnapshot.data.docs[index];
+                          return Card(
+                              margin: const EdgeInsets.only(top: 12.0, right: 8.0, left: 8.0),
+                              child: ListTile(
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+                                title: Text(filter.id)
+                              )
+                          );
+                        },
+
+                        itemCount: querySnapshot.data.docs.length,
+                      );
+                    }
+                  }
+              )
+          ),
               SearchResultsListView(
               searchTerm: selectedTerm,
             )],
@@ -306,12 +338,10 @@ class SearchResultsListView extends StatelessWidget {
                       margin: const EdgeInsets.only(top: 12.0, right: 8.0, left: 8.0),
                       child: ListTile(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
-                      tileColor: Colors.green,
 
                       title: Text(
                         recipe["RecipeName"],
                         style: TextStyle(
-                          color: Colors.white,
                           fontSize: 20.0
                         ),
                       ),
