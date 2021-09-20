@@ -3,6 +3,7 @@ import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import 'package:pantree/pantreeUser.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pantree/models/recipe_viewer.dart';
+import 'package:pantree/models/drawer.dart';
 
 // Created by ResoCoder https://resocoder.com/2021/01/23/search-bar-in-flutter-logic-material-ui/
 // Edited by Brandon Wong and Theaux Masquelier
@@ -78,9 +79,12 @@ class _recipeState extends State<recipes> {
   }
 
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: Text('Recipe Search')),
+      drawer: PantreeDrawer(user: this.user),
       body: FloatingSearchBar(
         controller: controller,
         body: FloatingSearchBarScrollNotifier(
