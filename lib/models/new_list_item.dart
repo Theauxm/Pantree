@@ -1,16 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class NewPantryItem extends StatefulWidget {
-  final DocumentReference pantry;
+class NewListItem extends StatefulWidget {
+  final DocumentReference list;
 
-  const NewPantryItem({Key key, this.pantry}) : super(key: key);
+  const NewListItem({Key key, this.list}) : super(key: key);
 
   @override
-  _NewPantryItemState createState() => _NewPantryItemState();
+  _NewListItemState createState() => _NewListItemState();
 }
 
-class _NewPantryItemState extends State<NewPantryItem> {
+class _NewListItemState extends State<NewListItem> {
   final firestoreInstance = FirebaseFirestore.instance;
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
   TextEditingController _addItemTextController = TextEditingController();
@@ -33,15 +33,15 @@ class _NewPantryItemState extends State<NewPantryItem> {
             .set({}); // adds doc with specified name and no fields
       }
       // now add it to the user pantry
-      widget.pantry
+      widget.list
           .collection('Ingredients')
           .add({
             'Item': doc.reference,
             'Quantity': int.parse(qty)
           }) // adds doc with auto-ID and fields
-          .then((_) => print('$qty $item(s) added to user pantry!'))
-          .catchError(
-              (error) => print('Failed to add $item to user pantry: $error'));
+          .then((_) => print('$qty $item(s) added to user Shopping List!'))
+          .catchError((error) =>
+              print('Failed to add $item to user Shopping List: $error'));
     });
   }
 
@@ -50,7 +50,7 @@ class _NewPantryItemState extends State<NewPantryItem> {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Color.fromRGBO(255, 190, 50, 1.0),
-          title: Text("Add item to your pantry"),
+          title: Text("Add item to your ShoppingList"),
         ),
         body: Container(
             margin: EdgeInsets.all(15.0),

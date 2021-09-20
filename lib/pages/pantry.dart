@@ -4,6 +4,8 @@ import 'package:pantree/models/custom_fab.dart';
 import 'package:pantree/models/drawer.dart';
 import 'package:pantree/models/new_pantry_item.dart';
 import '../pantreeUser.dart';
+import '../models/drawer.dart';
+import '../models/newPantry.dart';
 
 extension StringExtension on String {
   String get inCaps =>
@@ -69,10 +71,21 @@ class _PantryState extends State<Pantry> {
     });
   }
 
+  setListener() {
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(user.uid)
+        .snapshots()
+        .listen((event) {
+      getData();
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     getData();
+    setListener();
   }
 
   showDeleteDialog(BuildContext context, String item, DocumentSnapshot ds) {
@@ -117,11 +130,20 @@ class _PantryState extends State<Pantry> {
         .catchError((error) => print("FAILURE: couldn't delete $doc: $error"));
   }
 
+  void createPantry() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => (NewPantry(
+                  user: user,
+                ))));
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_selectedPantry == null) {
       // handle user with no pantries case todo: update with loading widget
-      return Center(child: CircularProgressIndicator());
+      return createLandingPage();
     }
 
     // User pantry dropdown selector
@@ -168,10 +190,11 @@ class _PantryState extends State<Pantry> {
           // ),
         ),
         PopupMenuButton<String>(
-          // onSelected: handleClick,
+          onSelected: (selected) {
+            createPantry();
+          },
           itemBuilder: (BuildContext context) {
-            return {'Create a new pantry'}
-                .map((String choice) {
+            return {'Create a new pantry'}.map((String choice) {
               return PopupMenuItem<String>(
                 value: choice,
                 child: Text(choice),
@@ -242,5 +265,38 @@ class _PantryState extends State<Pantry> {
                             NewPantryItem(pantry: _selectedPantry)))
               }),
         ));
+  }
+
+  Widget createLandingPage() {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Pantry'),
+        backgroundColor: Color.fromRGBO(255, 204, 102, 1.0),
+      ),
+      drawer: PantreeDrawer(user: user),
+      body: Container(
+        alignment: Alignment.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              child: Text(
+                'Create A Pantry!!',
+                style: TextStyle(color: Colors.black, fontSize: 20),
+              ),
+              margin: EdgeInsets.all(16),
+            ),
+            TextButton(
+              onPressed: () {
+                createPantry();
+              },
+              child: Text('Create Pantry'),
+              style: TextButton.styleFrom(primary: Colors.white,
+              backgroundColor: Color.fromRGBO(255, 204, 102, 1.0)),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
