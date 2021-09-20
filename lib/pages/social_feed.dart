@@ -4,6 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:image_picker/image_picker.dart';
 import '../models/ImageFromGalleryEx.dart';
 import '../models/drawer.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 enum ImageSourceType { gallery, camera }
 
@@ -154,7 +155,11 @@ class _socialState extends State<social_feed> {
             //       const SnackBar(content: Text('This is a snackbar')));
             // },
               onPressed: () {
+              if(kIsWeb) {
+
+              }else{
                 _handleURLButtonPress(context, ImageSourceType.gallery);
+              }
               }
           ),
 
