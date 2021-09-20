@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import 'package:pantree/pantreeUser.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pantree/models/recipe_viewer.dart';
 
-//created by ResoCoder https://resocoder.com/2021/01/23/search-bar-in-flutter-logic-material-ui/
-//Edited by Brandon Wong and Theaux Masquelier
+// Created by ResoCoder https://resocoder.com/2021/01/23/search-bar-in-flutter-logic-material-ui/
+// Edited by Brandon Wong and Theaux Masquelier
 
 class recipes extends StatefulWidget {
   PantreeUser user;
@@ -83,8 +84,12 @@ class _recipeState extends State<recipes> {
       body: FloatingSearchBar(
         controller: controller,
         body: FloatingSearchBarScrollNotifier(
-          child: SearchResultsListView(
-            searchTerm: selectedTerm,
+          child: Column(
+            children: [
+              SizedBox(height: 50),
+              SearchResultsListView(
+              searchTerm: selectedTerm,
+            )],
           ),
         ),
         transition: CircularFloatingSearchBarTransition(),
@@ -274,11 +279,12 @@ class SearchResultsListView extends StatelessWidget {
       );
     }
 
-    List<String> lst = ['$searchTerm'];
     return Expanded(
         child: StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance.collection('recipes')
-                .where('keywords', arrayContainsAny: lst).snapshots(),
+                .limit(20)
+                .where('Keywords', arrayContainsAny: ['$searchTerm'])
+                .snapshots(),
             builder: (BuildContext context,
                 AsyncSnapshot<QuerySnapshot> querySnapshot) {
               if (querySnapshot.hasError)
@@ -286,15 +292,79 @@ class SearchResultsListView extends StatelessWidget {
                     "Could not show any recipes, please try again in a few seconds");
 
               if (querySnapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
+                return Center(child: CircularProgressIndicator());
               }
               else {
                 return ListView.builder(
                   itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(querySnapshot.data.docs[index]["RecipeName"]),
-                      subtitle: Text(index.toString()),
-                      onTap: () {},
+                    QueryDocumentSnapshot recipe = querySnapshot.data.docs[index];
+                    return Card(
+                      margin: const EdgeInsets.only(top: 12.0, right: 8.0, left: 8.0),
+                      child: ListTile(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+                      tileColor: Colors.green,
+
+                      title: Text(
+                        recipe["RecipeName"],
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20.0
+                        ),
+                      ),
+                      subtitle: SizedBox(
+                        width: 100.0,
+                        height: 50.0,
+                        child: Row(
+                          children: [
+                            Card(
+                                color: Colors.grey,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+                                child: Container(
+                                  padding: const EdgeInsets.only(top: 12.0, right: 12.0, left: 12.0, bottom: 12.0),
+                                  child: Text(
+                                    "Time: " + recipe["TotalTime"].toString() + " minutes",
+                                    style: TextStyle(
+                                      fontSize: 18.0,
+                                          color: Colors.white,
+                                    )
+                                  )
+                                )
+                            ),
+                            Card(
+                                color: Colors.grey,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+                                child: Container(
+                                    padding: const EdgeInsets.only(top: 12.0, right: 12.0, left: 12.0, bottom: 12.0),
+                                    child: Text(
+                                        "Created: " + DateTime.parse(recipe["CreationDate"].toDate().toString()).toString(),
+                                        style: TextStyle(
+                                          fontSize: 18.0,
+                                          color: Colors.white,
+                                        )
+                                    )
+                                )
+                            ),
+                            Card(
+                                color: Colors.grey,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+                                child: Container(
+                                    padding: const EdgeInsets.only(top: 12.0, right: 12.0, left: 12.0, bottom: 12.0),
+                                    child: Text(
+                                        "Missing Ingredients: " + "NaN",
+                                        style: TextStyle(
+                                          fontSize: 18.0,
+                                          color: Colors.white,
+                                        )
+                                    )
+                                )
+                            ),
+                          ]
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => ViewRecipe(querySnapshot.data.docs[index])));
+                      },
+                      )
                     );
                   },
 

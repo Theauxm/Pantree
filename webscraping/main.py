@@ -71,8 +71,16 @@ def main():
     # Database object to write to
     db = firestore.client()
 
+    #add_recipe(scrape_me('https://www.hellofresh.com/recipes/one-pan-shrimp-lo-mein-5a1f3b44ad1d6c4d4d6c5ef2'), db, "asian")
+
     # Starts recursive calls
-    get_recipes(db, site, '/')
+    #get_recipes(db, site, '/')
+
+    x = scrape_me('https://www.hellofresh.com/recipes/french-onion-chicken-5df681f313376732637995a1')
+    print(x.title())
+    for y in x.ingredients():
+        print(get_ingredients(y.split()))
+        print(get_amount(y.split()))
 
 
 def get_recipes(db, link, h):
@@ -178,7 +186,7 @@ def add_recipe(recipe, db, filter = ""):
         u'RecipeName' : recipe.title(),
         u'TotalTime' : recipe.total_time(),
         u'Credit' : site,
-        u'Keywords' : list(ingredients_keywords | get_keywords(recipe.title())) # All ingredients keywords along with recipe title keywords
+        u'Keywords' : list(ingredients_keywords | get_keywords(recipe.title().lower())) # All ingredients keywords along with recipe title keywords
     })
 
     # Updates recipes for the specific user, along with its corresponding filters and recipe name for easier searching
@@ -198,6 +206,7 @@ def get_amount(words):
     Args:
         words : list of split strings containing an ingredient's information
     """
+    print(words)
 
     number = 0
     for x in words:
