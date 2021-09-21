@@ -29,19 +29,14 @@ class ImageFromGalleryExState extends State<ImageFromGalleryEx> {
     String fileName = basename(_image.path);
     Reference firebaseStorageRef =
     FirebaseStorage.instance.ref().child('uploads/$fileName');
-    //StorageUploadTask uploadTask = firebaseStorageRef.putFile(_image);
     try {
       await FirebaseStorage.instance
           .ref('uploads/$fileName')
           .putFile(_image);
+      print('filename ' + fileName);
     }catch (e) {
-      // e.g, e.code == 'canceled'
       print('error in upload of image');
     }
-    //StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
-    //taskSnapshot.ref.getDownloadURL().then(
-    //      (value) => print("Done: $value"),
-    //);
   }
 
   @override

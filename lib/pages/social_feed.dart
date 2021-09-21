@@ -26,6 +26,8 @@ class _socialState extends State<social_feed> {
   PantreeUser user;
   _socialState({this.user});
  //TODO: READ FROM DB FOR THE POSTS COLLECTION AND PULL RELEVANT INFORMATION
+  var Images = [];
+  var _image;
   // this.user.posts.toString() is a reference to a document that is housing this material, I will now have
   //to read the document
 
@@ -79,73 +81,6 @@ class _socialState extends State<social_feed> {
 
         actions: <Widget>[
 
-          // IconButton(
-          //   icon: const Icon(Icons.add_box_outlined),
-          //   tooltip: 'Add New Photo',
-          //   onPressed: () {
-          //     Navigator.push(context, MaterialPageRoute<void>(
-          //       builder: (BuildContext context) {
-          //         return Scaffold(
-          //           appBar: AppBar(
-          //             title: const Text('Create New Post'),
-          //           ),
-          //           body: Container(
-          //             child: Column(
-          //               children: [
-          //                 Row(
-          //                   children:[
-          //                     Container( //place holder for image
-          //                       height: 120.0,
-          //                       width: 120.0,
-          //                       decoration: BoxDecoration(
-          //                         image: DecorationImage(
-          //                           image: AssetImage(
-          //                             "https://i2.wp.com/ceklog.kindel.com/wp-content/uploads/2013/02/firefox_2018-07-10_07-50-11.png"),
-          //                           fit: BoxFit.fill,
-          //                         ),
-          //                         shape: BoxShape.rectangle,
-          //                       ),
-          //                     )
-          //                   ]
-          //                 ),
-          //                 Row(
-          //                   mainAxisAlignment: MainAxisAlignment.center,
-          //                   crossAxisAlignment: CrossAxisAlignment.center,
-          //
-          //                   children: [
-          //                     MaterialButton(
-          //                       color: Colors.blue,
-          //                       child: Text(
-          //                         "Pick Image from Gallery",
-          //                         style: TextStyle(
-          //                             color: Colors.white70, fontWeight: FontWeight.bold),
-          //                       ),
-          //                       onPressed: () {
-          //                         _handleURLButtonPress(context, ImageSourceType.gallery);
-          //                       },
-          //                     ),
-          //                   ],
-          //                 ),
-          //
-          //             Container(
-          //               //height: 150.0,
-          //                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
-          //                 child: TextField(
-          //                   decoration: const InputDecoration(
-          //                   border: OutlineInputBorder(),
-          //                   hintText: 'Description'
-          //         ),
-          //         )
-          //
-          //                 )
-          //               ],
-          //             )
-          //           )
-          //         );
-          //       },
-          //     ));
-          //   },
-          // ),
           IconButton(
             //icon: const Icon(Icons.view_headline_rounded),
             icon: const Icon(Icons.add_box_outlined),
@@ -268,12 +203,70 @@ class _socialState extends State<social_feed> {
                     children:[
                       Container(
                         padding: const EdgeInsets.all(8),
-                        child: const Text('1st'),
+                        child: GestureDetector(
+                          onTap: () async {
+                            print('hey');
+                            },
+                          child: Container(
+                            width: 200,
+                            height: 200,
+                            decoration: BoxDecoration(
+                                color: Colors.grey[200]),
+                            child: _image != null
+                                ? Image.file(
+                              _image,
+                              width: 200.0,
+                              height: 200.0,
+                              fit: BoxFit.fill,
+                              //fit: BoxFit.fitWidth
+
+                            )
+                                : Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.teal[100]),
+                              width: 200,
+                              height: 200,
+                              child: Icon(
+                                Icons.image,
+                                //color: Colors.grey[800],
+                              ),
+                            ),
+                          ),
+                        ),
                         color: Colors.teal[100],
                       ),
                       Container(
                         padding: const EdgeInsets.all(8),
-                        child: const Text('1st'),
+                        child: GestureDetector(
+                          onTap: () async {
+                            print('hey1');
+                          },
+                          child: Container(
+                            width: 200,
+                            height: 200,
+                            decoration: BoxDecoration(
+                                color: Colors.grey[200]),
+                            child: _image != null
+                                ? Image.file(
+                              _image,
+                              width: 200.0,
+                              height: 200.0,
+                              fit: BoxFit.fill,
+                              //fit: BoxFit.fitWidth
+
+                            )
+                                : Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.teal[100]),
+                              width: 200,
+                              height: 200,
+                              child: Icon(
+                                Icons.image,
+                                //color: Colors.grey[800],
+                              ),
+                            ),
+                          ),
+                        ),
                         color: Colors.teal[100],
                       ),
                       Container(
