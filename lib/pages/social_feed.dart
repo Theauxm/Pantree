@@ -29,6 +29,7 @@ class _socialState extends State<social_feed> {
  //TODO: READ FROM DB FOR THE POSTS COLLECTION AND PULL RELEVANT INFORMATION
   var images;
   var images1;
+  var images2;
   var _image;
 
   // this.user.posts.toString() is a reference to a document that is housing this material, I will now have
@@ -52,6 +53,7 @@ class _socialState extends State<social_feed> {
     await user.updateData(); // important: refreshes the user's data
     images = Map<String, DocumentReference>(); // instantiate the map
     images1 = [];
+    images2 = [];
 
     for (DocumentReference ref in user.posts) {
       print('hi');
@@ -79,12 +81,20 @@ class _socialState extends State<social_feed> {
           .getDownloadURL();
 
       print(downloadURL);
+      images2.add(downloadURL);
     }
 
     // setState(() {
     //   _selectedPantry = tempPantry;
     //   _selectedPantryName = tempName;
     // });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getData();
+    //setListener();
   }
 
   void _handleURLButtonPress(BuildContext context, var type) {
@@ -258,28 +268,105 @@ class _socialState extends State<social_feed> {
                             height: 200,
                             decoration: BoxDecoration(
                                 color: Colors.grey[200]),
-                            child: _image != null
-                                ? Image.file(
-                              _image,
-                              width: 200.0,
-                              height: 200.0,
-                              fit: BoxFit.fill,
-                              //fit: BoxFit.fitWidth
-
-                            )
-                                : Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.teal[100]),
-                              width: 200,
-                              height: 200,
-                              child: Icon(
-                                Icons.image,
-                                //color: Colors.grey[800],
-                              ),
+                            child:images2.length >= 1
+                            ? Image.network(
+                                images2[0])
+                          :Container(
+                        decoration: BoxDecoration(
+                        color: Colors.teal[100]),
+                            width: 200,
+                            height: 200,
+                            child: Icon(
+                              Icons.image,
+                              //color: Colors.grey[800],
                             ),
                           ),
-                        ),
-                        color: Colors.teal[100],
+                          )
+                        )
+                      ),
+                      Container(
+                          padding: const EdgeInsets.all(8),
+                          child: GestureDetector(
+                              onTap: () async {
+                                print('hey');
+                                getData();
+                              },
+                              child: Container(
+                                width: 200,
+                                height: 200,
+                                decoration: BoxDecoration(
+                                    color: Colors.grey[200]),
+                                child:images2.length >= 2
+                                    ? Image.network(
+                                    images2[1])
+                                    :Container(
+                                  decoration: BoxDecoration(
+                                      color: Colors.teal[100]),
+                                  width: 200,
+                                  height: 200,
+                                  child: Icon(
+                                    Icons.image,
+                                    //color: Colors.grey[800],
+                                  ),
+                                ),
+                              )
+                          )
+                      ),
+                      Container(
+                          padding: const EdgeInsets.all(8),
+                          child: GestureDetector(
+                              onTap: () async {
+                                print('hey');
+                                getData();
+                              },
+                              child: Container(
+                                width: 200,
+                                height: 200,
+                                decoration: BoxDecoration(
+                                    color: Colors.grey[200]),
+                                child: images2.length >= 3
+                                    ? Image.network(
+                                    images2[2])
+                                    :Container(
+                                  decoration: BoxDecoration(
+                                      color: Colors.teal[100]),
+                                  width: 200,
+                                  height: 200,
+                                  child: Icon(
+                                    Icons.image,
+                                    //color: Colors.grey[800],
+                                  ),
+                                ),
+                              )
+                          )
+                      ),
+                      Container(
+                          padding: const EdgeInsets.all(8),
+                          child: GestureDetector(
+                              onTap: () async {
+                                print('hey');
+                                getData();
+                              },
+                              child: Container(
+                                width: 200,
+                                height: 200,
+                                decoration: BoxDecoration(
+                                    color: Colors.grey[200]),
+                                child:images2.length >= 4
+                                    ? Image.network(
+                                    images2[3])
+                                    :Container(
+                                  decoration: BoxDecoration(
+                                      color: Colors.teal[100]),
+                                  width: 200,
+                                  height: 200,
+                                  child: Icon(
+                                    Icons.image,
+                                    //color: Colors.grey[800],
+                                  ),
+                                ),
+                              )
+                          )
                       ),
                       Container(
                         padding: const EdgeInsets.all(8),
