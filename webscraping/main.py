@@ -18,9 +18,6 @@ measures = {
     'ounces',
     'unit'}
 
-# List of visited sites to avoid duplicates
-visited = set()
-
 # Top level domain
 site = 'https://hellofresh.com'
 
@@ -71,13 +68,17 @@ def main():
     # Database object to write to
     db = firestore.client()
 
-    #add_recipe(scrape_me('https://www.hellofresh.com/recipes/one-pan-shrimp-lo-mein-5a1f3b44ad1d6c4d4d6c5ef2'), db, "asian")
+    # List of visited sites to avoid duplicates
+    visited = get_links('./data.txt')
 
     # Starts recursive calls
-    get_recipes(db, site, '/')
+    get_recipes(db, site, '/', visited)
 
+def get_links(file):
+    with open(file, 'r') as f:
+        return set([x for x in f.readlines()])
 
-def get_recipes(db, link, h):
+def get_recipes(db, link, h, visited):
     """
     A web crawler that recurs through every link within a site and checks if any are recipes
     Args:
@@ -92,7 +93,7 @@ def get_recipes(db, link, h):
     print("\n" + link + h)
 
     # If there are ingredients returned by the scraper, it is a recipe
-    if len(html.ingredients()) > 0:
+    if len(html.ingredients()) > 0 and link + h + '\n' not in visited:
 
         # Checks title of recipe to see if it can be filtered
         y = ""
@@ -101,7 +102,11 @@ def get_recipes(db, link, h):
                 y = x
                 break
 
-        
+        with open('data.txt', 'a+') as f:
+            f.write(link + h + '\n')
+
+        visited.add(link + h)
+
         add_recipe(html, db, y)
         print(html.title())
         print("Filter: " + y)
@@ -114,8 +119,7 @@ def get_recipes(db, link, h):
                 visited.add(i['href'])
 
                 # Recurs down with the new sub url
-                get_recipes(db, link, i['href'])
-
+                get_recipes(db, link, i['href'], visited)
 
 def add_recipe(recipe, db, filter = ""):
     """
@@ -192,7 +196,6 @@ def add_recipe(recipe, db, filter = ""):
         filter_array = db.collection(u'filters').document(filter)
         filter_array.set({u'recipe_ids' : firestore.ArrayUnion([new_recipe_ref])},
                          merge=True)
-
         
 def get_amount(words):
     """
@@ -269,4 +272,3 @@ def get_keywords(word):
 
 if __name__ == "__main__":
     main()
-
