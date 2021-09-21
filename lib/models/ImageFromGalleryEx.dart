@@ -43,19 +43,25 @@ class ImageFromGalleryExState extends State<ImageFromGalleryEx> {
           .putFile(_image);
       print('filename ' + fileName);
 
-      firestoreInstance.collection('posts').doc().get().then((doc) {
+  //    firestoreInstance.collection('posts').doc().get().then((doc) {
         // add item to the DB first if it doesn't exist
-        if (!doc.exists) {
+      //  if (!doc.exists) {
           firestoreInstance
               .collection('posts')
-              .doc()
-              .set({
+              //.doc()
+              .add({
                 'image': "gs://pantree-4347e.appspot.com/uploads/" + fileName,
                 'userID': "/users/"+user.uid,
                 'description' : "A cool picture."
-              }); // adds doc with specified name and no fields
-        }
-      });
+              }).then((value) {
+                firestoreInstance
+                    .collection('users').doc(user.uid).update({
+                  'PostIDs' : FieldValue.arrayUnion([value]),
+                });
+          }); // adds doc with specified name and no fields
+      //  }
+    //  }
+    //  );
     }catch (e) {
       print('error in upload of image');
     }
