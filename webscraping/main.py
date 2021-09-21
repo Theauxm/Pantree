@@ -26,13 +26,13 @@ site = 'https://hellofresh.com'
 
 # Filters to define a given type of recipe
 filters = {
-    "american" : {"american", "burger", "fries"},
-    "italian" : {"italian", "penne", "risotto", "agnolotti", "linguine", "piccata"},
+    "american" : {"american", "burger", "fries", "hearty", "pie", "mac 'n' cheese", "clam chowder", "chili", "mac & cheese", "potato wedges"},
+    "italian" : {"italian", "penne", "risotto", "agnolotti", "linguine", "piccata", "gnocchi", "ricotta", "ciabattas", "rigatoni"},
     "asian" : {"asian", "korean", "chinese", "indian", "curry", "japanese", "stir-fry", "teriyaki", "lo mein", "hoisin", "thai", "sesame", "bulgogi", "kimchi"},
     "breakfast" : {"egg", "breakfast", "chorizo", "oatmeal", "smoothie"},
     "mexican" : {"mexican", "enchiladas", "chipotle", "quesadillas", "carne asada", "fajitas", "chorizo"},
     "hawaiian" : {"pineapple", "hawaiian", "luau", "tropical"},
-    "lunch" : {"sandwich", "burrito", "soup", "lunch"},
+    "lunch" : {"sandwich", "burrito", "soup", "lunch", "mac 'n' cheese", "mac & cheese"},
     "dinner" : {"pizza", "pot roast", "oven roasted", "soup", "dinner"}
 }
 
@@ -74,13 +74,7 @@ def main():
     #add_recipe(scrape_me('https://www.hellofresh.com/recipes/one-pan-shrimp-lo-mein-5a1f3b44ad1d6c4d4d6c5ef2'), db, "asian")
 
     # Starts recursive calls
-    #get_recipes(db, site, '/')
-
-    x = scrape_me('https://www.hellofresh.com/recipes/french-onion-chicken-5df681f313376732637995a1')
-    print(x.title())
-    for y in x.ingredients():
-        print(get_ingredients(y.split()))
-        print(get_amount(y.split()))
+    get_recipes(db, site, '/')
 
 
 def get_recipes(db, link, h):
@@ -211,6 +205,10 @@ def get_amount(words):
     number = 0
     for x in words:
         try:
+            if len(x) > 1 and type(int(x)) is int:
+                number += int(x)
+                continue
+
             if ord(x) in unicode_fractions.keys():
                 x = unicode_fractions[ord(x)]
                 number += x
