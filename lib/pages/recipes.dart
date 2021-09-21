@@ -90,38 +90,40 @@ class _recipeState extends State<recipes> {
           child: Column(
             children: [
               SizedBox(height: 60),
-          Expanded(
-              child: StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance.collection('filters')
-                      .snapshots(),
-                  builder: (BuildContext context,
-                      AsyncSnapshot<QuerySnapshot> querySnapshot) {
-                    if (querySnapshot.hasError)
-                      return Text(
-                          "Could not show any recipes, please try again in a few seconds");
-
-                    if (querySnapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
-                    }
-                    else {
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        itemBuilder: (context, index) {
-                          QueryDocumentSnapshot filter = querySnapshot.data.docs[index];
-                          return Card(
-                              margin: const EdgeInsets.only(top: 12.0, right: 8.0, left: 8.0),
-                              child: ListTile(
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
-                                title: Text(filter.id)
-                              )
-                          );
-                        },
-
-                        itemCount: querySnapshot.data.docs.length,
-                      );
-                    }
-                  }
-              )
+          Container(
+            height: 80,
+            child: Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance.collection('filters').snapshots(),
+              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> querySnapshot) {
+                if (querySnapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                else {
+                  return Container(
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: (context, index) {
+                        QueryDocumentSnapshot filter = querySnapshot.data.docs[index];
+                        return Container(
+                          width: 200,
+                          child: Card(
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                            color: Colors.red,
+                            margin: const EdgeInsets.only(top: 12.0, right: 8.0, left: 8.0),
+                            child: Center(
+                              child: Text(filter.id, style: TextStyle(fontSize: 20, color: Colors.white)),
+                            )
+                          )
+                        );
+                      },
+                      itemCount: querySnapshot.data.docs.length,
+                    )
+                  );
+                }
+            }
+            )
+          )
           ),
               SearchResultsListView(
               searchTerm: selectedTerm,

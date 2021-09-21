@@ -11,7 +11,7 @@ class ViewRecipe extends StatelessWidget {
     return Scaffold(
         extendBody: true,
         appBar: AppBar(title: Text(recipe["RecipeName"])),
-        body: Column(mainAxisSize: MainAxisSize.min, children: [
+        body: Column(children: [
           ListTile(
               subtitle: Text(recipe["Creator"].id,
               style: TextStyle(fontSize: 20.0)),
