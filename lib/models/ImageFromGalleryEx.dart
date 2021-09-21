@@ -5,28 +5,36 @@ import 'package:path/path.dart';
 import 'package:flutter/material.dart';
 import 'package:pantree/pages/social_feed.dart';
 import 'package:pantree/pantreeUser.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 
 
 class ImageFromGalleryEx extends StatefulWidget {
+
   final type;
-  ImageFromGalleryEx(this.type);
+  final user;
+  ImageFromGalleryEx(this.type, this.user);
+  //ImageFromGalleryEx(this.user);
 
   @override
-  ImageFromGalleryExState createState() => ImageFromGalleryExState(this.type);
+  ImageFromGalleryExState createState() => ImageFromGalleryExState(this.type, this.user);
 }
 
 class ImageFromGalleryExState extends State<ImageFromGalleryEx> {
+  final firestoreInstance = FirebaseFirestore.instance;
   var _image;
   var picture;
   var imagePicker;
   var type;
+  var user;
 
-  ImageFromGalleryExState(this.type);
+  ImageFromGalleryExState(this.type, this.user);
+  //ImageFromGalleryExState(this.type);
 
   Future uploadImageToFirebase(BuildContext context) async {
     String fileName = basename(_image.path);
+    //print('user' + user);
     Reference firebaseStorageRef =
     FirebaseStorage.instance.ref().child('uploads/$fileName');
     try {
@@ -34,6 +42,20 @@ class ImageFromGalleryExState extends State<ImageFromGalleryEx> {
           .ref('uploads/$fileName')
           .putFile(_image);
       print('filename ' + fileName);
+
+      firestoreInstance.collection('posts').doc().get().then((doc) {
+        // add item to the DB first if it doesn't exist
+        if (!doc.exists) {
+          firestoreInstance
+              .collection('posts')
+              .doc()
+              .set({
+                'image': "gs://pantree-4347e.appspot.com/uploads/" + fileName,
+                'userID': "/users/"+user.uid,
+                'description' : "A cool picture."
+              }); // adds doc with specified name and no fields
+        }
+      });
     }catch (e) {
       print('error in upload of image');
     }
@@ -120,6 +142,7 @@ class ImageFromGalleryExState extends State<ImageFromGalleryEx> {
                    // _handleURLButtonPress(context, ImageSourceType.gallery);
                     print(picture.path);
                     print(_image); //this is the file path
+                    print('user' + user.name);
                     //TODO: write event handler for saving the photo
                     uploadImageToFirebase(context);
 

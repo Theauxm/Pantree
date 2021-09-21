@@ -44,7 +44,7 @@ class _socialState extends State<social_feed> {
 
   void _handleURLButtonPress(BuildContext context, var type) {
     Navigator.push(context,
-        MaterialPageRoute(builder: (context) => ImageFromGalleryEx(type)));
+        MaterialPageRoute(builder: (context) => ImageFromGalleryEx(type, user)));
   }
 
   var stars = Row(
