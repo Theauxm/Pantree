@@ -1,11 +1,11 @@
 //import 'dart:html';
 
-import 'dart:io';
-
+import'dart:io';
+import 'package:path/path.dart';
 import 'package:flutter/material.dart';
 import 'package:pantree/pages/social_feed.dart';
 import 'package:pantree/pantreeUser.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 
 
@@ -19,10 +19,30 @@ class ImageFromGalleryEx extends StatefulWidget {
 
 class ImageFromGalleryExState extends State<ImageFromGalleryEx> {
   var _image;
+  var picture;
   var imagePicker;
   var type;
 
   ImageFromGalleryExState(this.type);
+
+  Future uploadImageToFirebase(BuildContext context) async {
+    String fileName = basename(_image.path);
+    Reference firebaseStorageRef =
+    FirebaseStorage.instance.ref().child('uploads/$fileName');
+    //StorageUploadTask uploadTask = firebaseStorageRef.putFile(_image);
+    try {
+      await FirebaseStorage.instance
+          .ref('uploads/$fileName')
+          .putFile(_image);
+    }catch (e) {
+      // e.g, e.code == 'canceled'
+      print('error in upload of image');
+    }
+    //StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
+    //taskSnapshot.ref.getDownloadURL().then(
+    //      (value) => print("Done: $value"),
+    //);
+  }
 
   @override
   void initState() {
@@ -51,6 +71,7 @@ class ImageFromGalleryExState extends State<ImageFromGalleryEx> {
                 XFile image = await imagePicker.pickImage(
                     source: source, imageQuality: 50, preferredCameraDevice: CameraDevice.front);
                 setState(() {
+                  picture = image;
                   _image = File(image.path);
                 });
               },
@@ -102,7 +123,11 @@ class ImageFromGalleryExState extends State<ImageFromGalleryEx> {
                   ),
                   onPressed: () {
                    // _handleURLButtonPress(context, ImageSourceType.gallery);
+                    print(picture.path);
+                    print(_image); //this is the file path
                     //TODO: write event handler for saving the photo
+                    uploadImageToFirebase(context);
+
                   },
                 )
             )
