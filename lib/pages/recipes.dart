@@ -10,13 +10,16 @@ import 'package:pantree/models/drawer.dart';
 
 class recipes extends StatefulWidget {
   PantreeUser user;
+
   recipes({this.user});
+
   @override
   _recipeState createState() => _recipeState(user: user);
 }
 
 class _recipeState extends State<recipes> {
   PantreeUser user;
+
   _recipeState({this.user});
 
   static const historyLength = 5;
@@ -80,8 +83,6 @@ class _recipeState extends State<recipes> {
     super.dispose();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,57 +90,68 @@ class _recipeState extends State<recipes> {
       body: FloatingSearchBar(
         controller: controller,
         body: FloatingSearchBarScrollNotifier(
-            child: Column(
+          child: Column(
             children: [
               SizedBox(height: 60),
-          Container(
-            height: 80,
-            child: Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection('filters').snapshots(),
-              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> querySnapshot) {
-                if (querySnapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                }
-                else {
-                  return Container(
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemBuilder: (context, index) {
-                        QueryDocumentSnapshot filter = querySnapshot.data.docs[index];
-                        return Container(
-                          width: 200,
-                          child: Card(
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-                            color: Colors.red[400],
-                            margin: const EdgeInsets.only(top: 12.0, right: 8.0, left: 8.0),
-                            child: InkWell(
-                              onTap: () {
-                                setState(() {
-                                  addSearchTerm("");
-                                  selectedTerm = "";
-                                });
-                                filteredRecipes = filter["recipe_ids"];
-                              },
-                              child: Center(
-                                child: Text(filter.id, style: TextStyle(fontSize: 20, color: Colors.white)),
-                              )
-                            )
-                          )
-                        );
-                      },
-                      itemCount: querySnapshot.data.docs.length,
-                    )
-                  );
-                }
-            }
-            )
-          )
-          ),
+              Container(
+                  height: 80,
+                  child: Expanded(
+                      child: StreamBuilder<QuerySnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('filters')
+                              .snapshots(),
+                          builder: (BuildContext context,
+                              AsyncSnapshot<QuerySnapshot> querySnapshot) {
+                            if (querySnapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Center(child: CircularProgressIndicator());
+                            } else {
+                              return Container(
+                                  child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemBuilder: (context, index) {
+                                  QueryDocumentSnapshot filter =
+                                      querySnapshot.data.docs[index];
+                                  return Container(
+                                      width: 200,
+                                      child: Card(
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(50)),
+                                          color: Colors.red[400],
+                                          margin: const EdgeInsets.only(
+                                              top: 12.0, right: 8.0, left: 8.0),
+                                          child: InkWell(
+                                              onTap: () {
+                                                setState(() {
+                                                  addSearchTerm("");
+                                                  selectedTerm = "";
+                                                });
+
+                                                List<dynamic> idStrings = [];
+                                                for (DocumentReference ref
+                                                    in filter["recipe_ids"]) {
+                                                  idStrings.add(ref.id);
+                                                  if (idStrings.length == 10) {
+                                                    break;
+                                                  }
+                                                }
+                                                filteredRecipes = idStrings;
+                                              },
+                                              child: Center(
+                                                child: Text(filter.id,
+                                                    style: TextStyle(
+                                                        fontSize: 20,
+                                                        color: Colors.white)),
+                                              ))));
+                                },
+                                itemCount: querySnapshot.data.docs.length,
+                              ));
+                            }
+                          }))),
               SearchResultsListView(
-                searchTerm: selectedTerm,
-                filters: filteredRecipes
-            )],
+                  searchTerm: selectedTerm, filters: filteredRecipes)
+            ],
           ),
         ),
         transition: CircularFloatingSearchBarTransition(),
@@ -203,29 +215,29 @@ class _recipeState extends State<recipes> {
                       children: filteredSearchHistory
                           .map(
                             (term) => ListTile(
-                          title: Text(
-                            term,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          leading: const Icon(Icons.history),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.clear),
-                            onPressed: () {
-                              setState(() {
-                                deleteSearchTerm(term);
-                              });
-                            },
-                          ),
-                          onTap: () {
-                            setState(() {
-                              putSearchTermFirst(term);
-                              selectedTerm = term;
-                            });
-                            controller.close();
-                          },
-                        ),
-                      )
+                              title: Text(
+                                term,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              leading: const Icon(Icons.history),
+                              trailing: IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  setState(() {
+                                    deleteSearchTerm(term);
+                                  });
+                                },
+                              ),
+                              onTap: () {
+                                setState(() {
+                                  putSearchTermFirst(term);
+                                  selectedTerm = term;
+                                });
+                                controller.close();
+                              },
+                            ),
+                          )
                           .toList(),
                     );
                   }
@@ -237,65 +249,56 @@ class _recipeState extends State<recipes> {
       ),
     );
   }
-    //return Text("F");
-    //return Scaffold(
-      // This is handled by the search bar itself.
-   //   resizeToAvoidBottomInset: false,
-   //   body: buildFloatingSearchBar( context)
-   // );
-  }
+}
 
+Widget buildFloatingSearchBar(BuildContext context) {
+  final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
 
-
-  Widget buildFloatingSearchBar(BuildContext context) {
-    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
-
-    return FloatingSearchBar(
-      hint: 'Search...',
-      scrollPadding: const EdgeInsets.only(top: 16, bottom: 56),
-      transitionDuration: const Duration(milliseconds: 800),
-      transitionCurve: Curves.easeInOut,
-      physics: const BouncingScrollPhysics(),
-      axisAlignment: isPortrait ? 0.0 : -1.0,
-      openAxisAlignment: 0.0,
-      width: isPortrait ? 600 : 500,
-      debounceDelay: const Duration(milliseconds: 500),
-      onQueryChanged: (query) {
-        // Call your model, bloc, controller here.
-      },
-      // Specify a custom transition to be used for
-      // animating between opened and closed stated.
-      transition: CircularFloatingSearchBarTransition(),
-      actions: [
-        FloatingSearchBarAction(
-          showIfOpened: false,
-          child: CircularButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {},
+  return FloatingSearchBar(
+    hint: 'Search...',
+    scrollPadding: const EdgeInsets.only(top: 16, bottom: 56),
+    transitionDuration: const Duration(milliseconds: 800),
+    transitionCurve: Curves.easeInOut,
+    physics: const BouncingScrollPhysics(),
+    axisAlignment: isPortrait ? 0.0 : -1.0,
+    openAxisAlignment: 0.0,
+    width: isPortrait ? 600 : 500,
+    debounceDelay: const Duration(milliseconds: 500),
+    onQueryChanged: (query) {
+      // Call your model, bloc, controller here.
+    },
+    // Specify a custom transition to be used for
+    // animating between opened and closed stated.
+    transition: CircularFloatingSearchBarTransition(),
+    actions: [
+      FloatingSearchBarAction(
+        showIfOpened: false,
+        child: CircularButton(
+          icon: const Icon(Icons.search),
+          onPressed: () {},
+        ),
+      ),
+      FloatingSearchBarAction.searchToClear(
+        showIfClosed: false,
+      ),
+    ],
+    builder: (context, transition) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Material(
+          color: Colors.white,
+          elevation: 4.0,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: Colors.accents.map((color) {
+              return Container(height: 112, color: color);
+            }).toList(),
           ),
         ),
-        FloatingSearchBarAction.searchToClear(
-          showIfClosed: false,
-        ),
-
-      ],
-      builder: (context, transition) {
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Material(
-            color: Colors.white,
-            elevation: 4.0,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: Colors.accents.map((color) {
-                return Container(height: 112, color: color);
-              }).toList(),
-            ),
-          ),
-        );
-      },
-    );
-  }
+      );
+    },
+  );
+}
 
 class SearchResultsListView extends StatelessWidget {
   final String searchTerm;
@@ -321,10 +324,7 @@ class SearchResultsListView extends StatelessWidget {
             Text(
               //text in the middle
               '',
-              style: Theme
-                  .of(context)
-                  .textTheme
-                  .headline5,
+              style: Theme.of(context).textTheme.headline5,
             )
           ],
         ),
@@ -333,24 +333,16 @@ class SearchResultsListView extends StatelessWidget {
 
     Stream<QuerySnapshot> query;
     if (filters.length > 0) {
-      List<dynamic> idStrings = [];
-      for (DocumentReference ref in filters) {
-        idStrings.add(ref.id);
-        if (idStrings.length == 10) {
-          break;
-        }
-      }
-
-      query = FirebaseFirestore.instance.collection('recipes')
-          .limit(20)
-          .where('DocumentID', arrayContainsAny: idStrings)
+      query = FirebaseFirestore.instance
+          .collection('recipes')
+          .limit(10)
+          .where('DocumentID', arrayContainsAny: filters)
           .snapshots();
-
     } else {
-      query = FirebaseFirestore.instance.collection('recipes')
+      query = FirebaseFirestore.instance
+          .collection('recipes')
           .limit(20)
-          .where('Keywords', arrayContainsAny: ['$searchTerm'])
-          .snapshots();
+          .where('Keywords', arrayContainsAny: ['$searchTerm']).snapshots();
     }
 
     return Expanded(
@@ -364,84 +356,92 @@ class SearchResultsListView extends StatelessWidget {
 
               if (querySnapshot.connectionState == ConnectionState.waiting) {
                 return Center(child: CircularProgressIndicator());
-              }
-              else {
+              } else {
                 return ListView.builder(
                   itemBuilder: (context, index) {
-                    QueryDocumentSnapshot recipe = querySnapshot.data.docs[index];
+                    QueryDocumentSnapshot recipe =
+                        querySnapshot.data.docs[index];
                     return Card(
-                      margin: const EdgeInsets.only(top: 12.0, right: 8.0, left: 8.0),
-                      child: ListTile(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
-
-                      title: Text(
-                        recipe["RecipeName"],
-                        style: TextStyle(
-                          fontSize: 20.0
-                        ),
-                      ),
-                      subtitle: SizedBox(
-                        width: 100.0,
-                        height: 50.0,
-                        child: Row(
-                          children: [
-                            Card(
-                                color: Colors.red[400],
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
-                                child: Container(
-                                  padding: const EdgeInsets.only(top: 12.0, right: 12.0, left: 12.0, bottom: 12.0),
-                                  child: Text(
-                                    "Time: " + recipe["TotalTime"].toString() + " minutes",
-                                    style: TextStyle(
-                                      fontSize: 18.0,
-                                          color: Colors.white,
-                                    )
-                                  )
-                                )
-                            ),
-                            Card(
-                                color: Colors.red[400],
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
-                                child: Container(
-                                    padding: const EdgeInsets.only(top: 12.0, right: 12.0, left: 12.0, bottom: 12.0),
-                                    child: Text(
-                                        "Created: " + DateTime.parse(recipe["CreationDate"].toDate().toString()).toString(),
-                                        style: TextStyle(
-                                          fontSize: 18.0,
-                                          color: Colors.white,
-                                        )
-                                    )
-                                )
-                            ),
-                            Card(
-                                color: Colors.red[400],
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
-                                child: Container(
-                                    padding: const EdgeInsets.only(top: 12.0, right: 12.0, left: 12.0, bottom: 12.0),
-                                    child: Text(
-                                        "Missing Ingredients: " + "NaN",
-                                        style: TextStyle(
-                                          fontSize: 18.0,
-                                          color: Colors.white,
-                                        )
-                                    )
-                                )
-                            ),
-                          ]
-                        ),
-                      ),
-                      onTap: () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => ViewRecipe(querySnapshot.data.docs[index])));
-                      },
-                      )
-                    );
+                        margin: const EdgeInsets.only(
+                            top: 12.0, right: 8.0, left: 8.0),
+                        child: ListTile(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5.0)),
+                          title: Text(
+                            recipe["RecipeName"],
+                            style: TextStyle(fontSize: 20.0),
+                          ),
+                          subtitle: SizedBox(
+                            width: 100.0,
+                            height: 50.0,
+                            child: Row(children: [
+                              Card(
+                                  color: Colors.red[400],
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5.0)),
+                                  child: Container(
+                                      padding: const EdgeInsets.only(
+                                          top: 12.0,
+                                          right: 12.0,
+                                          left: 12.0,
+                                          bottom: 12.0),
+                                      child: Text(
+                                          "Time: " +
+                                              recipe["TotalTime"].toString() +
+                                              " minutes",
+                                          style: TextStyle(
+                                            fontSize: 18.0,
+                                            color: Colors.white,
+                                          )))),
+                              Card(
+                                  color: Colors.red[400],
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5.0)),
+                                  child: Container(
+                                      padding: const EdgeInsets.only(
+                                          top: 12.0,
+                                          right: 12.0,
+                                          left: 12.0,
+                                          bottom: 12.0),
+                                      child: Text(
+                                          "Created: " +
+                                              DateTime.parse(
+                                                      recipe["CreationDate"]
+                                                          .toDate()
+                                                          .toString())
+                                                  .toString(),
+                                          style: TextStyle(
+                                            fontSize: 18.0,
+                                            color: Colors.white,
+                                          )))),
+                              Card(
+                                  color: Colors.red[400],
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5.0)),
+                                  child: Container(
+                                      padding: const EdgeInsets.only(
+                                          top: 12.0,
+                                          right: 12.0,
+                                          left: 12.0,
+                                          bottom: 12.0),
+                                      child:
+                                          Text("Missing Ingredients: " + "N/A",
+                                              style: TextStyle(
+                                                fontSize: 18.0,
+                                                color: Colors.white,
+                                              )))),
+                            ]),
+                          ),
+                          onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => ViewRecipe(
+                                    querySnapshot.data.docs[index])));
+                          },
+                        ));
                   },
-
                   itemCount: querySnapshot.data.docs.length,
                 );
               }
-            }
-        )
-    );
+            }));
   }
 }
