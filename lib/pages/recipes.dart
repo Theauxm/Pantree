@@ -25,6 +25,8 @@ class _recipeState extends State<recipes> {
 
   List<String> filteredSearchHistory;
 
+  List<dynamic> filteredRecipes = [];
+
   String selectedTerm;
 
   List<String> filterSearchTerms({
@@ -87,7 +89,7 @@ class _recipeState extends State<recipes> {
       body: FloatingSearchBar(
         controller: controller,
         body: FloatingSearchBarScrollNotifier(
-          child: Column(
+            child: Column(
             children: [
               SizedBox(height: 60),
           Container(
@@ -109,10 +111,19 @@ class _recipeState extends State<recipes> {
                           width: 200,
                           child: Card(
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-                            color: Colors.red,
+                            color: Colors.red[400],
                             margin: const EdgeInsets.only(top: 12.0, right: 8.0, left: 8.0),
-                            child: Center(
-                              child: Text(filter.id, style: TextStyle(fontSize: 20, color: Colors.white)),
+                            child: InkWell(
+                              onTap: () {
+                                setState(() {
+                                  addSearchTerm("");
+                                  selectedTerm = "";
+                                });
+                                filteredRecipes = filter["recipe_ids"];
+                              },
+                              child: Center(
+                                child: Text(filter.id, style: TextStyle(fontSize: 20, color: Colors.white)),
+                              )
                             )
                           )
                         );
@@ -126,7 +137,8 @@ class _recipeState extends State<recipes> {
           )
           ),
               SearchResultsListView(
-              searchTerm: selectedTerm,
+                searchTerm: selectedTerm,
+                filters: filteredRecipes
             )],
           ),
         ),
@@ -287,10 +299,12 @@ class _recipeState extends State<recipes> {
 
 class SearchResultsListView extends StatelessWidget {
   final String searchTerm;
+  final List<dynamic> filters;
 
   const SearchResultsListView({
     Key key,
     @required this.searchTerm,
+    @required this.filters,
   }) : super(key: key);
 
   @override
@@ -317,12 +331,31 @@ class SearchResultsListView extends StatelessWidget {
       );
     }
 
+    Stream<QuerySnapshot> query;
+    if (filters.length > 0) {
+      List<dynamic> idStrings = [];
+      for (DocumentReference ref in filters) {
+        idStrings.add(ref.id);
+        if (idStrings.length == 10) {
+          break;
+        }
+      }
+
+      query = FirebaseFirestore.instance.collection('recipes')
+          .limit(20)
+          .where('DocumentID', arrayContainsAny: idStrings)
+          .snapshots();
+
+    } else {
+      query = FirebaseFirestore.instance.collection('recipes')
+          .limit(20)
+          .where('Keywords', arrayContainsAny: ['$searchTerm'])
+          .snapshots();
+    }
+
     return Expanded(
         child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance.collection('recipes')
-                .limit(20)
-                .where('Keywords', arrayContainsAny: ['$searchTerm'])
-                .snapshots(),
+            stream: query,
             builder: (BuildContext context,
                 AsyncSnapshot<QuerySnapshot> querySnapshot) {
               if (querySnapshot.hasError)
@@ -353,7 +386,7 @@ class SearchResultsListView extends StatelessWidget {
                         child: Row(
                           children: [
                             Card(
-                                color: Colors.grey,
+                                color: Colors.red[400],
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
                                 child: Container(
                                   padding: const EdgeInsets.only(top: 12.0, right: 12.0, left: 12.0, bottom: 12.0),
@@ -367,7 +400,7 @@ class SearchResultsListView extends StatelessWidget {
                                 )
                             ),
                             Card(
-                                color: Colors.grey,
+                                color: Colors.red[400],
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
                                 child: Container(
                                     padding: const EdgeInsets.only(top: 12.0, right: 12.0, left: 12.0, bottom: 12.0),
@@ -381,7 +414,7 @@ class SearchResultsListView extends StatelessWidget {
                                 )
                             ),
                             Card(
-                                color: Colors.grey,
+                                color: Colors.red[400],
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
                                 child: Container(
                                     padding: const EdgeInsets.only(top: 12.0, right: 12.0, left: 12.0, bottom: 12.0),
