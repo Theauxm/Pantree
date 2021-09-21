@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pantree/pantreeUser.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/ImageFromGalleryEx.dart';
 import '../models/drawer.dart';
@@ -26,8 +27,10 @@ class _socialState extends State<social_feed> {
   PantreeUser user;
   _socialState({this.user});
  //TODO: READ FROM DB FOR THE POSTS COLLECTION AND PULL RELEVANT INFORMATION
-  var Images = [];
+  var images;
+  var images1;
   var _image;
+
   // this.user.posts.toString() is a reference to a document that is housing this material, I will now have
   //to read the document
 
@@ -41,6 +44,33 @@ class _socialState extends State<social_feed> {
   // void initialize() async {
   //   var ll = user.name;
   // }
+
+  Future<dynamic> getData() async {
+    DocumentReference tempPost;
+    String tempName;
+
+    await user.updateData(); // important: refreshes the user's data
+    images = Map<String, DocumentReference>(); // instantiate the map
+    images1 = [];
+
+    for (DocumentReference ref in user.posts) {
+      print('hi');
+      // go through each doc ref and add to list of pantry names + map
+      String imageLink = "";
+      await ref.get().then((DocumentSnapshot snapshot) {
+        imageLink = snapshot.data()['image']; // get the image link as a string
+      });
+      tempPost = ref; // this will have to do for now
+      tempName = imageLink;
+      images[imageLink] = ref; // map the doc ref to its name
+    }
+    print(images);
+    print(user.posts);
+    // setState(() {
+    //   _selectedPantry = tempPantry;
+    //   _selectedPantryName = tempName;
+    // });
+  }
 
   void _handleURLButtonPress(BuildContext context, var type) {
     Navigator.push(context,
@@ -206,6 +236,7 @@ class _socialState extends State<social_feed> {
                         child: GestureDetector(
                           onTap: () async {
                             print('hey');
+                            getData();
                             },
                           child: Container(
                             width: 200,
