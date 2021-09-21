@@ -62,10 +62,25 @@ class _socialState extends State<social_feed> {
       });
       tempPost = ref; // this will have to do for now
       tempName = imageLink;
+      images1.add(imageLink);
+
       images[imageLink] = ref; // map the doc ref to its name
+      //TODO: GIVE A BETTER MAPPING FOR THESE VALUES AS THE IMAGE LINK IS THE KEY
+      print(imageLink);
     }
     print(images);
     print(user.posts);
+    print(images1);
+
+    //WORKING FOR GETTING AN IMAGE BACK
+    for(var i = 0; i < images1.length; i++) {
+      String downloadURL = await firebase_storage.FirebaseStorage.instance
+          .refFromURL(images1[i])
+          .getDownloadURL();
+
+      print(downloadURL);
+    }
+
     // setState(() {
     //   _selectedPantry = tempPantry;
     //   _selectedPantryName = tempName;
