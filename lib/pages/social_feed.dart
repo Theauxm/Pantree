@@ -369,6 +369,90 @@ class _socialState extends State<social_feed> {
                           )
                       ),
                       Container(
+                          padding: const EdgeInsets.all(8),
+                          child: GestureDetector(
+                              onTap: () async {
+                                print('hey');
+                                getData();
+                              },
+                              child: Container(
+                                width: 200,
+                                height: 200,
+                                decoration: BoxDecoration(
+                                    color: Colors.grey[200]),
+                                child:images2.length >= 5
+                                    ? Image.network(
+                                    images2[4])
+                                    :Container(
+                                  decoration: BoxDecoration(
+                                      color: Colors.teal[100]),
+                                  width: 200,
+                                  height: 200,
+                                  child: Icon(
+                                    Icons.image,
+                                    //color: Colors.grey[800],
+                                  ),
+                                ),
+                              )
+                          )
+                      ),
+                      Container(
+                          padding: const EdgeInsets.all(8),
+                          child: GestureDetector(
+                              onTap: () async {
+                                print('hey');
+                                getData();
+                              },
+                              child: Container(
+                                width: 200,
+                                height: 200,
+                                decoration: BoxDecoration(
+                                    color: Colors.grey[200]),
+                                child:images2.length >= 6
+                                    ? Image.network(
+                                    images2[5])
+                                    :Container(
+                                  decoration: BoxDecoration(
+                                      color: Colors.teal[100]),
+                                  width: 200,
+                                  height: 200,
+                                  child: Icon(
+                                    Icons.image,
+                                    //color: Colors.grey[800],
+                                  ),
+                                ),
+                              )
+                          )
+                      ),
+                      Container(
+                          padding: const EdgeInsets.all(8),
+                          child: GestureDetector(
+                              onTap: () async {
+                                print('hey');
+                                getData();
+                              },
+                              child: Container(
+                                width: 200,
+                                height: 200,
+                                decoration: BoxDecoration(
+                                    color: Colors.grey[200]),
+                                child:images2.length >= 7
+                                    ? Image.network(
+                                    images2[6])
+                                    :Container(
+                                  decoration: BoxDecoration(
+                                      color: Colors.teal[100]),
+                                  width: 200,
+                                  height: 200,
+                                  child: Icon(
+                                    Icons.image,
+                                    //color: Colors.grey[800],
+                                  ),
+                                ),
+                              )
+                          )
+                      ),
+                      Container(
                         padding: const EdgeInsets.all(8),
                         child: GestureDetector(
                           onTap: () async {
