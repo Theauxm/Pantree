@@ -68,6 +68,7 @@ def main():
     # Database object to write to
     db = firestore.client()
 
+
     # List of visited sites to avoid duplicates
     visited = get_links('./data.txt')
 
@@ -134,6 +135,7 @@ def add_recipe(recipe, db, filter = ""):
 
     # Recipes are added to 2 collections
     new_recipe_ref = db.collection(u'recipes').document()
+    print(new_recipe_ref.id)
 
     # user adding the recipe
     user = db.collection(u'users').document(u'PantreeOfficial')
@@ -184,7 +186,8 @@ def add_recipe(recipe, db, filter = ""):
         u'RecipeName' : recipe.title(),
         u'TotalTime' : recipe.total_time(),
         u'Credit' : site,
-        u'Keywords' : list(ingredients_keywords | get_keywords(recipe.title().lower())) # All ingredients keywords along with recipe title keywords
+        u'Keywords' : list(ingredients_keywords | get_keywords(recipe.title().lower())), # All ingredients keywords along with recipe title keywords
+        u'DocumentID' : [new_recipe_ref.id]
     })
 
     # Updates recipes for the specific user, along with its corresponding filters and recipe name for easier searching
