@@ -18,21 +18,18 @@ measures = {
     'ounces',
     'unit'}
 
-# List of visited sites to avoid duplicates
-visited = set()
-
 # Top level domain
 site = 'https://hellofresh.com'
 
 # Filters to define a given type of recipe
 filters = {
-    "american" : {"american", "burger", "fries"},
-    "italian" : {"italian", "penne", "risotto", "agnolotti", "linguine", "piccata"},
+    "american" : {"american", "burger", "fries", "hearty", "pie", "mac 'n' cheese", "clam chowder", "chili", "mac & cheese", "potato wedges"},
+    "italian" : {"italian", "penne", "risotto", "agnolotti", "linguine", "piccata", "gnocchi", "ricotta", "ciabattas", "rigatoni"},
     "asian" : {"asian", "korean", "chinese", "indian", "curry", "japanese", "stir-fry", "teriyaki", "lo mein", "hoisin", "thai", "sesame", "bulgogi", "kimchi"},
     "breakfast" : {"egg", "breakfast", "chorizo", "oatmeal", "smoothie"},
     "mexican" : {"mexican", "enchiladas", "chipotle", "quesadillas", "carne asada", "fajitas", "chorizo"},
     "hawaiian" : {"pineapple", "hawaiian", "luau", "tropical"},
-    "lunch" : {"sandwich", "burrito", "soup", "lunch"},
+    "lunch" : {"sandwich", "burrito", "soup", "lunch", "mac 'n' cheese", "mac & cheese"},
     "dinner" : {"pizza", "pot roast", "oven roasted", "soup", "dinner"}
 }
 
@@ -71,19 +68,18 @@ def main():
     # Database object to write to
     db = firestore.client()
 
-    #add_recipe(scrape_me('https://www.hellofresh.com/recipes/one-pan-shrimp-lo-mein-5a1f3b44ad1d6c4d4d6c5ef2'), db, "asian")
+
+    # List of visited sites to avoid duplicates
+    visited = get_links('./data.txt')
 
     # Starts recursive calls
-    #get_recipes(db, site, '/')
+    get_recipes(db, site, '/', visited)
 
-    x = scrape_me('https://www.hellofresh.com/recipes/french-onion-chicken-5df681f313376732637995a1')
-    print(x.title())
-    for y in x.ingredients():
-        print(get_ingredients(y.split()))
-        print(get_amount(y.split()))
+def get_links(file):
+    with open(file, 'r') as f:
+        return set([x for x in f.readlines()])
 
-
-def get_recipes(db, link, h):
+def get_recipes(db, link, h, visited):
     """
     A web crawler that recurs through every link within a site and checks if any are recipes
     Args:
@@ -98,7 +94,7 @@ def get_recipes(db, link, h):
     print("\n" + link + h)
 
     # If there are ingredients returned by the scraper, it is a recipe
-    if len(html.ingredients()) > 0:
+    if len(html.ingredients()) > 0 and link + h + '\n' not in visited:
 
         # Checks title of recipe to see if it can be filtered
         y = ""
@@ -107,7 +103,11 @@ def get_recipes(db, link, h):
                 y = x
                 break
 
-        
+        with open('data.txt', 'a+') as f:
+            f.write(link + h + '\n')
+
+        visited.add(link + h)
+
         add_recipe(html, db, y)
         print(html.title())
         print("Filter: " + y)
@@ -120,8 +120,7 @@ def get_recipes(db, link, h):
                 visited.add(i['href'])
 
                 # Recurs down with the new sub url
-                get_recipes(db, link, i['href'])
-
+                get_recipes(db, link, i['href'], visited)
 
 def add_recipe(recipe, db, filter = ""):
     """
@@ -136,6 +135,7 @@ def add_recipe(recipe, db, filter = ""):
 
     # Recipes are added to 2 collections
     new_recipe_ref = db.collection(u'recipes').document()
+    print(new_recipe_ref.id)
 
     # user adding the recipe
     user = db.collection(u'users').document(u'PantreeOfficial')
@@ -186,7 +186,8 @@ def add_recipe(recipe, db, filter = ""):
         u'RecipeName' : recipe.title(),
         u'TotalTime' : recipe.total_time(),
         u'Credit' : site,
-        u'Keywords' : list(ingredients_keywords | get_keywords(recipe.title().lower())) # All ingredients keywords along with recipe title keywords
+        u'Keywords' : list(ingredients_keywords | get_keywords(recipe.title().lower())), # All ingredients keywords along with recipe title keywords
+        u'DocumentID' : [new_recipe_ref.id]
     })
 
     # Updates recipes for the specific user, along with its corresponding filters and recipe name for easier searching
@@ -198,7 +199,6 @@ def add_recipe(recipe, db, filter = ""):
         filter_array = db.collection(u'filters').document(filter)
         filter_array.set({u'recipe_ids' : firestore.ArrayUnion([new_recipe_ref])},
                          merge=True)
-
         
 def get_amount(words):
     """
@@ -211,6 +211,10 @@ def get_amount(words):
     number = 0
     for x in words:
         try:
+            if len(x) > 1 and type(int(x)) is int:
+                number += int(x)
+                continue
+
             if ord(x) in unicode_fractions.keys():
                 x = unicode_fractions[ord(x)]
                 number += x
@@ -271,4 +275,3 @@ def get_keywords(word):
 
 if __name__ == "__main__":
     main()
-
