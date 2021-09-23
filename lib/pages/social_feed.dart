@@ -57,15 +57,13 @@ class _socialState extends State<social_feed> {
 
     for (DocumentReference ref in user.posts) {
       print('hi');
-      // go through each doc ref and add to list of pantry names + map
       String imageLink = "";
       await ref.get().then((DocumentSnapshot snapshot) {
         imageLink = snapshot.data()['image']; // get the image link as a string
       });
-      tempPost = ref; // this will have to do for now
+      tempPost = ref;
       tempName = imageLink;
       images1.add(imageLink);
-
       images[imageLink] = ref; // map the doc ref to its name
       //TODO: GIVE A BETTER MAPPING FOR THESE VALUES AS THE IMAGE LINK IS THE KEY
       print(imageLink);
@@ -84,17 +82,25 @@ class _socialState extends State<social_feed> {
       images2.add(downloadURL);
     }
 
-    // setState(() {
-    //   _selectedPantry = tempPantry;
-    //   _selectedPantryName = tempName;
-    // });
+    setState(() {
+    });
   }
 
+  setListener() {
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(user.uid)
+        //.collection("posts")
+        .snapshots()
+        .listen((event) {
+      getData();
+    });
+  }
   @override
   void initState() {
     super.initState();
     getData();
-    //setListener();
+    setListener();
   }
 
   void _handleURLButtonPress(BuildContext context, var type) {
@@ -439,6 +445,34 @@ class _socialState extends State<social_feed> {
                                 child:images2.length >= 7
                                     ? Image.network(
                                     images2[6])
+                                    :Container(
+                                  decoration: BoxDecoration(
+                                      color: Colors.teal[100]),
+                                  width: 200,
+                                  height: 200,
+                                  child: Icon(
+                                    Icons.image,
+                                    //color: Colors.grey[800],
+                                  ),
+                                ),
+                              )
+                          )
+                      ),
+                      Container(
+                          padding: const EdgeInsets.all(8),
+                          child: GestureDetector(
+                              onTap: () async {
+                                print('hey');
+                                getData();
+                              },
+                              child: Container(
+                                width: 200,
+                                height: 200,
+                                decoration: BoxDecoration(
+                                    color: Colors.grey[200]),
+                                child:images2.length >= 8
+                                    ? Image.network(
+                                    images2[7])
                                     :Container(
                                   decoration: BoxDecoration(
                                       color: Colors.teal[100]),
