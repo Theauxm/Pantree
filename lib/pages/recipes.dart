@@ -92,10 +92,9 @@ class _recipeState extends State<recipes> {
         body: FloatingSearchBarScrollNotifier(
           child: Column(
             children: [
-              SizedBox(height: 60),
+              SizedBox(height: 80),
               Container(
                   height: 80,
-                  child: Expanded(
                       child: StreamBuilder<QuerySnapshot>(
                           stream: FirebaseFirestore.instance
                               .collection('filters')
@@ -148,7 +147,7 @@ class _recipeState extends State<recipes> {
                                 itemCount: querySnapshot.data.docs.length,
                               ));
                             }
-                          }))),
+                          })),
               SearchResultsListView(
                   searchTerm: selectedTerm, filters: filteredRecipes)
             ],

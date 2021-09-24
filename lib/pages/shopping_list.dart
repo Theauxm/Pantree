@@ -95,11 +95,15 @@ class _ListState extends State<ShoppingList> {
   }
 
   void exportList() {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                (ExportList(user: user, list: _selectedList))));
+    if(user.pantries.length > 0) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+              (ExportList(user: user, list: _selectedList))));
+    } else{
+      showError(context);
+    }
   }
 
   @override
@@ -289,6 +293,30 @@ class _ListState extends State<ShoppingList> {
               Text("Do you really want to delete \"$item\" from your pantry?"),
           actions: [
             cancelButton,
+            okButton,
+          ],
+        );
+      },
+    );
+  }
+
+  showError(BuildContext context) {
+    Widget okButton = TextButton(
+      style: TextButton.styleFrom(primary: Colors.lightBlue),
+      child: Text("Ok"),
+      onPressed: () {
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("No Pantries"),
+          content:
+          Text("You don't have any pantries to export to!"),
+          actions: [
             okButton,
           ],
         );

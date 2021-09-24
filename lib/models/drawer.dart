@@ -17,7 +17,7 @@ class _PantreeDrawerState extends State<PantreeDrawer> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        width: 325,
+        width: 335,
         child: Drawer(
           child: ListView(
             children: <Widget>[
@@ -34,12 +34,17 @@ class _PantreeDrawerState extends State<PantreeDrawer> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(user.name,
-                            style: Theme.of(context).textTheme.headline5),
-                        Text(
-                          user.email,
-//user.displayName.toString(),
+                        FittedBox(
+                          fit: BoxFit.fitWidth,
+                          child: Text(user.name,
+                              style: Theme.of(context).textTheme.headline5),
                         ),
+                        FittedBox(
+                          fit: BoxFit.fitWidth,
+                          child: Text(
+                            user.email,
+                          ),
+                        )
                       ],
                     ),
                   ],
