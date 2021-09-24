@@ -167,12 +167,14 @@ class _recipeState extends State<recipes> {
         onQueryChanged: (query) {
           setState(() {
             filteredSearchHistory = filterSearchTerms(filter: query);
+            filteredRecipes = [];
           });
         },
         onSubmitted: (query) {
           setState(() {
             addSearchTerm(query);
             selectedTerm = query;
+            filteredRecipes = [];
           });
           controller.close();
         },
