@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pantree/pantreeUser.dart';
+import 'package:flutter/services.dart';
 
 class NewShoppingList extends StatelessWidget {
   PantreeUser user;
@@ -20,10 +21,17 @@ class NewShoppingList extends StatelessWidget {
           child: Column(children: <Widget>[
             TextFormField(
                 controller: _ListName,
-                validator: (validator) {
-                  if (validator.isEmpty) return 'Empty';
+                validator: (value) {
+                  if (value.isEmpty || value == null) {
+                    return 'Please enter a name for your pantry';
+                  } else if (!RegExp(r"^[a-zA-Z\s\']+$").hasMatch(value)) {
+                    return "Name can only contain letters";
+                  }
                   return null;
                 },
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(20),
+                ],
                 decoration: InputDecoration(
                   labelText: "Shopping List Name",
                   border: OutlineInputBorder(),

@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pantree/pantreeUser.dart';
+import 'package:flutter/services.dart';
 
 class NewPantry extends StatelessWidget {
   PantreeUser user;
-  final TextEditingController _PantryName = TextEditingController();
+  final TextEditingController _pantryNameTextController = TextEditingController();
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
 
   NewPantry({this.user});
+
+  // @override
+  // void dispose() {
+  //   _PantryNameTextController.dispose();
+  //   super.dispose(); // NewPantry needs to be Stateful*** for this to properly dispose
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -19,11 +26,18 @@ class NewPantry extends StatelessWidget {
           key: _form,
           child: Column(children: <Widget>[
             TextFormField(
-                controller: _PantryName,
-                validator: (validator) {
-                  if (validator.isEmpty) return 'Empty';
+                controller: _pantryNameTextController,
+                validator: (value) {
+                  if (value.isEmpty || value == null) {
+                    return 'Please enter a name for your pantry';
+                  } else if (!RegExp(r"^[a-zA-Z\s\']+$").hasMatch(value)) {
+                    return "Name can only contain letters";
+                  }
                   return null;
                 },
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(20),
+                ],
                 decoration: InputDecoration(
                   labelText: "New Pantry Name",
                   border: OutlineInputBorder(),
@@ -35,7 +49,7 @@ class NewPantry extends StatelessWidget {
                 String title = "Failed!";
                 String message = "Shopping List Creation Failed Try again!";
                 if (_form.currentState.validate()) {
-                  if (createPantry(_PantryName.text)) {
+                  if (createPantry(_pantryNameTextController.text)) {
                     title = "Success!";
                     message =
                         "Pantry Creation was Successful Return to your Pantries!";

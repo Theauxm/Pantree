@@ -69,12 +69,8 @@ class _ListState extends State<ShoppingList> {
     setListener();
   }
 
-  // for adding a new list item
-  TextEditingController nameController = TextEditingController();
-
   @override
   void dispose() {
-    nameController.dispose();
     super.dispose();
   }
 
