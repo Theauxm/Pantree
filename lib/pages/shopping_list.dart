@@ -145,10 +145,10 @@ class _ListState extends State<ShoppingList> {
       actions: <Widget>[
         Padding(
           padding: EdgeInsets.only(right: 20.0),
-          child: GestureDetector(
-            onTap: () {},
-            child: Icon(Icons.search, size: 26.0),
-          ),
+         //  child: GestureDetector(
+         //    onTap: () {},
+         // //   child: Icon(Icons.search, size: 26.0),
+         //  ),
         ),
         PopupMenuButton<String>(
           onSelected: (selected) {

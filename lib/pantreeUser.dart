@@ -22,6 +22,7 @@ class PantreeUser {
   //this is from the FirebaseAuth, and contains info related from Authentication
   //likely will not change ever.
   PantreeUser() {
+    this.name = "Loading...";
     try {
       User u = FirebaseAuth.instance.currentUser;
 

@@ -395,43 +395,43 @@ class SearchResultsListView extends StatelessWidget {
                                             fontSize: 18.0,
                                             color: Colors.white,
                                           )))),
-                              Card(
-                                  color: Colors.red[400],
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(5.0)),
-                                  child: Container(
-                                      padding: const EdgeInsets.only(
-                                          top: 12.0,
-                                          right: 12.0,
-                                          left: 12.0,
-                                          bottom: 12.0),
-                                      child: Text(
-                                          "Created: " +
-                                              DateTime.parse(
-                                                      recipe["CreationDate"]
-                                                          .toDate()
-                                                          .toString())
-                                                  .toString(),
-                                          style: TextStyle(
-                                            fontSize: 18.0,
-                                            color: Colors.white,
-                                          )))),
-                              Card(
-                                  color: Colors.red[400],
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(5.0)),
-                                  child: Container(
-                                      padding: const EdgeInsets.only(
-                                          top: 12.0,
-                                          right: 12.0,
-                                          left: 12.0,
-                                          bottom: 12.0),
-                                      child:
-                                          Text("Missing Ingredients: " + "N/A",
-                                              style: TextStyle(
-                                                fontSize: 18.0,
-                                                color: Colors.white,
-                                              )))),
+                              // Card(
+                              //     color: Colors.red[400],
+                              //     shape: RoundedRectangleBorder(
+                              //         borderRadius: BorderRadius.circular(5.0)),
+                              //     child: Container(
+                              //         padding: const EdgeInsets.only(
+                              //             top: 12.0,
+                              //             right: 12.0,
+                              //             left: 12.0,
+                              //             bottom: 12.0),
+                              //         child: Text(
+                              //             "Created: " +
+                              //                 DateTime.parse(
+                              //                         recipe["CreationDate"]
+                              //                             .toDate()
+                              //                             .toString())
+                              //                     .toString(),
+                              //             style: TextStyle(
+                              //               fontSize: 18.0,
+                              //               color: Colors.white,
+                              //             )))),
+                              // Card(
+                              //     color: Colors.red[400],
+                              //     shape: RoundedRectangleBorder(
+                              //         borderRadius: BorderRadius.circular(5.0)),
+                              //     child: Container(
+                              //         padding: const EdgeInsets.only(
+                              //             top: 12.0,
+                              //             right: 12.0,
+                              //             left: 12.0,
+                              //             bottom: 12.0),
+                              //         child:
+                              //             Text("Missing Ingredients: " + "N/A",
+                              //                 style: TextStyle(
+                              //                   fontSize: 18.0,
+                              //                   color: Colors.white,
+                              //                 )))),
                             ]),
                           ),
                           onTap: () {
