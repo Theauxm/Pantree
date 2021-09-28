@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class ViewRecipe extends StatelessWidget {
+class ViewRecipe extends StatefulWidget {
   QueryDocumentSnapshot recipe;
 
   ViewRecipe(this.recipe);
@@ -11,79 +11,51 @@ class ViewRecipe extends StatelessWidget {
     return Scaffold(
         extendBody: true,
         appBar: AppBar(title: Text(recipe["RecipeName"])),
-        body: SingleChildScrollView(
-            child: ConstrainedBox(
-                constraints: BoxConstraints(),
-                child: Column(children: [
-                  ListTile(
-                      subtitle: Text(recipe["Creator"].id,
-                          style: TextStyle(fontSize: 20.0)),
-                      title: Text("Created By:",
-                          style: TextStyle(fontSize: 25.0))),
-                  ListTile(
-                      subtitle: Text(
-                          DateTime.parse(
-                                  recipe["CreationDate"].toDate().toString())
-                              .toString(),
-                          style: TextStyle(fontSize: 20.0)),
-                      title: Text("Creation Date:",
-                          style: TextStyle(fontSize: 25.0))),
-                  ListTile(
-                      subtitle: Text(
-                          recipe["TotalTime"].toString() + " minutes",
-                          style: TextStyle(fontSize: 20.0)),
-                      title: Text("Time to cook:",
-                          style: TextStyle(fontSize: 25.0))),
-                  ListTile(
-                      subtitle: Expanded(
-                          child: StreamBuilder<QuerySnapshot>(
-                              stream: FirebaseFirestore.instance
-                                  .collection("recipes")
-                                  .doc(recipe.id)
-                                  .collection("ingredients")
-                                  .snapshots(),
-                              builder: (BuildContext context,
-                                  AsyncSnapshot<QuerySnapshot> querySnapshot) {
-                                if (querySnapshot.hasError) {
-                                  return Text("Could not show ingredients.");
-                                }
-                                if (querySnapshot.connectionState ==
-                                    ConnectionState.waiting)
-                                  return Center(
-                                      child: CircularProgressIndicator());
 
-                                return ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: querySnapshot.data.docs.length,
-                                  itemBuilder: (context, index) {
-                                    QueryDocumentSnapshot ingredients =
-                                        querySnapshot.data.docs[index];
-                                    return Text(
-                                      ingredients["Quantity"].toString() +
-                                          " " +
-                                          ingredients["Unit"].toString() +
-                                          " " +
-                                          ingredients["Item"].id,
-                                      style: TextStyle(fontSize: 20.0),
-                                    );
-                                  },
-                                );
-                              })),
-                      title: Text("Ingredients:",
-                          style: TextStyle(fontSize: 25.0))),
-                  ListTile(
-                      subtitle: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: recipe["Directions"].length,
-                          itemBuilder: (context, index) {
-                            return Text(
-                                (index + 1).toString() +
-                                    ". " +
-                                    recipe["Directions"][index],
-                                style: TextStyle(fontSize: 20.0));
-                          }),
-                      title: Text("Directions:",
-                          style: TextStyle(fontSize: 25.0))),
-                ]))));
+
+    );
+  }
+
+  @override
+  State<StatefulWidget> createState() => _HomePageState(this.recipe);
+}
+
+// https://stackoverflow.com/questions/51607440/horizontally-scrollable-cards-with-snap-effect-in-flutter
+class _HomePageState extends State<ViewRecipe> {
+  int _index = 0;
+  QueryDocumentSnapshot recipe;
+
+  _HomePageState(this.recipe);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: Center(
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height, // card height
+          child: PageView.builder(
+            itemCount: 10,
+            controller: PageController(viewportFraction: 0.9),
+            onPageChanged: (int index) => setState(() => _index = index),
+            itemBuilder: (_, i) {
+              return Transform.scale(
+                scale: i == _index ? 1 : 0.9,
+                child: Card(
+                  elevation: 6,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  child: Center(
+                    child: Text(
+                      "Card ${i + 1}",
+                      style: TextStyle(fontSize: 32),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
   }
 }
