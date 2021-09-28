@@ -92,9 +92,9 @@ class _recipeState extends State<recipes> {
         body: FloatingSearchBarScrollNotifier(
           child: Column(
             children: [
-              SizedBox(height: 80),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.12),
               Container(
-                  height: 80,
+                  height: MediaQuery.of(context).size.height * 0.1,
                       child: StreamBuilder<QuerySnapshot>(
                           stream: FirebaseFirestore.instance
                               .collection('filters')
@@ -112,7 +112,7 @@ class _recipeState extends State<recipes> {
                                   QueryDocumentSnapshot filter =
                                       querySnapshot.data.docs[index];
                                   return Container(
-                                      width: 200,
+                                      width: MediaQuery.of(context).size.width * 0.4,
                                       child: Card(
                                           shape: RoundedRectangleBorder(
                                               borderRadius:
@@ -373,66 +373,65 @@ class SearchResultsListView extends StatelessWidget {
                             style: TextStyle(fontSize: 20.0),
                           ),
                           subtitle: SizedBox(
-                            width: 100.0,
-                            height: 50.0,
-                            child: Row(children: [
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height * 0.18,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                               Card(
                                   color: Colors.red[400],
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(5.0)),
                                   child: Container(
                                       padding: const EdgeInsets.only(
-                                          top: 12.0,
-                                          right: 12.0,
-                                          left: 12.0,
-                                          bottom: 12.0),
+                                          top: 5.0,
+                                          right: 5.0,
+                                          left: 5.0,
+                                          bottom: 5.0),
                                       child: Text(
-                                          "Time: " +
                                               recipe["TotalTime"].toString() +
                                               " minutes",
                                           style: TextStyle(
                                             fontSize: 18.0,
                                             color: Colors.white,
                                           )))),
-                              // Card(
-                              //     color: Colors.red[400],
-                              //     shape: RoundedRectangleBorder(
-                              //         borderRadius: BorderRadius.circular(5.0)),
-                              //     child: Container(
-                              //         padding: const EdgeInsets.only(
-                              //             top: 12.0,
-                              //             right: 12.0,
-                              //             left: 12.0,
-                              //             bottom: 12.0),
-                              //         child: Text(
-                              //             "Created: " +
-                              //                 DateTime.parse(
-                              //                         recipe["CreationDate"]
-                              //                             .toDate()
-                              //                             .toString())
-                              //                     .toString(),
-                              //             style: TextStyle(
-                              //               fontSize: 18.0,
-                              //               color: Colors.white,
-                              //             )))),
-                              // Card(
-                              //     color: Colors.red[400],
-                              //     shape: RoundedRectangleBorder(
-                              //         borderRadius: BorderRadius.circular(5.0)),
-                              //     child: Container(
-                              //         padding: const EdgeInsets.only(
-                              //             top: 12.0,
-                              //             right: 12.0,
-                              //             left: 12.0,
-                              //             bottom: 12.0),
-                              //         child:
-                              //             Text("Missing Ingredients: " + "N/A",
-                              //                 style: TextStyle(
-                              //                   fontSize: 18.0,
-                              //                   color: Colors.white,
-                              //                 )))),
-                            ]),
-                          ),
+                               Card(
+                                   color: Colors.red[400],
+                                   shape: RoundedRectangleBorder(
+                                       borderRadius: BorderRadius.circular(5.0)),
+                                   child: Container(
+                                       padding: const EdgeInsets.only(
+                                           top: 5.0,
+                                           right: 5.0,
+                                           left: 5.0,
+                                           bottom: 5.0),
+                                       child: Text(
+                                         recipe["Creator"].id,
+                                           style: TextStyle(
+                                             fontSize: 18.0,
+                                             color: Colors.white,
+                                           )))),
+                                Card(
+                                  color: Colors.red[400],
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5.0)),
+                                  child: Container(
+                                    padding: const EdgeInsets.only(
+                                      top: 5.0,
+                                      right: 5.0,
+                                      left: 5.0,
+                                      bottom: 5.0),
+                                    child: Text(
+                                      "Missing Ingredients",
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.white,
+
+                                      )
+                                    )
+                                  )
+                                )
+                    ])),
                           onTap: () {
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) => ViewRecipe(
