@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pantree/pantreeUser.dart';
-import 'package:flutter/services.dart';
+import 'dialogs.dart';
 
 class NewShoppingList extends StatelessWidget {
   PantreeUser user;
@@ -9,6 +9,8 @@ class NewShoppingList extends StatelessWidget {
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
 
   NewShoppingList({this.user});
+
+  final GlobalKey<State> _keyLoader = new GlobalKey<State>();
 
   @override
   Widget build(BuildContext context) {
@@ -21,17 +23,10 @@ class NewShoppingList extends StatelessWidget {
           child: Column(children: <Widget>[
             TextFormField(
                 controller: _ListName,
-                validator: (value) {
-                  if (value.isEmpty || value == null) {
-                    return 'Please enter a name for your pantry';
-                  } else if (!RegExp(r"^[a-zA-Z\s\']+$").hasMatch(value)) {
-                    return "Name can only contain letters";
-                  }
+                validator: (validator) {
+                  if (validator.isEmpty) return 'Empty';
                   return null;
                 },
-                inputFormatters: [
-                  LengthLimitingTextInputFormatter(20),
-                ],
                 decoration: InputDecoration(
                   labelText: "Shopping List Name",
                   border: OutlineInputBorder(),
@@ -40,16 +35,7 @@ class NewShoppingList extends StatelessWidget {
             TextButton(
               style: TextButton.styleFrom(backgroundColor: Colors.blue),
               onPressed: () {
-                String title = "Failed!";
-                String message = "Shopping List Creation Failed Try again!";
-                if (_form.currentState.validate()) {
-                  if (createShoppingList(_ListName.text)) {
-                    title = "Success!";
-                    message =
-                        "Shopping List Creation was Successful Return to Shopping Lists!";
-                  }
-                }
-                showAlertDialog(context, title, message);
+                _handleSubmit(context, _ListName.text);
               },
               child: Text(
                 'Create Shopping List!',
@@ -60,9 +46,27 @@ class NewShoppingList extends StatelessWidget {
     );
   }
 
-  bool createShoppingList(name) {
+  Future<void> _handleSubmit(BuildContext context, name) async {
     try {
-      FirebaseFirestore.instance.collection("shopping_lists").add({
+      Dialogs.showLoadingDialog(context, _keyLoader);
+      bool b = await createShoppingList(name);
+      Navigator.of(_keyLoader.currentContext,rootNavigator: true).pop();
+      if (b) {
+        Dialogs.showDialogCreatePL(context, "Success",
+            "Pantry Creation was Successful Return to your Shopping Lists!","Return to Shopping Lists");
+      } else{
+        Dialogs.showDialogCreatePL(context, "Failed",
+            "Something went wrong! Try again later!","Return to Shopping Lists");
+      }
+      //Navigator.pushReplacementNamed(context, "/home");
+    } catch (error) {
+      print(error);
+    }
+  }
+
+  Future<bool> createShoppingList(name) async{
+    try {
+      await FirebaseFirestore.instance.collection("shopping_lists").add({
         "Name": name,
         "Owner": FirebaseFirestore.instance.collection("users").doc(user.uid),
       }).then((value) {
@@ -76,32 +80,4 @@ class NewShoppingList extends StatelessWidget {
     return true;
   }
 
-  showAlertDialog(BuildContext context, String t, String m) async {
-    // set up the button
-    Widget signButton = TextButton(
-      child: Text("Return to Lists"),
-      onPressed: () {
-        Navigator.of(context, rootNavigator: true).pop();
-        Navigator.of(context).pop();
-      },
-    );
-
-    Widget okButton = TextButton(
-      child: Text("Stay"),
-      onPressed: () {
-        Navigator.of(context, rootNavigator: true).pop();
-      },
-    );
-    var a = [signButton, okButton];
-    AlertDialog alert =
-        AlertDialog(title: Text(t), content: Text(m), actions: a);
-
-    // show the dialog
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
-    );
-  }
 }

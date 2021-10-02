@@ -20,7 +20,8 @@ class _ListState extends State<ShoppingList> {
 
   final firestoreInstance = FirebaseFirestore.instance;
   DocumentReference _selectedList; // private
-  String _selectedListName; // private
+  String _selectedListName;
+  int listsLength;// private
   Map<String, DocumentReference>
       _pantryMap; // private NOTE: bad design - it will fuck with users collaborating on multiple pantries with the same name
   // DocumentSnapshot cache;
@@ -29,9 +30,8 @@ class _ListState extends State<ShoppingList> {
     DocumentReference tempPantry;
     String tempName;
 
-    await user.updateData(); // important: refreshes the user's data
+    //await user.updateData(); // important: refreshes the user's data
     _pantryMap = Map<String, DocumentReference>(); // instantiate the map
-
     for (DocumentReference ref in user.shoppingLists) {
       // go through each doc ref and add to list of pantry names + map
       String pantryName = "";
@@ -57,8 +57,11 @@ class _ListState extends State<ShoppingList> {
         .collection("users")
         .doc(user.uid)
         .snapshots()
-        .listen((event) {
-      getData();
+        .listen((DocumentSnapshot event) {
+          if(event.data()['ShoppingIDs'].length != user.shoppingLists.length){
+            user.shoppingLists = event.data()['ShoppingIDs'];
+            getData();
+          }
     });
   }
 
