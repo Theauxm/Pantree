@@ -57,9 +57,7 @@ class _HomePageState extends State<ViewRecipe> {
   }
 
   Widget getCard(String info) {
-    return Card(
-        margin: const EdgeInsets.only(
-            top: 12.0, right: 8.0, left: 8.0),
+    return Container(
         child: Container(
           padding: const EdgeInsets.only(top: 5, right: 5, left: 5, bottom: 5),
           child: Text(info, style: TextStyle(fontSize: 20)
@@ -69,8 +67,9 @@ class _HomePageState extends State<ViewRecipe> {
 
   Widget listToListView(List<dynamic> list) {
     return ListView.builder(
-        itemCount: list.length,
+        itemCount: list.length - 1,
         itemBuilder: (_, i) {
+          i++;
           return getCard("$i. " + list[i]);
         });
   }
@@ -82,7 +81,7 @@ class _HomePageState extends State<ViewRecipe> {
                 elevation: 6,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10)),
-                child: Column(children: [Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30)),Expanded(child: info), button ? addIngredientsToShoppingList() : Container()])
+                child: Column(children: [Container(padding: const EdgeInsets.only(top: 10), child: Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30))),Expanded(child: info), button ? addIngredientsToShoppingList() : Container()])
             ));
   }
 
@@ -108,7 +107,7 @@ class _HomePageState extends State<ViewRecipe> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(backgroundColor: Colors.red[400]),
       body: Center(
         child: SizedBox(
           height: MediaQuery.of(context).size.height, // card height
@@ -119,23 +118,23 @@ class _HomePageState extends State<ViewRecipe> {
               if (i == 0)
                 return cardInfo("Overview", ListView(
                     children: [
-                      Card(
+                      Container(
                           child: boldPartOfText("Recipe Name: ", recipe["RecipeName"].toString()),
                           margin: const EdgeInsets.only(
                               top: 10.0, right: 10.0, left: 10.0, bottom: 10.0)),
-                      Card(
+                      Container(
                           child: boldPartOfText("Created By: ", recipe["Creator"].id),
                           margin: const EdgeInsets.only(
                               top: 10.0, right: 10.0, left: 10.0, bottom: 10.0)),
-                      Card(
+                      Container(
                           child: boldPartOfText("Credit: ", recipe["Credit"].toString()),
                           margin: const EdgeInsets.only(
                               top: 10.0, right: 10.0, left: 10.0, bottom: 10.0)),
-                      Card(
+                      Container(
                           child: boldPartOfText("Date Added: ", DateTime.parse(recipe["CreationDate"].toDate().toString()).toString().substring(0, 10)),
                           margin: const EdgeInsets.only(
                               top: 10.0, right: 10.0, left: 10.0, bottom: 10.0)),
-                      Card(
+                      Container(
                           child: boldPartOfText("Total Time: ", recipe["TotalTime"].toString() + " minutes"),
                           margin: const EdgeInsets.only(
                               top: 10.0, right: 10.0, left: 10.0, bottom: 10.0)),
