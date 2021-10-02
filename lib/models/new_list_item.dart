@@ -64,7 +64,7 @@ class _NewListItemState extends State<NewListItem> {
                     validator: (value) {
                       if (value.isEmpty || value == null) {
                         return 'Please enter a name';
-                      } else if (!RegExp(r"^[a-zA-Z\s\']+$").hasMatch(value)) {
+                      } else if (!RegExp(r"^[a-zA-Z0-9\s\']+$").hasMatch(value)) {
                         return "Name can only contain letters";
                       }
                       return null;
@@ -81,6 +81,8 @@ class _NewListItemState extends State<NewListItem> {
                     validator: (value) {
                       if (value.isEmpty || value == null) {
                         return "Please enter a quantity";
+                      } else if (value == "0") {
+                        return "Quantity cannot be 0";
                       } else if (!RegExp(r"^[0-9]*$").hasMatch(value)) {
                         return "Quantity must be a number";
                       }
