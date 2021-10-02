@@ -49,7 +49,7 @@ class _PantryState extends State<Pantry> {
     DocumentReference tempPantry;
     String tempName;
 
-    await user.updateData(); // important: refreshes the user's data
+    //await user.updateData(); // important: refreshes the user's data
     _pantryMap = Map<String, DocumentReference>(); // instantiate the map
 
     for (DocumentReference ref in user.pantries) {
@@ -77,7 +77,10 @@ class _PantryState extends State<Pantry> {
         .doc(user.uid)
         .snapshots()
         .listen((event) {
+          if(event.data()['PantryIDs'].length != user.pantries.length){
+      user.pantries = event.data()['PantryIDs'];
       getData();
+    }
     });
   }
 
