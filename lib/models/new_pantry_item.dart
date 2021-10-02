@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import '../models/static_functions.dart';
 
 class NewPantryItem extends StatefulWidget {
   final DocumentReference pantry;
@@ -24,13 +25,14 @@ class _NewPantryItemState extends State<NewPantryItem> {
   }
 
   Future<void> addNewItem(String item, String qty) {
+    item = item.toLowerCase();
     return firestoreInstance.collection('food').doc(item).get().then((doc) {
       // add item to the DB first if it doesn't exist
       if (!doc.exists) {
-        firestoreInstance
-            .collection('food')
-            .doc(item)
-            .set({}); // adds doc with specified name and no fields
+        firestoreInstance.collection('food').doc(item).set({
+          'Image': "",
+          'Keywords': getKeywords(item)
+        }); // adds doc with specified name and no fields
       }
       // now add it to the user pantry
       widget.pantry
