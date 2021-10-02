@@ -95,28 +95,28 @@ class _recipeState extends State<recipes> {
               SizedBox(height: MediaQuery.of(context).size.height * 0.12),
               Container(
                   height: MediaQuery.of(context).size.height * 0.1,
-                      child: StreamBuilder<QuerySnapshot>(
-                          stream: FirebaseFirestore.instance
-                              .collection('filters')
-                              .snapshots(),
-                          builder: (BuildContext context,
-                              AsyncSnapshot<QuerySnapshot> querySnapshot) {
-                            if (querySnapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return Center(child: CircularProgressIndicator());
-                            } else {
-                              return Container(
-                                  child: ListView.builder(
+                  child: StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('filters')
+                          .snapshots(),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<QuerySnapshot> querySnapshot) {
+                        if (querySnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        } else {
+                          return Container(
+                              child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
                                 itemBuilder: (context, index) {
                                   QueryDocumentSnapshot filter =
-                                      querySnapshot.data.docs[index];
+                                  querySnapshot.data.docs[index];
                                   return Container(
                                       width: MediaQuery.of(context).size.width * 0.4,
                                       child: Card(
                                           shape: RoundedRectangleBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(50)),
+                                              BorderRadius.circular(50)),
                                           color: Colors.red[400],
                                           margin: const EdgeInsets.only(
                                               top: 12.0, right: 8.0, left: 8.0),
@@ -129,7 +129,7 @@ class _recipeState extends State<recipes> {
 
                                                 List<dynamic> idStrings = [];
                                                 for (DocumentReference ref
-                                                    in filter["recipe_ids"]) {
+                                                in filter["recipe_ids"]) {
                                                   idStrings.add(ref.id);
                                                   if (idStrings.length == 10) {
                                                     break;
@@ -146,8 +146,8 @@ class _recipeState extends State<recipes> {
                                 },
                                 itemCount: querySnapshot.data.docs.length,
                               ));
-                            }
-                          })),
+                        }
+                      })),
               SearchResultsListView(
                   searchTerm: selectedTerm, filters: filteredRecipes)
             ],
@@ -216,29 +216,29 @@ class _recipeState extends State<recipes> {
                       children: filteredSearchHistory
                           .map(
                             (term) => ListTile(
-                              title: Text(
-                                term,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              leading: const Icon(Icons.history),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.clear),
-                                onPressed: () {
-                                  setState(() {
-                                    deleteSearchTerm(term);
-                                  });
-                                },
-                              ),
-                              onTap: () {
-                                setState(() {
-                                  putSearchTermFirst(term);
-                                  selectedTerm = term;
-                                });
-                                controller.close();
-                              },
-                            ),
-                          )
+                          title: Text(
+                            term,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          leading: const Icon(Icons.history),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              setState(() {
+                                deleteSearchTerm(term);
+                              });
+                            },
+                          ),
+                          onTap: () {
+                            setState(() {
+                              putSearchTermFirst(term);
+                              selectedTerm = term;
+                            });
+                            controller.close();
+                          },
+                        ),
+                      )
                           .toList(),
                     );
                   }
