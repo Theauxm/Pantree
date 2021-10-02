@@ -23,7 +23,7 @@ class _WelcomePage extends State<WelcomePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(getMessageFromErrorCode(e)),
-          duration: const Duration(seconds: 10),
+          duration: const Duration(seconds: 4),
           backgroundColor: Colors.red,
         ),
       );
