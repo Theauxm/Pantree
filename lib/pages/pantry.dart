@@ -141,9 +141,12 @@ class _PantryState extends State<Pantry> {
 
   @override
   Widget build(BuildContext context) {
-    if (_selectedPantry == null) {
+    if (user.pantries.length == 0) {
       // handle user with no pantries case todo: update with loading widget
       return createLandingPage();
+    }
+    if(_selectedPantry == null){
+      return Center(child: CircularProgressIndicator());
     }
 
     // User pantry dropdown selector

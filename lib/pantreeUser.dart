@@ -22,14 +22,12 @@ class PantreeUser {
   //this is from the FirebaseAuth, and contains info related from Authentication
   //likely will not change ever.
   PantreeUser() {
-    this.name = "Loading...";
     try {
       User u = FirebaseAuth.instance.currentUser;
 
       this.uid = u.uid;
       this.email = u.email;
 
-      updateData();
     } catch(e){
       print(e.toString());
     }
@@ -52,4 +50,22 @@ class PantreeUser {
       }
     });
   }
+}
+
+getUserProfile() async {
+  PantreeUser theUser = new PantreeUser();
+  DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser.uid).get();
+  theUser.name = documentSnapshot.data()['Username'];
+  theUser.shoppingLists = documentSnapshot.data()['ShoppingIDs'];
+  theUser.friends = documentSnapshot.data()['FriendIDs'];
+  theUser.recipes = documentSnapshot.data()['RecipeIDs'];
+  theUser.pantries = documentSnapshot.data()['PantryIDs'];
+  theUser.posts = documentSnapshot.data()['PostIDs'];
+  theUser.PPID = documentSnapshot.data()['PPID'];
+  theUser.PSID = documentSnapshot.data()['PSID'];
+  print(theUser.name);
+
+  return theUser;
 }

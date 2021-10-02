@@ -24,7 +24,6 @@ class Home extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
 }
-
 class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
@@ -32,8 +31,7 @@ class _HomeState extends State<Home> {
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            PantreeUser pUser = PantreeUser();
-            return HomeScreen(user: pUser);
+              return HomeScreen();
           } else {
             return WelcomePage();
           }
@@ -42,20 +40,14 @@ class _HomeState extends State<Home> {
 }
 
 class HomeScreen extends StatefulWidget {
-  PantreeUser user;
-  HomeScreen({this.user});
-
   @override
-  _HomeScreenState createState() => _HomeScreenState(user: user);
+  _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
   PantreeUser user;
-  _HomeScreenState({this.user});
   int _selectedIndex = 0;
 
-  // Widget currentPage;
-  // List<Widget> pages;
   List<GlobalKey<NavigatorState>> _navigatorKeys = [
     GlobalKey<NavigatorState>(),
     GlobalKey<NavigatorState>(),
@@ -63,8 +55,24 @@ class _HomeScreenState extends State<HomeScreen> {
     GlobalKey<NavigatorState>()
   ];
 
+  void _getUser() async {
+    user = await getUserProfile();
+    setState(() {
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _getUser();
+  }
+
   @override
   Widget build(BuildContext context) {
+    while(user == null){
+      return Center(child: CircularProgressIndicator());
+    }
+
     //TODO: Remove this Streambuilder once we have real user objects
     return WillPopScope(
         onWillPop: () async {

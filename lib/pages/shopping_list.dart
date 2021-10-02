@@ -69,11 +69,6 @@ class _ListState extends State<ShoppingList> {
     setListener();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   void addNewItem() {
     Navigator.push(
         context,
@@ -104,9 +99,11 @@ class _ListState extends State<ShoppingList> {
 
   @override
   Widget build(BuildContext context) {
-    if (_selectedList == null) {
-      // handle user with no pantries case todo: update with loading widget
+    if (user.shoppingLists.length == 0) {
       return createLandingPage();
+    }
+    if(_selectedList == null){
+      return Center(child: CircularProgressIndicator());
     }
 
     // User pantry dropdown selector that listens for changes in users
