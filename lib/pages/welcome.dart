@@ -128,6 +128,7 @@ class _WelcomePage extends State<WelcomePage> {
 
 Future<void> handleNewUsers(String docID, String displayName) async {
   try {
+    print("in Handle");
     await FirebaseFirestore.instance
         .collection('users')
         .doc(docID)
@@ -196,6 +197,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
   final TextEditingController _Username = TextEditingController();
   final TextEditingController _PasswordConfirm = TextEditingController();
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
+  bool nameTaken;
 
   @override
   Widget build(BuildContext context) {
@@ -206,8 +208,9 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
           child: Column(children: <Widget>[
             TextFormField(
                 controller: _Username,
-                validator: (validator) {
+                validator: (validator){
                   if (validator.isEmpty) return 'Empty';
+                  if (!nameTaken) return 'Username Taken';
                   return null;
                 },
                 decoration: InputDecoration(
@@ -259,6 +262,10 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
             TextButton(
               style: TextButton.styleFrom(backgroundColor: Colors.blue),
               onPressed: () async {
+                bool b = await _checkName(_Username.text);
+                nameTaken = b;
+                print("here ");
+                print(b);
                 if (_form.currentState.validate()) {
                   var m = await registerUser();
                   if (m == null) {
@@ -278,6 +285,12 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
     );
   }
 
+  Future<bool> _checkName(name) async {
+    QuerySnapshot users = await FirebaseFirestore.instance.collection('users').where('Username', isEqualTo: name).get();
+    if(users.docs.isEmpty) return true;
+    return false;
+  }
+
   Future<String> registerUser() async {
     var m;
     try {
@@ -291,11 +304,13 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
         //     .currentUser.updateDisplayName(_Username.text);
         await handleNewUsers(userCredential.user.uid, _Username.text);
       } on FirebaseAuthException catch (e) {
+        print(e.toString());
         String error = getMessageFromErrorCode(e);
         m = error;
       }
       await app.delete();
     } catch (e) {
+      print(e.toString());
       return getMessageFromErrorCode(e);
     }
     return m;
