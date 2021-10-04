@@ -66,11 +66,12 @@ class _HomePageState extends State<ViewRecipe> {
   }
 
   Widget listToListView(List<dynamic> list) {
+    int directionNum;
     return ListView.builder(
-        itemCount: list.length - 1,
+        itemCount: list.length,
         itemBuilder: (_, i) {
-          i++;
-          return getCard("$i. " + list[i]);
+          directionNum = i + 1;
+          return getCard("$directionNum. " + list[i]);
         });
   }
 
