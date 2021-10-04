@@ -56,7 +56,7 @@ class _socialState extends State<social_feed> {
     images2 = [];
 
     for (DocumentReference ref in user.posts) {
-      print('hi');
+      //print('hi');
       String imageLink = "";
       await ref.get().then((DocumentSnapshot snapshot) {
         imageLink = snapshot.data()['image']; // get the image link as a string
@@ -78,7 +78,7 @@ class _socialState extends State<social_feed> {
           .refFromURL(images1[i])
           .getDownloadURL();
 
-      print(downloadURL);
+      //print(downloadURL);
       images2.add(downloadURL);
     }
 
@@ -232,287 +232,287 @@ class _socialState extends State<social_feed> {
                     crossAxisCount: 3,
 
                     children:[
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        child: GestureDetector(
-                          onTap: () async {
-                            getData();
-                            },
-                          child: Container(
-                            width: 200,
-                            height: 200,
-                            decoration: BoxDecoration(
-                                color: Colors.grey[200]),
-                            child:images2.length >= 1
-                            ? Image.network(
-                                images2[0])
-                          :Container(
-                        decoration: BoxDecoration(
-                        color: Colors.teal[100]),
-                            width: 200,
-                            height: 200,
-                          ),
-                          )
-                        )
-                      ),
-                      Container(
-                          padding: const EdgeInsets.all(8),
-                          child: GestureDetector(
-                              onTap: () async {
-                                getData();
-                              },
-                              child: Container(
-                                width: 200,
-                                height: 200,
-                                decoration: BoxDecoration(
-                                    color: Colors.grey[200]),
-                                child:images2.length >= 2
-                                    ? Image.network(
-                                    images2[1])
-                                    :Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.teal[100]),
-                                  width: 200,
-                                  height: 200,
-                                ),
-                              )
-                          )
-                      ),
-                      Container(
-                          padding: const EdgeInsets.all(8),
-                          child: GestureDetector(
-                              onTap: () async {
-                                getData();
-                              },
-                              child: Container(
-                                width: 200,
-                                height: 200,
-                                decoration: BoxDecoration(
-                                    color: Colors.grey[200]),
-                                child: images2.length >= 3
-                                    ? Image.network(
-                                    images2[2])
-                                    :Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.teal[100]),
-                                  width: 200,
-                                  height: 200,
-                                ),
-                              )
-                          )
-                      ),
-                      Container(
-                          padding: const EdgeInsets.all(8),
-                          child: GestureDetector(
-                              onTap: () async {
-                                getData();
-                              },
-                              child: Container(
-                                width: 200,
-                                height: 200,
-                                decoration: BoxDecoration(
-                                    color: Colors.grey[200]),
-                                child:images2.length >= 4
-                                    ? Image.network(
-                                    images2[3])
-                                    :Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.teal[100]),
-                                  width: 200,
-                                  height: 200,
-                                ),
-                              )
-                          )
-                      ),
-                      Container(
-                          padding: const EdgeInsets.all(8),
-                          child: GestureDetector(
-                              onTap: () async {
-                                getData();
-                              },
-                              child: Container(
-                                width: 200,
-                                height: 200,
-                                decoration: BoxDecoration(
-                                    color: Colors.grey[200]),
-                                child:images2.length >= 5
-                                    ? Image.network(
-                                    images2[4])
-                                    :Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.teal[100]),
-                                  width: 200,
-                                  height: 200,
-                                ),
-                              )
-                          )
-                      ),
-                      Container(
-                          padding: const EdgeInsets.all(8),
-                          child: GestureDetector(
-                              onTap: () async {
-                                getData();
-                              },
-                              child: Container(
-                                width: 200,
-                                height: 200,
-                                decoration: BoxDecoration(
-                                    color: Colors.grey[200]),
-                                child:images2.length >= 6
-                                    ? Image.network(
-                                    images2[5])
-                                    :Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.teal[100]),
-                                  width: 200,
-                                  height: 200,
-                                ),
-                              )
-                          )
-                      ),
-                      Container(
-                          padding: const EdgeInsets.all(8),
-                          child: GestureDetector(
-                              onTap: () async {
-                                getData();
-                              },
-                              child: Container(
-                                width: 200,
-                                height: 200,
-                                decoration: BoxDecoration(
-                                    color: Colors.grey[200]),
-                                child:images2.length >= 7
-                                    ? Image.network(
-                                    images2[6])
-                                    :Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.teal[200]),
-                                  width: 200,
-                                  height: 200,
-                                ),
-                              )
-                          )
-                      ),
-                      Container(
-                          padding: const EdgeInsets.all(8),
-                          child: GestureDetector(
-                              onTap: () async {
-                                getData();
-                              },
-                              child: Container(
-                                width: 200,
-                                height: 200,
-                                decoration: BoxDecoration(
-                                    color: Colors.grey[200]),
-                                child:images2.length >= 8
-                                    ? Image.network(
-                                    images2[7])
-                                    :Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.teal[200]),
-                                  width: 200,
-                                  height: 200,
-                                ),
-                              )
-                          )
-                      ),
-                      Container(
-                          padding: const EdgeInsets.all(8),
-                          child: GestureDetector(
-                              onTap: () async {
-                                getData();
-                              },
-                              child: Container(
-                                width: 200,
-                                height: 200,
-                                decoration: BoxDecoration(
-                                    color: Colors.grey[200]),
-                                child:images2.length >= 9
-                                    ? Image.network(
-                                    images2[8])
-                                    :Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.teal[200]),
-                                  width: 200,
-                                  height: 200,
-                                ),
-                              )
-                          )
-                      ),
-                      Container(
-                          padding: const EdgeInsets.all(8),
-                          child: GestureDetector(
-                              onTap: () async {
-                                getData();
-                              },
-                              child: Container(
-                                width: 200,
-                                height: 200,
-                                decoration: BoxDecoration(
-                                    color: Colors.grey[200]),
-                                child:images2.length >= 10
-                                    ? Image.network(
-                                    images2[9])
-                                    :Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.teal[300]),
-                                  width: 200,
-                                  height: 200,
-                                ),
-                              )
-                          )
-                      ),
-                      Container(
-                          padding: const EdgeInsets.all(8),
-                          child: GestureDetector(
-                              onTap: () async {
-                                getData();
-                              },
-                              child: Container(
-                                width: 200,
-                                height: 200,
-                                decoration: BoxDecoration(
-                                    color: Colors.grey[200]),
-                                child:images2.length >= 11
-                                    ? Image.network(
-                                    images2[10])
-                                    :Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.teal[300]),
-                                  width: 200,
-                                  height: 200,
-                                ),
-                              )
-                          )
-                      ),
-
-                      Container(
-                          padding: const EdgeInsets.all(8),
-                          child: GestureDetector(
-                              onTap: () async {
-                                getData();
-                              },
-                              child: Container(
-                                width: 200,
-                                height: 200,
-                                decoration: BoxDecoration(
-                                    color: Colors.grey[200]),
-                                child:images2.length >= 12
-                                    ? Image.network(
-                                    images2[11])
-                                    :Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.teal[300]),
-                                  width: 200,
-                                  height: 200,
-                                ),
-                              )
-                          )
-                      ),
-
-                    ],
-              )
-              )
+                      // Container(
+                      //   padding: const EdgeInsets.all(8),
+                      //   child: GestureDetector(
+                      //     onTap: () async {
+                      //       getData();
+                      //       },
+                      //     child: Container(
+                      //       width: 200,
+                      //       height: 200,
+                      //       decoration: BoxDecoration(
+                      //           color: Colors.grey[200]),
+                      //       child: images2.length >= 1
+                      //       ? Image.network(
+                      //           images2[0])
+                      //     :Container(
+                      //   decoration: BoxDecoration(
+                      //   color: Colors.teal[100]),
+                      //       width: 200,
+                      //       height: 200,
+                      //     ),
+                      //     )
+                      //   )
+                      // ),
+              //         Container(
+              //             padding: const EdgeInsets.all(8),
+              //             child: GestureDetector(
+              //                 onTap: () async {
+              //                   getData();
+              //                 },
+              //                 child: Container(
+              //                   width: 200,
+              //                   height: 200,
+              //                   decoration: BoxDecoration(
+              //                       color: Colors.grey[200]),
+              //                   child:images2.length >= 2
+              //                       ? Image.network(
+              //                       images2[1])
+              //                       :Container(
+              //                     decoration: BoxDecoration(
+              //                         color: Colors.teal[100]),
+              //                     width: 200,
+              //                     height: 200,
+              //                   ),
+              //                 )
+              //             )
+              //         ),
+              //         Container(
+              //             padding: const EdgeInsets.all(8),
+              //             child: GestureDetector(
+              //                 onTap: () async {
+              //                   getData();
+              //                 },
+              //                 child: Container(
+              //                   width: 200,
+              //                   height: 200,
+              //                   decoration: BoxDecoration(
+              //                       color: Colors.grey[200]),
+              //                   child: images2.length >= 3
+              //                       ? Image.network(
+              //                       images2[2])
+              //                       :Container(
+              //                     decoration: BoxDecoration(
+              //                         color: Colors.teal[100]),
+              //                     width: 200,
+              //                     height: 200,
+              //                   ),
+              //                 )
+              //             )
+              //         ),
+              //         Container(
+              //             padding: const EdgeInsets.all(8),
+              //             child: GestureDetector(
+              //                 onTap: () async {
+              //                   getData();
+              //                 },
+              //                 child: Container(
+              //                   width: 200,
+              //                   height: 200,
+              //                   decoration: BoxDecoration(
+              //                       color: Colors.grey[200]),
+              //                   child:images2.length >= 4
+              //                       ? Image.network(
+              //                       images2[3])
+              //                       :Container(
+              //                     decoration: BoxDecoration(
+              //                         color: Colors.teal[100]),
+              //                     width: 200,
+              //                     height: 200,
+              //                   ),
+              //                 )
+              //             )
+              //         ),
+              //         Container(
+              //             padding: const EdgeInsets.all(8),
+              //             child: GestureDetector(
+              //                 onTap: () async {
+              //                   getData();
+              //                 },
+              //                 child: Container(
+              //                   width: 200,
+              //                   height: 200,
+              //                   decoration: BoxDecoration(
+              //                       color: Colors.grey[200]),
+              //                   child:images2.length >= 5
+              //                       ? Image.network(
+              //                       images2[4])
+              //                       :Container(
+              //                     decoration: BoxDecoration(
+              //                         color: Colors.teal[100]),
+              //                     width: 200,
+              //                     height: 200,
+              //                   ),
+              //                 )
+              //             )
+              //         ),
+              //         Container(
+              //             padding: const EdgeInsets.all(8),
+              //             child: GestureDetector(
+              //                 onTap: () async {
+              //                   getData();
+              //                 },
+              //                 child: Container(
+              //                   width: 200,
+              //                   height: 200,
+              //                   decoration: BoxDecoration(
+              //                       color: Colors.grey[200]),
+              //                   child:images2.length >= 6
+              //                       ? Image.network(
+              //                       images2[5])
+              //                       :Container(
+              //                     decoration: BoxDecoration(
+              //                         color: Colors.teal[100]),
+              //                     width: 200,
+              //                     height: 200,
+              //                   ),
+              //                 )
+              //             )
+              //         ),
+              //         Container(
+              //             padding: const EdgeInsets.all(8),
+              //             child: GestureDetector(
+              //                 onTap: () async {
+              //                   getData();
+              //                 },
+              //                 child: Container(
+              //                   width: 200,
+              //                   height: 200,
+              //                   decoration: BoxDecoration(
+              //                       color: Colors.grey[200]),
+              //                   child:images2.length >= 7
+              //                       ? Image.network(
+              //                       images2[6])
+              //                       :Container(
+              //                     decoration: BoxDecoration(
+              //                         color: Colors.teal[200]),
+              //                     width: 200,
+              //                     height: 200,
+              //                   ),
+              //                 )
+              //             )
+              //         ),
+              //         Container(
+              //             padding: const EdgeInsets.all(8),
+              //             child: GestureDetector(
+              //                 onTap: () async {
+              //                   getData();
+              //                 },
+              //                 child: Container(
+              //                   width: 200,
+              //                   height: 200,
+              //                   decoration: BoxDecoration(
+              //                       color: Colors.grey[200]),
+              //                   child:images2.length >= 8
+              //                       ? Image.network(
+              //                       images2[7])
+              //                       :Container(
+              //                     decoration: BoxDecoration(
+              //                         color: Colors.teal[200]),
+              //                     width: 200,
+              //                     height: 200,
+              //                   ),
+              //                 )
+              //             )
+              //         ),
+              //         Container(
+              //             padding: const EdgeInsets.all(8),
+              //             child: GestureDetector(
+              //                 onTap: () async {
+              //                   getData();
+              //                 },
+              //                 child: Container(
+              //                   width: 200,
+              //                   height: 200,
+              //                   decoration: BoxDecoration(
+              //                       color: Colors.grey[200]),
+              //                   child:images2.length >= 9
+              //                       ? Image.network(
+              //                       images2[8])
+              //                       :Container(
+              //                     decoration: BoxDecoration(
+              //                         color: Colors.teal[200]),
+              //                     width: 200,
+              //                     height: 200,
+              //                   ),
+              //                 )
+              //             )
+              //         ),
+              //         Container(
+              //             padding: const EdgeInsets.all(8),
+              //             child: GestureDetector(
+              //                 onTap: () async {
+              //                   getData();
+              //                 },
+              //                 child: Container(
+              //                   width: 200,
+              //                   height: 200,
+              //                   decoration: BoxDecoration(
+              //                       color: Colors.grey[200]),
+              //                   child:images2.length >= 10
+              //                       ? Image.network(
+              //                       images2[9])
+              //                       :Container(
+              //                     decoration: BoxDecoration(
+              //                         color: Colors.teal[300]),
+              //                     width: 200,
+              //                     height: 200,
+              //                   ),
+              //                 )
+              //             )
+              //         ),
+              //         Container(
+              //             padding: const EdgeInsets.all(8),
+              //             child: GestureDetector(
+              //                 onTap: () async {
+              //                   getData();
+              //                 },
+              //                 child: Container(
+              //                   width: 200,
+              //                   height: 200,
+              //                   decoration: BoxDecoration(
+              //                       color: Colors.grey[200]),
+              //                   child:images2.length >= 11
+              //                       ? Image.network(
+              //                       images2[10])
+              //                       :Container(
+              //                     decoration: BoxDecoration(
+              //                         color: Colors.teal[300]),
+              //                     width: 200,
+              //                     height: 200,
+              //                   ),
+              //                 )
+              //             )
+              //         ),
+              //
+              //         Container(
+              //             padding: const EdgeInsets.all(8),
+              //             child: GestureDetector(
+              //                 onTap: () async {
+              //                   getData();
+              //                 },
+              //                 child: Container(
+              //                   width: 200,
+              //                   height: 200,
+              //                   decoration: BoxDecoration(
+              //                       color: Colors.grey[200]),
+              //                   child:images2.length >= 12
+              //                       ? Image.network(
+              //                       images2[11])
+              //                       :Container(
+              //                     decoration: BoxDecoration(
+              //                         color: Colors.teal[300]),
+              //                     width: 200,
+              //                     height: 200,
+              //                   ),
+              //                 )
+              //             )
+              //         ),
+              //
+                     ],
+               )
+               )
         //      )
             ]
           )
