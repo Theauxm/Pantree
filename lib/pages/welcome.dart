@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 class WelcomePage extends StatefulWidget {
   @override
@@ -270,7 +269,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                   var m = await registerUser();
                   if (m == null) {
                     showAlertDialog(
-                        context, "Account Created!", "return to login page!");
+                        context, "Account Created!", "Signing you in!");
                   } else {
                     showAlertDialog(context, "Account Creation Failed", m);
                   }
@@ -294,10 +293,10 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
   Future<String> registerUser() async {
     var m;
     try {
-      FirebaseApp app = await Firebase.initializeApp(
-          name: 'Secondary', options: Firebase.app().options);
+      // FirebaseApp app = await Firebase.initializeApp(
+      //     name: 'Secondary', options: Firebase.app().options);
       try {
-        UserCredential userCredential = await FirebaseAuth.instanceFor(app: app)
+        UserCredential userCredential = await FirebaseAuth.instance
             .createUserWithEmailAndPassword(
                 email: _Email.text, password: _Password.text);
         // await FirebaseAuth.instanceFor(app: app)
@@ -308,7 +307,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
         String error = getMessageFromErrorCode(e);
         m = error;
       }
-      await app.delete();
+      //await app.delete();
     } catch (e) {
       print(e.toString());
       return getMessageFromErrorCode(e);
@@ -359,7 +358,7 @@ String getMessageFromErrorCode(e) {
 showAlertDialog(BuildContext context, String t, String m) async {
   // set up the button
   Widget signButton = TextButton(
-    child: Text("Return"),
+    child: Text("OK"),
     onPressed: () {
       Navigator.of(context).pop();
       Navigator.of(context).pop();

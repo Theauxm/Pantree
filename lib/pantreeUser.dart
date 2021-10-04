@@ -57,6 +57,12 @@ getUserProfile() async {
   DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser.uid).get();
+  print(documentSnapshot.toString());
+  while(documentSnapshot.data() == null){
+    documentSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser.uid).get();
+  }
   theUser.name = documentSnapshot.data()['Username'];
   theUser.shoppingLists = documentSnapshot.data()['ShoppingIDs'];
   theUser.friends = documentSnapshot.data()['FriendIDs'];
