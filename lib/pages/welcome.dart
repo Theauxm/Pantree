@@ -127,13 +127,12 @@ class _WelcomePage extends State<WelcomePage> {
 
 Future<void> handleNewUsers(String docID, String displayName) async {
   try {
-    print("in Handle");
     await FirebaseFirestore.instance
         .collection('users')
         .doc(docID)
         .get()
         .then((doc) {
-      if (!doc.exists)
+      if (!doc.exists){
         FirebaseFirestore.instance.collection('users').doc(docID).set({
           'Username': displayName,
           'PantryIDs': [],
@@ -144,7 +143,7 @@ Future<void> handleNewUsers(String docID, String displayName) async {
           'PPID': null,
           'PSID': null,
         });
-    });
+      }});
   } catch (e) {
     throw e;
   }
@@ -263,13 +262,10 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
               onPressed: () async {
                 bool b = await _checkName(_Username.text);
                 nameTaken = b;
-                print("here ");
-                print(b);
                 if (_form.currentState.validate()) {
                   var m = await registerUser();
                   if (m == null) {
-                    showAlertDialog(
-                        context, "Account Created!", "Signing you in!");
+                    Navigator.of(context).pop();
                   } else {
                     showAlertDialog(context, "Account Creation Failed", m);
                   }
@@ -296,23 +292,21 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
       // FirebaseApp app = await Firebase.initializeApp(
       //     name: 'Secondary', options: Firebase.app().options);
       try {
-        UserCredential userCredential = await FirebaseAuth.instance
+        await FirebaseAuth.instance
             .createUserWithEmailAndPassword(
-                email: _Email.text, password: _Password.text);
-        // await FirebaseAuth.instanceFor(app: app)
-        //     .currentUser.updateDisplayName(_Username.text);
-        await handleNewUsers(userCredential.user.uid, _Username.text);
+                email: _Email.text, password: _Password.text).then((value) => {
+                  handleNewUsers(value.user.uid, _Username.text)
+        });
       } on FirebaseAuthException catch (e) {
-        print(e.toString());
         String error = getMessageFromErrorCode(e);
         m = error;
       }
       //await app.delete();
     } catch (e) {
-      print(e.toString());
       return getMessageFromErrorCode(e);
     }
-    return m;
+      return m;
+
   }
 }
 

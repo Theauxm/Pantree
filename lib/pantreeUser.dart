@@ -57,11 +57,26 @@ getUserProfile() async {
   DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser.uid).get();
-  print(documentSnapshot.toString());
+  int count = 0;
   while(documentSnapshot.data() == null){
     documentSnapshot = await FirebaseFirestore.instance
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser.uid).get();
+    count++;
+    //Failing to load in current user document properly 10 times causes signout to prevent unlimited reads
+    if (count > 10){
+      return FirebaseAuth.instance.signOut();
+    }
+  }
+  while(documentSnapshot.data()['Username'] == null){
+    documentSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser.uid).get();
+    count++;
+    //Failing to load in current user document properly 10 times causes signout to prevent unlimited reads
+    if (count > 10){
+      return FirebaseAuth.instance.signOut();
+    }
   }
   theUser.name = documentSnapshot.data()['Username'];
   theUser.shoppingLists = documentSnapshot.data()['ShoppingIDs'];
@@ -71,7 +86,5 @@ getUserProfile() async {
   theUser.posts = documentSnapshot.data()['PostIDs'];
   theUser.PPID = documentSnapshot.data()['PPID'];
   theUser.PSID = documentSnapshot.data()['PSID'];
-  print(theUser.name);
-
   return theUser;
 }
