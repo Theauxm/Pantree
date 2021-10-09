@@ -235,10 +235,22 @@ class _PantryState extends State<Pantry> {
                       style: const TextStyle(
                           fontSize: 16, fontWeight: FontWeight.w600),
                     ),
-                    subtitle: Text(
-                      "Quantity: " + doc['Quantity'].toString(),
-                      style: const TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.w600),
+                    subtitle: Container(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Quantity: " + doc['Quantity'].toString(),
+                            style: const TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.w600),
+                          ),
+                          Text(
+                            "Date Added: " + doc['Quantity'].toString(),
+                            style: const TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.w600),
+                          ),
+                        ]
+                      )
                     ),
                     trailing: IconButton(
                       icon: Icon(Icons.delete, size: 20.0),
