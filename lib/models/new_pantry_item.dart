@@ -25,6 +25,8 @@ class _NewPantryItemState extends State<NewPantryItem> {
   }
 
   Future<void> addNewItem(String item, String qty) {
+    DateTime now = new DateTime.now();
+    DateTime date = new DateTime(now.year, now.month, now.day);
     item = item.toLowerCase();
     return firestoreInstance.collection('food').doc(item).get().then((doc) {
       // add item to the DB first if it doesn't exist
@@ -39,7 +41,8 @@ class _NewPantryItemState extends State<NewPantryItem> {
           .collection('Ingredients')
           .add({
             'Item': doc.reference,
-            'Quantity': int.parse(qty)
+            'Quantity': int.parse(qty),
+            'DateAdded': date
           }) // adds doc with auto-ID and fields
           .then((_) => print('$qty $item(s) added to user pantry!'))
           .catchError(
