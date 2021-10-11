@@ -208,6 +208,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                 controller: _Username,
                 validator: (validator){
                   if (validator.isEmpty) return 'Empty';
+                  if(!RegExp (r"^\S*$").hasMatch(validator)) return "No Spaces Allowed";
                   if (!nameTaken) return 'Username Taken';
                   return null;
                 },
