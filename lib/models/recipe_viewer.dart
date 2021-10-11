@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:pantree/models/add_to_shopping_list.dart';
 import 'package:pantree/pantreeUser.dart';
 import 'package:pantree/models/exportList.dart';
 
