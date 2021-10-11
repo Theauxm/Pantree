@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 class WelcomePage extends StatefulWidget {
   @override
@@ -133,7 +132,7 @@ Future<void> handleNewUsers(String docID, String displayName) async {
         .doc(docID)
         .get()
         .then((doc) {
-      if (!doc.exists)
+      if (!doc.exists){
         FirebaseFirestore.instance.collection('users').doc(docID).set({
           'Username': displayName,
           'PantryIDs': [],
@@ -144,7 +143,7 @@ Future<void> handleNewUsers(String docID, String displayName) async {
           'PPID': null,
           'PSID': null,
         });
-    });
+      }});
   } catch (e) {
     throw e;
   }
@@ -196,6 +195,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
   final TextEditingController _Username = TextEditingController();
   final TextEditingController _PasswordConfirm = TextEditingController();
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
+  bool nameTaken;
 
   @override
   Widget build(BuildContext context) {
@@ -206,8 +206,10 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
           child: Column(children: <Widget>[
             TextFormField(
                 controller: _Username,
-                validator: (validator) {
+                validator: (validator){
                   if (validator.isEmpty) return 'Empty';
+                  if(!RegExp (r"^\S*$").hasMatch(validator)) return "No Spaces Allowed";
+                  if (!nameTaken) return 'Username Taken';
                   return null;
                 },
                 decoration: InputDecoration(
@@ -259,11 +261,12 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
             TextButton(
               style: TextButton.styleFrom(backgroundColor: Colors.blue),
               onPressed: () async {
+                bool b = await _checkName(_Username.text);
+                nameTaken = b;
                 if (_form.currentState.validate()) {
                   var m = await registerUser();
                   if (m == null) {
-                    showAlertDialog(
-                        context, "Account Created!", "return to login page!");
+                    Navigator.of(context).pop();
                   } else {
                     showAlertDialog(context, "Account Creation Failed", m);
                   }
@@ -278,27 +281,33 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
     );
   }
 
+  Future<bool> _checkName(name) async {
+    QuerySnapshot users = await FirebaseFirestore.instance.collection('users').where('Username', isEqualTo: name).get();
+    if(users.docs.isEmpty) return true;
+    return false;
+  }
+
   Future<String> registerUser() async {
     var m;
     try {
-      FirebaseApp app = await Firebase.initializeApp(
-          name: 'Secondary', options: Firebase.app().options);
+      // FirebaseApp app = await Firebase.initializeApp(
+      //     name: 'Secondary', options: Firebase.app().options);
       try {
-        UserCredential userCredential = await FirebaseAuth.instanceFor(app: app)
+        await FirebaseAuth.instance
             .createUserWithEmailAndPassword(
-                email: _Email.text, password: _Password.text);
-        // await FirebaseAuth.instanceFor(app: app)
-        //     .currentUser.updateDisplayName(_Username.text);
-        await handleNewUsers(userCredential.user.uid, _Username.text);
+                email: _Email.text, password: _Password.text).then((value) => {
+                  handleNewUsers(value.user.uid, _Username.text)
+        });
       } on FirebaseAuthException catch (e) {
         String error = getMessageFromErrorCode(e);
         m = error;
       }
-      await app.delete();
+      //await app.delete();
     } catch (e) {
       return getMessageFromErrorCode(e);
     }
-    return m;
+      return m;
+
   }
 }
 
@@ -344,7 +353,7 @@ String getMessageFromErrorCode(e) {
 showAlertDialog(BuildContext context, String t, String m) async {
   // set up the button
   Widget signButton = TextButton(
-    child: Text("Return"),
+    child: Text("OK"),
     onPressed: () {
       Navigator.of(context).pop();
       Navigator.of(context).pop();
