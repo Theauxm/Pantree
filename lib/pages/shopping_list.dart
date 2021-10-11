@@ -169,7 +169,7 @@ class _ListState extends State<ShoppingList> {
     final makeBody = Column(children: [
       // Sets up a stream builder to listen for changes inside the database.
       StreamBuilder(
-          stream: _selectedList.collection('Ingredients').snapshots(),
+          stream: _selectedList.collection('ingredients').snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) return const Text('Loading....');
             return Expanded(

@@ -92,31 +92,31 @@ class _recipeState extends State<recipes> {
         body: FloatingSearchBarScrollNotifier(
           child: Column(
             children: [
-              SizedBox(height: 80),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.12),
               Container(
-                  height: 80,
-                      child: StreamBuilder<QuerySnapshot>(
-                          stream: FirebaseFirestore.instance
-                              .collection('filters')
-                              .snapshots(),
-                          builder: (BuildContext context,
-                              AsyncSnapshot<QuerySnapshot> querySnapshot) {
-                            if (querySnapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return Center(child: CircularProgressIndicator());
-                            } else {
-                              return Container(
-                                  child: ListView.builder(
+                  height: MediaQuery.of(context).size.height * 0.1,
+                  child: StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('filters')
+                          .snapshots(),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<QuerySnapshot> querySnapshot) {
+                        if (querySnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        } else {
+                          return Container(
+                              child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
                                 itemBuilder: (context, index) {
                                   QueryDocumentSnapshot filter =
-                                      querySnapshot.data.docs[index];
+                                  querySnapshot.data.docs[index];
                                   return Container(
-                                      width: 200,
+                                      width: MediaQuery.of(context).size.width * 0.4,
                                       child: Card(
                                           shape: RoundedRectangleBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(50)),
+                                              BorderRadius.circular(50)),
                                           color: Colors.red[400],
                                           margin: const EdgeInsets.only(
                                               top: 12.0, right: 8.0, left: 8.0),
@@ -129,7 +129,7 @@ class _recipeState extends State<recipes> {
 
                                                 List<dynamic> idStrings = [];
                                                 for (DocumentReference ref
-                                                    in filter["recipe_ids"]) {
+                                                in filter["recipe_ids"]) {
                                                   idStrings.add(ref.id);
                                                   if (idStrings.length == 10) {
                                                     break;
@@ -146,10 +146,10 @@ class _recipeState extends State<recipes> {
                                 },
                                 itemCount: querySnapshot.data.docs.length,
                               ));
-                            }
-                          })),
+                        }
+                      })),
               SearchResultsListView(
-                  searchTerm: selectedTerm, filters: filteredRecipes)
+                  user: this.user, searchTerm: selectedTerm, filters: filteredRecipes)
             ],
           ),
         ),
@@ -216,29 +216,29 @@ class _recipeState extends State<recipes> {
                       children: filteredSearchHistory
                           .map(
                             (term) => ListTile(
-                              title: Text(
-                                term,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              leading: const Icon(Icons.history),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.clear),
-                                onPressed: () {
-                                  setState(() {
-                                    deleteSearchTerm(term);
-                                  });
-                                },
-                              ),
-                              onTap: () {
-                                setState(() {
-                                  putSearchTermFirst(term);
-                                  selectedTerm = term;
-                                });
-                                controller.close();
-                              },
-                            ),
-                          )
+                          title: Text(
+                            term,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          leading: const Icon(Icons.history),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              setState(() {
+                                deleteSearchTerm(term);
+                              });
+                            },
+                          ),
+                          onTap: () {
+                            setState(() {
+                              putSearchTermFirst(term);
+                              selectedTerm = term;
+                            });
+                            controller.close();
+                          },
+                        ),
+                      )
                           .toList(),
                     );
                   }
@@ -304,11 +304,13 @@ Widget buildFloatingSearchBar(BuildContext context) {
 class SearchResultsListView extends StatelessWidget {
   final String searchTerm;
   final List<dynamic> filters;
+  final PantreeUser user;
 
   const SearchResultsListView({
     Key key,
     @required this.searchTerm,
     @required this.filters,
+    @required this.user,
   }) : super(key: key);
 
   @override
@@ -373,70 +375,70 @@ class SearchResultsListView extends StatelessWidget {
                             style: TextStyle(fontSize: 20.0),
                           ),
                           subtitle: SizedBox(
-                            width: 100.0,
-                            height: 50.0,
-                            child: Row(children: [
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height * 0.18,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                               Card(
                                   color: Colors.red[400],
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(5.0)),
                                   child: Container(
                                       padding: const EdgeInsets.only(
-                                          top: 12.0,
-                                          right: 12.0,
-                                          left: 12.0,
-                                          bottom: 12.0),
+                                          top: 5.0,
+                                          right: 5.0,
+                                          left: 5.0,
+                                          bottom: 5.0),
                                       child: Text(
-                                          "Time: " +
                                               recipe["TotalTime"].toString() +
                                               " minutes",
                                           style: TextStyle(
                                             fontSize: 18.0,
                                             color: Colors.white,
                                           )))),
-                              // Card(
-                              //     color: Colors.red[400],
-                              //     shape: RoundedRectangleBorder(
-                              //         borderRadius: BorderRadius.circular(5.0)),
-                              //     child: Container(
-                              //         padding: const EdgeInsets.only(
-                              //             top: 12.0,
-                              //             right: 12.0,
-                              //             left: 12.0,
-                              //             bottom: 12.0),
-                              //         child: Text(
-                              //             "Created: " +
-                              //                 DateTime.parse(
-                              //                         recipe["CreationDate"]
-                              //                             .toDate()
-                              //                             .toString())
-                              //                     .toString(),
-                              //             style: TextStyle(
-                              //               fontSize: 18.0,
-                              //               color: Colors.white,
-                              //             )))),
-                              // Card(
-                              //     color: Colors.red[400],
-                              //     shape: RoundedRectangleBorder(
-                              //         borderRadius: BorderRadius.circular(5.0)),
-                              //     child: Container(
-                              //         padding: const EdgeInsets.only(
-                              //             top: 12.0,
-                              //             right: 12.0,
-                              //             left: 12.0,
-                              //             bottom: 12.0),
-                              //         child:
-                              //             Text("Missing Ingredients: " + "N/A",
-                              //                 style: TextStyle(
-                              //                   fontSize: 18.0,
-                              //                   color: Colors.white,
-                              //                 )))),
-                            ]),
-                          ),
+                               Card(
+                                   color: Colors.red[400],
+                                   shape: RoundedRectangleBorder(
+                                       borderRadius: BorderRadius.circular(5.0)),
+                                   child: Container(
+                                       padding: const EdgeInsets.only(
+                                           top: 5.0,
+                                           right: 5.0,
+                                           left: 5.0,
+                                           bottom: 5.0),
+                                       child: Text(
+                                         recipe["Creator"].id,
+                                           style: TextStyle(
+                                             fontSize: 18.0,
+                                             color: Colors.white,
+                                           )))),
+                                Card(
+                                  color: Colors.red[400],
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5.0)),
+                                  child: Container(
+                                    padding: const EdgeInsets.only(
+                                      top: 5.0,
+                                      right: 5.0,
+                                      left: 5.0,
+                                      bottom: 5.0),
+                                    child: Text(
+                                      "Missing Ingredients",
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.white,
+
+                                      )
+                                    )
+                                  )
+                                )
+                    ])),
                           onTap: () {
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) => ViewRecipe(
-                                    querySnapshot.data.docs[index])));
+                                    user: this.user,
+                                    recipe: querySnapshot.data.docs[index])));
                           },
                         ));
                   },
