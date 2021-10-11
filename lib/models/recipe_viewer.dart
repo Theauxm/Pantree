@@ -1,12 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:pantree/models/add_to_shopping_list.dart';
+import 'package:pantree/pantreeUser.dart';
+import 'package:pantree/models/exportList.dart';
 
 class ViewRecipe extends StatefulWidget {
   final QueryDocumentSnapshot recipe;
+  final PantreeUser user;
 
-  ViewRecipe(this.recipe);
+  const ViewRecipe({
+    this.user,
+    @required this.recipe});
 
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
@@ -14,14 +19,15 @@ class ViewRecipe extends StatefulWidget {
   }
 
   @override
-  State<StatefulWidget> createState() => _HomePageState(this.recipe);
+  State<StatefulWidget> createState() => _HomePageState(this.user, this.recipe);
 }
 
 // https://stackoverflow.com/questions/51607440/horizontally-scrollable-cards-with-snap-effect-in-flutter
 class _HomePageState extends State<ViewRecipe> {
   QueryDocumentSnapshot recipe;
+  PantreeUser user;
 
-  _HomePageState(this.recipe);
+  _HomePageState(this.user, this.recipe);
 
   Widget getIngredients() {
     return StreamBuilder<QuerySnapshot>(
@@ -87,8 +93,13 @@ class _HomePageState extends State<ViewRecipe> {
   }
 
   Widget addIngredientsToShoppingList() {
+    print(this.recipe.reference);
     return TextButton(
-      onPressed: () {},
+      onPressed: () {
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => ExportList(user: this.user, list: this.recipe.reference)));
+        //builder: (context) => AddToShoppingList(user: this.user, recipe: this.recipe)));
+      },
       child: Text("Add to Shopping List", style: TextStyle(fontSize: 20))
     );
   }
@@ -108,7 +119,7 @@ class _HomePageState extends State<ViewRecipe> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.red[400]),
+      appBar: AppBar(title: Text(recipe["RecipeName"].toString()), backgroundColor: Colors.red[400]),
       body: Center(
         child: SizedBox(
           height: MediaQuery.of(context).size.height, // card height

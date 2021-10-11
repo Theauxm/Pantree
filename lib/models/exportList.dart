@@ -44,7 +44,7 @@ class _ExportListState extends State<ExportList> {
     setState(() {
       _selectedPantry = tempPantry;
       _selectedPantryName = tempName;
-      list.collection("Ingredients").get().then((value) {
+      list.collection("ingredients").get().then((value) {
         setState(() {
           items = value.docs.map<CheckBoxListTileModel>((e) {
             return new CheckBoxListTileModel(
@@ -157,7 +157,7 @@ class _ExportListState extends State<ExportList> {
     try {
       items.forEach((element) {
         if (element.isCheck) {
-          _selectedPantry.collection("Ingredients").add({
+          _selectedPantry.collection("ingredients").add({
             "Item": element.ref.data()['Item'],
             "Quantity": element.ref.data()['Quantity'],
           }).then((value) {

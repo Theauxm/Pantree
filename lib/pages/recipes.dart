@@ -149,7 +149,7 @@ class _recipeState extends State<recipes> {
                         }
                       })),
               SearchResultsListView(
-                  searchTerm: selectedTerm, filters: filteredRecipes)
+                  user: this.user, searchTerm: selectedTerm, filters: filteredRecipes)
             ],
           ),
         ),
@@ -304,11 +304,13 @@ Widget buildFloatingSearchBar(BuildContext context) {
 class SearchResultsListView extends StatelessWidget {
   final String searchTerm;
   final List<dynamic> filters;
+  final PantreeUser user;
 
   const SearchResultsListView({
     Key key,
     @required this.searchTerm,
     @required this.filters,
+    @required this.user,
   }) : super(key: key);
 
   @override
@@ -435,7 +437,8 @@ class SearchResultsListView extends StatelessWidget {
                           onTap: () {
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) => ViewRecipe(
-                                    querySnapshot.data.docs[index])));
+                                    user: this.user,
+                                    recipe: querySnapshot.data.docs[index])));
                           },
                         ));
                   },

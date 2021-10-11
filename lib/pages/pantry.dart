@@ -209,7 +209,7 @@ class _PantryState extends State<Pantry> {
     final makeBody = Column(children: [
       // Sets up a stream builder to listen for changes inside the database.
       StreamBuilder(
-          stream: _selectedPantry.collection('Ingredients').snapshots(),
+          stream: _selectedPantry.collection('ingredients').snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) return const Text('Loading....');
             return Expanded(
