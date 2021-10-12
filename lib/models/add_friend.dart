@@ -111,7 +111,7 @@ class FriendSearchResultsList extends StatelessWidget {
                 AsyncSnapshot<QuerySnapshot> querySnapshot) {
               if (querySnapshot.hasError)
                 return Text(
-                    "Could not show any recipes, please try again in a few seconds");
+                    "Could not show any Friends, please try again in a few seconds");
 
               if (querySnapshot.connectionState == ConnectionState.waiting) {
                 return Center(child: CircularProgressIndicator());

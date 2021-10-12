@@ -17,6 +17,8 @@ class PantreeUser {
   var posts;
   var PPID;
   var PSID;
+  var pendingFriends;
+  var friendRequests;
 
 
   //this is from the FirebaseAuth, and contains info related from Authentication
@@ -41,7 +43,6 @@ class PantreeUser {
       if (documentSnapshot.exists) {
         this.name = documentSnapshot.data()['Username'],
         this.shoppingLists = documentSnapshot.data()['ShoppingIDs'],
-        this.friends = documentSnapshot.data()['FriendIDs'],
         this.recipes = documentSnapshot.data()['RecipeIDs'],
         this.pantries = documentSnapshot.data()['PantryIDs'],
         this.posts = documentSnapshot.data()['PostIDs'],
@@ -78,13 +79,42 @@ getUserProfile() async {
       return FirebaseAuth.instance.signOut();
     }
   }
+  getFriends(documentSnapshot.id, theUser);
   theUser.name = documentSnapshot.data()['Username'];
   theUser.shoppingLists = documentSnapshot.data()['ShoppingIDs'];
-  theUser.friends = documentSnapshot.data()['FriendIDs'];
   theUser.recipes = documentSnapshot.data()['RecipeIDs'];
   theUser.pantries = documentSnapshot.data()['PantryIDs'];
   theUser.posts = documentSnapshot.data()['PostIDs'];
   theUser.PPID = documentSnapshot.data()['PPID'];
   theUser.PSID = documentSnapshot.data()['PSID'];
   return theUser;
+}
+
+getFriends (String id, PantreeUser user) async{
+  List friendsList = [];
+  List pending = [];
+  List requested = [];
+  DocumentReference ref = FirebaseFirestore.instance.doc('/users/'+id);
+  var friends = await FirebaseFirestore.instance
+      .collection('friendships')
+      .where('users',  arrayContains: ref).get();
+  friends.docs.forEach((element) {
+    if(element.data()['accepted']){
+      if(element.data()['users'][0] == ref) {
+        friendsList.add(element.data()['users'][1]);
+      } else{
+        friendsList.add(element.data()['users'][0]);
+      }
+    } else{
+      if(element.data()['users'][0] == ref) {
+        pending.add(element.data()['users'][1]);
+      } else{
+        requested.add(element.data()['users'][0]);
+      }
+    }
+  }
+  );
+  user.friendRequests = requested;
+  user.friends = friendsList;
+  user.pendingFriends = pending;
 }
