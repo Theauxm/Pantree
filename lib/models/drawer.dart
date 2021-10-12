@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pantree/pantreeUser.dart';
+import 'package:pantree/models/friends_list.dart';
 
 class PantreeDrawer extends StatefulWidget {
   PantreeUser user;
@@ -55,6 +56,11 @@ class _PantreeDrawerState extends State<PantreeDrawer> {
                 title: Text('Profile'),
               ),
               ListTile(
+                leading: Icon(Icons.account_circle),
+                title: Text('Friends'),
+                onTap: friendsList,
+              ),
+              ListTile(
                 leading: Icon(Icons.settings),
                 title: Text('Settings'),
               ),
@@ -78,5 +84,13 @@ class _PantreeDrawerState extends State<PantreeDrawer> {
 
   Future<void> _signOut() async {
     await FirebaseAuth.instance.signOut();
+  }
+
+  void friendsList(){
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+            (FriendsList(user: user))));
   }
 }
