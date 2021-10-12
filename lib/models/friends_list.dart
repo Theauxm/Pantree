@@ -44,34 +44,57 @@ class FriendsListState extends State<FriendsList> {
 
   @override
   Widget build(BuildContext context) {
+    var keys = friendsMap.keys.toList();
     return Scaffold(
         appBar: AppBar(
-          title: Text("Export Items to Pantry!"),
+          title: Text("Your Friends"),
         ),
         body: Column(children: <Widget>[
-          Text(friendsMap.toString()),
-          Flexible(
-            flex: 1,
-            child: Container(
-              width: double.maxFinite,
-              child: TextButton(
-                style: TextButton.styleFrom(backgroundColor: Colors.blue),
-                onPressed: addFriend,
-                child: Text(
-                  'Add Friend',
-                  style: TextStyle(fontSize: 14, color: Colors.black),
+          Expanded(child:
+          ListView.builder(
+            itemBuilder: (context, index) {
+              return Card(
+                elevation: 7.0,
+                margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 3.0),
+                child: ListTile(
+                  leading: Container(
+                      child: Icon(
+                    Icons.account_box,
+                    size: 50,
+                  )),
+                  title: Text(
+                    keys[index].toString(),
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                  trailing: IconButton(
+                    icon: Icon(
+                      Icons.person_remove_alt_1_outlined,
+                      size: 20.0,
+                      color: Colors.red,
+                    ),
+                    onPressed: removeFriend,
+                  ),
                 ),
-              ),
-            ),
-          ),
-        ]));
+              );
+            },
+            itemCount: keys.length,
+          )),
+        ]),
+      floatingActionButton: FloatingActionButton(
+      backgroundColor: Colors.green,
+      child: const Icon(Icons.person_add),
+      onPressed: addFriend,
+    ),);
   }
+  void removeFriend(){
 
+  }
   void addFriend() {
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) =>
-            (AddFriend(user: user))));
+                (AddFriend(user: user, friends: friendsMap.keys.toList()))));
   }
 }
