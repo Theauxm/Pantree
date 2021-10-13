@@ -159,16 +159,37 @@ class FriendSearchResultsList extends StatelessWidget {
   void makeRequest(context, DocumentReference friend) async{
     try {
       DocumentReference currentUser = FirebaseFirestore.instance.doc('/users/'+user.uid);
-              await FirebaseFirestore.instance.collection("friendships").add({
-                "accepted": false,
-                "users": [currentUser, friend],
-              }).then((value) =>
-              {
-                currentUser.update({'PendingFriends': FieldValue.increment(1)}),
-                friend.update({'PendingFriends': FieldValue.increment(1)}),
-                Dialogs.friendRequestSent(context, "Friend Request sent to "+ friend.toString())
-              });
-
+      QuerySnapshot d = await FirebaseFirestore.instance.collection("friendships").where('users', isEqualTo: [currentUser,friend]).get();
+      QuerySnapshot r = await FirebaseFirestore.instance.collection("friendships").where('users', isEqualTo: [friend,currentUser]).get();
+      if(d.docs.isNotEmpty){//You already sent them a friend request
+        Dialogs.friendRequestSent(context, "You already added this person");
+      } else if(r.docs.isNotEmpty) {//TThey sent you a friend request and you sent them one
+        currentUser.update(
+            {
+              'PendingFriends': FieldValue.increment(-1),
+              'Friends': FieldValue.increment(1)
+            });
+        friend.update(
+            {
+              'PendingFriends': FieldValue.increment(-1),
+              'Friends': FieldValue.increment(1)
+            });
+        r.docs.first.reference.update(
+            {
+              'accepted': true,
+            });
+      }else{//No one has sent anyone a friend request.
+        await FirebaseFirestore.instance.collection("friendships").add({
+          "accepted": false,
+          "users": [currentUser, friend],
+        }).then((value) =>
+        {
+          currentUser.update({'PendingFriends': FieldValue.increment(1)}),
+          friend.update({'PendingFriends': FieldValue.increment(1)}),
+          Dialogs.friendRequestSent(
+              context, "Friend Request sent to " + friend.toString())
+        });
+      }
     }catch (e) {
     }
   }
