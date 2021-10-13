@@ -143,7 +143,8 @@ Future<void> handleNewUsers(String docID, String displayName) async {
         FirebaseFirestore.instance.collection('users').doc(docID).set({
           'Username': displayName,
           'PantryIDs': [],
-          'FriendIDs': [],
+          'Friends': 0,
+          'PendingFriends': 0,
           'RecipeIDs': [],
           'ShoppingIDs': [],
           'PostIDs': [],

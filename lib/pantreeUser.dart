@@ -19,6 +19,8 @@ class PantreeUser {
   var PSID;
   var pendingFriends;
   var friendRequests;
+  var pendingFriendsCount;
+  var friendsCount;
 
 
   //this is from the FirebaseAuth, and contains info related from Authentication
@@ -79,7 +81,7 @@ getUserProfile() async {
       return FirebaseAuth.instance.signOut();
     }
   }
-  getFriends(documentSnapshot.id, theUser);
+  updateFriends(documentSnapshot.id, theUser);
   theUser.name = documentSnapshot.data()['Username'];
   theUser.shoppingLists = documentSnapshot.data()['ShoppingIDs'];
   theUser.recipes = documentSnapshot.data()['RecipeIDs'];
@@ -87,13 +89,15 @@ getUserProfile() async {
   theUser.posts = documentSnapshot.data()['PostIDs'];
   theUser.PPID = documentSnapshot.data()['PPID'];
   theUser.PSID = documentSnapshot.data()['PSID'];
+  theUser.friendsCount = documentSnapshot.data()['Friends'];
+  theUser.pendingFriendsCount = documentSnapshot.data()['PendingFriends'];
   return theUser;
 }
 
-getFriends (String id, PantreeUser user) async{
-  List friendsList = [];
-  List pending = [];
-  List requested = [];
+Future<bool> updateFriends (String id, PantreeUser user) async{
+  Map friendsList = Map<DocumentReference, DocumentReference>();
+  Map pending =  Map<DocumentReference, DocumentReference>();;
+  Map requested =  Map<DocumentReference, DocumentReference>();;
   DocumentReference ref = FirebaseFirestore.instance.doc('/users/'+id);
   var friends = await FirebaseFirestore.instance
       .collection('friendships')
@@ -101,15 +105,15 @@ getFriends (String id, PantreeUser user) async{
   friends.docs.forEach((element) {
     if(element.data()['accepted']){
       if(element.data()['users'][0] == ref) {
-        friendsList.add(element.data()['users'][1]);
+        friendsList[element.data()['users'][1]] = element.reference;
       } else{
-        friendsList.add(element.data()['users'][0]);
+        friendsList[element.data()['users'][0]] = element.reference;;
       }
     } else{
       if(element.data()['users'][0] == ref) {
-        pending.add(element.data()['users'][1]);
+        pending[element.data()['users'][1]] = element.reference;
       } else{
-        requested.add(element.data()['users'][0]);
+        requested[element.data()['users'][0]] = element.reference;
       }
     }
   }
@@ -117,4 +121,5 @@ getFriends (String id, PantreeUser user) async{
   user.friendRequests = requested;
   user.friends = friendsList;
   user.pendingFriends = pending;
+  return true;
 }

@@ -164,10 +164,12 @@ class FriendSearchResultsList extends StatelessWidget {
                 "users": [currentUser, friend],
               }).then((value) =>
               {
+                currentUser.update({'PendingFriends': FieldValue.increment(1)}),
+                friend.update({'PendingFriends': FieldValue.increment(1)}),
                 Dialogs.friendRequestSent(context, "Friend Request sent to "+ friend.toString())
               });
 
-    } catch (e) {
+    }catch (e) {
     }
   }
 }

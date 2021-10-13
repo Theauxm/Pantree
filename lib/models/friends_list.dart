@@ -23,65 +23,77 @@ class FriendsListState extends State<FriendsList> {
   Map<String, DocumentReference>
   friendRequests;
   Future<dynamic> getFriends() async {
-    friendsMap = Map<String, DocumentReference>();
-    pendingFriends =  Map<String, DocumentReference>();
-    friendRequests =  Map<String, DocumentReference>();
-    //await user.updateData(); // important: refreshes the user's data// instantiate the map
-    for (DocumentReference ref in user.friends) {
-      // go through each doc ref and add to list of pantry names + map
-      String friendUsername = "";
-      await ref.get().then((DocumentSnapshot snapshot) {
-        friendUsername =
-            snapshot.data()['Username']; // get the pantry name as a string
-      });
-      friendsMap[friendUsername] = ref;
+    if(await updateFriends(user.uid,user)) {
+      friendsMap = Map<String, DocumentReference>();
+      pendingFriends = Map<String, DocumentReference>();
+      friendRequests = Map<String, DocumentReference>();
+      //await user.updateData(); // important: refreshes the user's data// instantiate the map
+      for (DocumentReference ref in user.friends.keys) {
+        // go through each doc ref and add to list of pantry names + map
+        String friendUsername = "";
+        await ref.get().then((DocumentSnapshot snapshot) {
+          friendUsername =
+          snapshot.data()['Username']; // get the pantry name as a string
+        });
+        friendsMap[friendUsername] = ref;
+      }
+      for (DocumentReference ref in user.pendingFriends.keys) {
+        // go through each doc ref and add to list of pantry names + map
+        String friendUsername = "";
+        await ref.get().then((DocumentSnapshot snapshot) {
+          friendUsername =
+          snapshot.data()['Username']; // get the pantry name as a string
+        });
+        pendingFriends[friendUsername] = ref;
+      }
+      for (DocumentReference ref in user.friendRequests.keys) {
+        // go through each doc ref and add to list of pantry names + map
+        String friendUsername = "";
+        await ref.get().then((DocumentSnapshot snapshot) {
+          friendUsername =
+          snapshot.data()['Username']; // get the pantry name as a string
+        });
+        friendRequests[friendUsername] = ref;
+      }
+      // very important: se setState() to force a call to build()
+      setState(() {});
     }
-    for (DocumentReference ref in user.pendingFriends) {
-      // go through each doc ref and add to list of pantry names + map
-      String friendUsername = "";
-      await ref.get().then((DocumentSnapshot snapshot) {
-        friendUsername =
-        snapshot.data()['Username']; // get the pantry name as a string
-      });
-      pendingFriends[friendUsername] = ref;
-    }
-    for (DocumentReference ref in user.friendRequests) {
-      // go through each doc ref and add to list of pantry names + map
-      String friendUsername = "";
-      await ref.get().then((DocumentSnapshot snapshot) {
-        friendUsername =
-        snapshot.data()['Username']; // get the pantry name as a string
-      });
-      friendRequests[friendUsername] = ref;
-    }
-    // very important: se setState() to force a call to build()
-    setState(() {});
   }
 
-
+  setListener() {
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(user.uid)
+        .snapshots()
+        .listen((event) {
+      if(event.data()['pendingFriends'] != user.friendsCount || event.data()['Friends'] != user.pendingFriendsCount){
+        getFriends();
+      }
+    });
+  }
 
   @override
   void initState() {
     super.initState();
     getFriends();
-    //setListener();
+    setListener();
   }
 
   @override
   Widget build(BuildContext context) {
-    var keys = friendsMap.keys.toList();
-    var pKeys = pendingFriends.keys.toList();
-    var rKeys = friendRequests.keys.toList();
+    if(friendRequests == null){
+      return Center(child: CircularProgressIndicator());
+    }
     return Scaffold(
         appBar: AppBar(
           title: Text("Your Friends"),
         ),
         body: Column(children: <Widget>[
-          buildFriends(keys, true),
+          buildFriends(friendsMap, true,user.friends),
           Text("Pending:"),
-          buildFriends(pKeys,true),
+          buildFriends(pendingFriends,true,user.pendingFriends),
           Text("Requests:"),
-          buildFriends(rKeys, false)
+          buildFriends(friendRequests, false,user.friendRequests)
         ]),
       floatingActionButton: FloatingActionButton(
       backgroundColor: Colors.green,
@@ -90,20 +102,8 @@ class FriendsListState extends State<FriendsList> {
     ),);
   }
 
-  Widget buildFriends(keys, bool remove){
-    Widget icon;
-    if(remove){
-      icon = Icon(
-        Icons.person_remove_alt_1_outlined,
-        size: 20.0,
-        color: Colors.red,
-      );
-    }else{
-      icon = Icon(
-        Icons.person_add_alt,
-        size: 20.0,
-        color: Colors.green,);
-    }
+  Widget buildFriends(Map map, bool remove, Map col){
+    List keys = map.keys.toList();
     return
     Expanded(child:
     ListView.builder(
@@ -122,22 +122,59 @@ class FriendsListState extends State<FriendsList> {
               style: const TextStyle(
                   fontSize: 16, fontWeight: FontWeight.w600),
             ),
-            trailing: IconButton(
-              icon: icon,
-              onPressed: removeFriend,
-            ),
+            trailing: makeIcon(remove, index, col, map, keys),
           ),
         );
       },
       itemCount: keys.length,
     ));
   }
-  void removeFriend(){
-
+  Widget makeIcon(b, index, col, map, keys){
+    if (b) {
+      return IconButton(
+        icon: Icon(
+          Icons.person_remove_alt_1_outlined,
+          size: 20.0,
+          color: Colors.red,),
+        onPressed: () {
+          removeFriend(
+              col[map[keys[index]]],
+              FirebaseFirestore.instance.doc('/users/'+user.uid),
+              map[keys[index]]);
+        },
+      );
+    } else{
+      return IconButton(
+        icon: Icon(
+          Icons.person_add_alt,
+          size: 20.0,
+          color: Colors.green,),
+        onPressed: (){
+          acceptRequest(
+              col[map[keys[index]]],
+              FirebaseFirestore.instance.doc('/users/'+user.uid),
+              map[keys[index]]);
+        }
+      );
+    }
+  }
+  void removeFriend(DocumentReference d,DocumentReference u, DocumentReference f){
+    u.update({'Friends': FieldValue.increment(-1)});
+    d.delete();
   }
 
-  void acceptRequest(){
-
+  void acceptRequest(DocumentReference d,DocumentReference u, DocumentReference f){
+    u.update(
+        {
+          'PendingFriends': FieldValue.increment(-1),
+          'Friends': FieldValue.increment(1)
+        });
+    f.update(
+        {
+          'PendingFriends': FieldValue.increment(-1),
+          'Friends': FieldValue.increment(1)
+        });
+    d.update({'accepted': true});
   }
   void addFriend() {
     List allFriends = friendsMap.keys.toList();
