@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
+import 'package:pantree/models/custom_fab.dart';
+import 'package:pantree/models/recipe_creation.dart';
 import 'package:pantree/pantreeUser.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pantree/models/recipe_viewer.dart';
@@ -87,6 +89,14 @@ class _recipeState extends State<recipes> {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: PantreeDrawer(user: this.user),
+      floatingActionButton: CustomFAB(
+          color: Colors.red[400],
+          icon: const Icon(Icons.add),
+          onPressed: (() => {
+            Navigator.push(context, MaterialPageRoute(
+                builder: (context) =>
+                    RecipeCreator(user: this.user)))
+          })),
       body: FloatingSearchBar(
         controller: controller,
         body: FloatingSearchBarScrollNotifier(
