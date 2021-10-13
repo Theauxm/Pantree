@@ -162,22 +162,27 @@ class FriendSearchResultsList extends StatelessWidget {
       QuerySnapshot d = await FirebaseFirestore.instance.collection("friendships").where('users', isEqualTo: [currentUser,friend]).get();
       QuerySnapshot r = await FirebaseFirestore.instance.collection("friendships").where('users', isEqualTo: [friend,currentUser]).get();
       if(d.docs.isNotEmpty){//You already sent them a friend request
-        Dialogs.friendRequestSent(context, "You already added this person");
+        Dialogs.friendRequestSent(context, "You already added/sent Request to this person");
       } else if(r.docs.isNotEmpty) {//TThey sent you a friend request and you sent them one
-        currentUser.update(
-            {
-              'PendingFriends': FieldValue.increment(-1),
-              'Friends': FieldValue.increment(1)
-            });
-        friend.update(
-            {
-              'PendingFriends': FieldValue.increment(-1),
-              'Friends': FieldValue.increment(1)
-            });
-        r.docs.first.reference.update(
-            {
-              'accepted': true,
-            });
+        Dialogs.friendRequestSent(context, "Added!");
+        if(!r.docs.first.data()['accepted']) {
+          {
+            currentUser.update(
+                {
+                  'PendingFriends': FieldValue.increment(-1),
+                  'Friends': FieldValue.increment(1)
+                });
+            friend.update(
+                {
+                  'PendingFriends': FieldValue.increment(-1),
+                  'Friends': FieldValue.increment(1)
+                });
+            r.docs.first.reference.update(
+                {
+                  'accepted': true,
+                });
+          }
+        }
       }else{//No one has sent anyone a friend request.
         await FirebaseFirestore.instance.collection("friendships").add({
           "accepted": false,
