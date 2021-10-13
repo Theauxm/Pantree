@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pantree/pantreeUser.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
+import 'package:pantree/models/dialogs.dart';
 
 class AddFriend extends StatefulWidget {
   final PantreeUser user;
@@ -140,7 +141,10 @@ class FriendSearchResultsList extends StatelessWidget {
                               Icons.person_add_alt,
                               size: 20.0,
                               color: Colors.green,),
-                          onPressed: makeRequest,
+                          onPressed: ()
+                            {
+                              makeRequest(context, friend.reference);
+                            }
                         ),
                       ),
 
@@ -152,6 +156,18 @@ class FriendSearchResultsList extends StatelessWidget {
             }));
   }
 
-  void makeRequest() {
+  void makeRequest(context, DocumentReference friend) async{
+    try {
+      DocumentReference currentUser = FirebaseFirestore.instance.doc('/users/'+user.uid);
+              await FirebaseFirestore.instance.collection("friendships").add({
+                "accepted": false,
+                "users": [currentUser, friend],
+              }).then((value) =>
+              {
+                Dialogs.friendRequestSent(context, "Friend Request sent to "+ friend.toString())
+              });
+
+    } catch (e) {
+    }
   }
 }

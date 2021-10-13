@@ -53,4 +53,26 @@ class Dialogs {
       },
     );
   }
+
+  static Future<void> friendRequestSent(BuildContext context, String friend) async {
+    // set up the button
+
+    Widget okButton = TextButton(
+      child: Text("Ok"),
+      onPressed: () {
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+    );
+    var a = [okButton];
+    AlertDialog alert =
+    AlertDialog(title: Text("Friend Request:"), content: Text(friend), actions: a);
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
 }

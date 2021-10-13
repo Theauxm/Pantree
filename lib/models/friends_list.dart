@@ -135,6 +135,10 @@ class FriendsListState extends State<FriendsList> {
   void removeFriend(){
 
   }
+
+  void acceptRequest(){
+
+  }
   void addFriend() {
     List allFriends = friendsMap.keys.toList();
     allFriends.addAll(pendingFriends.keys.toList());
