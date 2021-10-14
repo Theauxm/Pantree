@@ -51,7 +51,7 @@ class _socialState extends State<social_feed> {
     DocumentReference tempPost;
     String tempName;
 
-    await user.updateData(); // important: refreshes the user's data
+   // await user.updateData(); // important: refreshes the user's data
     images = Map<String, DocumentReference>(); // instantiate the map
 
     for (DocumentReference ref in user.posts) {
@@ -78,8 +78,11 @@ class _socialState extends State<social_feed> {
         //.collection("posts")
         .snapshots()
         .listen((event) {
-      getData();
-    });
+      if(event.data()['PostIDs'].length != user.posts.length) {
+        user.posts = event.data()['PostIDs'];
+        setState(() {
+          }); //TODO: This listener is not working quite right
+      }});
   }
   @override
   void initState() {
