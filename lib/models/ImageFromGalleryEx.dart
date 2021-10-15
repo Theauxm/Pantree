@@ -9,6 +9,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'dialogs.dart';
+
 class ImageFromGalleryEx extends StatefulWidget {
   final type;
   final user;
@@ -22,6 +24,7 @@ class ImageFromGalleryEx extends StatefulWidget {
 
 class ImageFromGalleryExState extends State<ImageFromGalleryEx> {
   final firestoreInstance = FirebaseFirestore.instance;
+  final GlobalKey<State> _keyLoader = new GlobalKey<State>();
   var _image;
   var picture;
   var imagePicker;
@@ -54,11 +57,28 @@ class ImageFromGalleryExState extends State<ImageFromGalleryEx> {
           'PostIDs': FieldValue.arrayUnion([value]),
         });
       }); // adds doc with specified name and no fields
-      //  }
-      //  }
-      //  );
+     return true;
     } catch (e) {
+      return false;
       print('error in upload of image');
+    }
+  }
+
+  Future<void> _handleSubmit(BuildContext context) async {
+    try {
+      Dialogs.showLoadingDialog(context, _keyLoader);
+      bool b = await  uploadImageToFirebase(context);
+      Navigator.of(_keyLoader.currentContext,rootNavigator: true).pop();
+      if (b) {
+        Dialogs.showDialogCreatePL(context, "Success",
+            "Image Upload Successful.","Return to Profile");
+      } else{
+        Dialogs.showDialogCreatePL(context, "Failed",
+            "Something went wrong! Try again later!","Return to Profile");
+      }
+      //Navigator.pushReplacementNamed(context, "/home");
+    } catch (error) {
+      print(error);
     }
   }
 
@@ -138,11 +158,12 @@ class ImageFromGalleryExState extends State<ImageFromGalleryEx> {
                 ),
                 onPressed: () {
                   // _handleURLButtonPress(context, ImageSourceType.gallery);
-                  print(picture.path);
-                  print(_image); //this is the file path
-                  print('user' + user.name);
+                  //print(picture.path);
+                  //print(_image); //this is the file path
+                  //print('user' + user.name);
                   //TODO: write event handler for saving the photo
-                  uploadImageToFirebase(context);
+                  //uploadImageToFirebase(context);
+                  _handleSubmit(context);
                 },
               ))),
             ],

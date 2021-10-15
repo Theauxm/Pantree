@@ -81,7 +81,7 @@ class _socialState extends State<social_feed> {
       if(event.data()['PostIDs'].length != user.posts.length) {
         user.posts = event.data()['PostIDs'];
         setState(() {
-          }); //TODO: This listener is not working quite right
+          });
       }});
   }
   @override
@@ -221,9 +221,6 @@ class _socialState extends State<social_feed> {
                     scrollDirection: Axis.vertical,
                     //shrinkWrap: true,
                     padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-                    //crossAxisSpacing: 10,
-                    //mainAxisSpacing: 10,
-                    //crossAxisCount: 3,
 
                     itemBuilder: (context, index){
                       return ImageTile(postRef : user.posts[index]);

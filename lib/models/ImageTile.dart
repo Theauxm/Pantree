@@ -52,6 +52,7 @@ class ImageTileState extends State<ImageTile>{
             padding: const EdgeInsets.all(8),
             child: GestureDetector(
                 onTap: () async {
+                  print("hey i got tapped");
                   // getData(); //this will be changed to show the larger image preview
                 },
                 child: Container(
