@@ -6,6 +6,26 @@ import '../models/newShoppingList.dart';
 import '../models/exportList.dart';
 import '../models/new_list_item.dart';
 
+extension StringExtension on String {
+  String get inCaps =>
+      this.length > 0 ? '${this[0].toUpperCase()}${this.substring(1)}' : '';
+  String get allInCaps => this.toUpperCase();
+  String get capitalizeFirstOfEach => this
+      .replaceAll(RegExp(' +'), ' ')
+      .split(" ")
+      .map((str) => str.inCaps)
+      .join(" ");
+  String get capitalizeFirstLetter => (this?.isNotEmpty ?? false)
+      ? '${this[0].toUpperCase()}${this.substring(1)}'
+      : this;
+  String capitalize() {
+    if (this == null || this == "") {
+      return "";
+    }
+    return "${this[0].toUpperCase()}${this.substring(1)}";
+  }
+}
+
 class ShoppingList extends StatefulWidget {
   final PantreeUser user;
   ShoppingList({this.user});
@@ -89,7 +109,7 @@ class _ListState extends State<ShoppingList> {
   }
 
   void exportList() {
-    if(user.pantries.length > 0) {
+    if (user.pantries.length > 0) {
       Navigator.push(
           context,
           MaterialPageRoute(
@@ -145,10 +165,10 @@ class _ListState extends State<ShoppingList> {
       actions: <Widget>[
         Padding(
           padding: EdgeInsets.only(right: 20.0),
-         //  child: GestureDetector(
-         //    onTap: () {},
-         // //   child: Icon(Icons.search, size: 26.0),
-         //  ),
+          //  child: GestureDetector(
+          //    onTap: () {},
+          // //   child: Icon(Icons.search, size: 26.0),
+          //  ),
         ),
         PopupMenuButton<String>(
           onSelected: (selected) {
@@ -180,17 +200,17 @@ class _ListState extends State<ShoppingList> {
                   elevation: 7.0,
                   margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 3.0),
                   child: ListTile(
-                    leading: Container(
-                      child: Image.network(
-                          "https://i2.wp.com/ceklog.kindel.com/wp-content/uploads/2013/02/firefox_2018-07-10_07-50-11.png"), //replace images with ones in firestore
-                    ),
+                    leading: Icon(Icons.fastfood_rounded),
                     title: Text(
-                      doc['Item'].id.toString(),
+                      doc['Item'].id.toString().capitalizeFirstOfEach,
                       style: const TextStyle(
                           fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                     subtitle: Text(
-                      "Quantity: " + doc['Quantity'].toString(),
+                      "Quantity: " +
+                          doc['Quantity'].toString() +
+                          " " +
+                          doc['Unit'].toString().capitalizeFirstOfEach,
                       style: const TextStyle(
                           fontSize: 14, fontWeight: FontWeight.w600),
                     ),
@@ -198,7 +218,9 @@ class _ListState extends State<ShoppingList> {
                       icon: Icon(Icons.delete, size: 20.0),
                       onPressed: (() {
                         showDeleteDialog(
-                            context, doc['Item'].id.toString(), doc);
+                            context,
+                            doc['Item'].id.toString().capitalizeFirstOfEach,
+                            doc);
                       }),
                     ),
                   ),
@@ -243,7 +265,7 @@ class _ListState extends State<ShoppingList> {
           children: <Widget>[
             Container(
               child: Text(
-                'Create A Shopping List!!',
+                'Create a Shopping List!',
                 style: TextStyle(color: Colors.black, fontSize: 20),
               ),
               margin: EdgeInsets.all(16),
@@ -253,8 +275,9 @@ class _ListState extends State<ShoppingList> {
                 createNewList();
               },
               child: Text('Create Shopping List'),
-              style: TextButton.styleFrom(primary: Colors.white,
-              backgroundColor: Colors.lightBlueAccent),
+              style: TextButton.styleFrom(
+                  primary: Colors.white,
+                  backgroundColor: Colors.lightBlueAccent),
             ),
           ],
         ),
@@ -310,8 +333,7 @@ class _ListState extends State<ShoppingList> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text("No Pantries"),
-          content:
-          Text("You don't have any pantries to export to!"),
+          content: Text("You don't have any pantries to export to!"),
           actions: [
             okButton,
           ],

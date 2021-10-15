@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 import 'package:pantree/models/custom_fab.dart';
 import 'package:pantree/models/drawer.dart';
 import 'package:pantree/models/new_pantry_item.dart';
@@ -142,6 +143,12 @@ class _PantryState extends State<Pantry> {
                 ))));
   }
 
+  String formatDate(Timestamp time) {
+    DateTime date = time.toDate();
+    DateFormat formatter = DateFormat("MM/dd/yyyy");
+    return formatter.format(date);
+  }
+
   @override
   Widget build(BuildContext context) {
     if (user.pantries.length == 0) {
@@ -226,32 +233,30 @@ class _PantryState extends State<Pantry> {
                   elevation: 7.0,
                   margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 3.0),
                   child: ListTile(
-                    leading: Container(
-                      child: Image.network(
-                          "https://i2.wp.com/ceklog.kindel.com/wp-content/uploads/2013/02/firefox_2018-07-10_07-50-11.png"), //replace images with ones in firestore
-                    ),
+                    leading: Icon(Icons.fastfood_rounded),
                     title: Text(
                       doc['Item'].id.toString().capitalizeFirstOfEach,
                       style: const TextStyle(
                           fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                     subtitle: Container(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                           Text(
-                            "Quantity: " + doc['Quantity'].toString(),
+                            "Quantity: " +
+                                doc['Quantity'].toString() +
+                                " " +
+                                doc['Unit'].toString().capitalizeFirstOfEach,
                             style: const TextStyle(
                                 fontSize: 14, fontWeight: FontWeight.w600),
                           ),
                           Text(
-                            "Date Added: " + doc['Quantity'].toString(),
+                            "Date Added: " + formatDate(doc['DateAdded']),
                             style: const TextStyle(
                                 fontSize: 14, fontWeight: FontWeight.w600),
                           ),
-                        ]
-                      )
-                    ),
+                        ])),
                     trailing: IconButton(
                       icon: Icon(Icons.delete, size: 20.0),
                       onPressed: (() {
@@ -299,7 +304,7 @@ class _PantryState extends State<Pantry> {
           children: <Widget>[
             Container(
               child: Text(
-                'Create A Pantry!!',
+                'Create a Pantry!',
                 style: TextStyle(color: Colors.black, fontSize: 20),
               ),
               margin: EdgeInsets.all(16),
@@ -309,8 +314,9 @@ class _PantryState extends State<Pantry> {
                 createPantry();
               },
               child: Text('Create Pantry'),
-              style: TextButton.styleFrom(primary: Colors.white,
-              backgroundColor: Color.fromRGBO(255, 204, 102, 1.0)),
+              style: TextButton.styleFrom(
+                  primary: Colors.white,
+                  backgroundColor: Color.fromRGBO(255, 204, 102, 1.0)),
             ),
           ],
         ),
