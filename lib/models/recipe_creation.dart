@@ -10,10 +10,7 @@ class RecipeCreator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-            title: Text("Create a Recipe"), backgroundColor: Colors.red[400]),
-        body: InputForm(user: this.user));
+        return InputForm(user: this.user);
   }
 }
 
@@ -43,22 +40,57 @@ class _InputForm extends State<InputForm> {
 
   List<TextEditingController> _ingredientControllers = [];
   List<TextFormField> _ingredientFields = [];
+  List<TextFormField> _ingredientAmountFields = [];
   List<DropdownButton> _unitFields = [];
 
   List<TextEditingController> _directionControllers = [];
   List<TextFormField> _directionFields = [];
 
-  List<TextEditingController> _recipeNameControllers = [];
-  List<TextFormField> _recipeName;
+  TextEditingController recipeController = TextEditingController();
+  TextFormField recipeField = null;
 
-  List<TextEditingController> _totalTimeControllers = [];
-  List<TextFormField> _totalTime;
+  TextEditingController totalTimeController = TextEditingController();
+  TextFormField totalTimeField = null;
 
   final firestoreInstance = FirebaseFirestore.instance;
 
   bool overviewIsVisible = true;
   bool ingredientIsVisible = false;
   bool directionIsVisible = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+            title: Text("Create a Recipe"), backgroundColor: Colors.red[400],
+          actions: [
+            IconButton(
+                onPressed: () {
+                  print(recipeController.text);
+                  print(totalTimeController.text);
+
+                  for (TextEditingController cont in _ingredientControllers) {
+                    print(cont.text);
+                  }
+
+                  for (TextEditingController cont in _directionControllers) {
+                    print(cont.text);
+                  }
+
+                  Navigator.of(context).pop();
+                },
+              icon: const Icon(Icons.check_box)
+            )
+          ],
+        ),
+        body: Column(children: [
+          SizedBox(height: 20),
+          buttons(),
+          if (overviewIsVisible) pageOne(),
+          if (ingredientIsVisible) pageTwo(),
+          if (directionIsVisible) pageThree(),
+        ]));
+  }
 
   Widget buttons() {
     return Row(
@@ -115,28 +147,33 @@ class _InputForm extends State<InputForm> {
   }
 
   Widget pageOne() {
-    final _recipeNameController = TextEditingController();
-    _recipeNameControllers.add(_recipeNameController);
-    final _totalTimeController = TextEditingController();
-    _totalTimeControllers.add(_totalTimeController);
+    if (recipeField == null) {
+      recipeField = TextFormField(
+        controller: recipeController,
+        decoration: InputDecoration(
+            border: OutlineInputBorder(), labelText: "Recipe name"),
+      );
+    }
+
+    if (totalTimeField == null) {
+      totalTimeField = TextFormField(
+        controller: totalTimeController,
+        decoration: InputDecoration(
+            border: OutlineInputBorder(), labelText: "Total time to cook (minutes)"),
+      );
+    }
 
     return Column(children: [
       SizedBox(height: 20),
       Container(
           width: MediaQuery.of(context).size.width * 0.9,
-          child: TextFormField(
-        controller: _recipeNameController,
-        decoration: InputDecoration(
-            border: OutlineInputBorder(), labelText: "Recipe name"),
-      )),
+          child: recipeField
+      ),
       SizedBox(height: 20),
       Container(
           width: MediaQuery.of(context).size.width * 0.9,
-      child: TextFormField(
-        controller: _totalTimeController,
-        decoration: InputDecoration(
-            border: OutlineInputBorder(), labelText: "Total time to cook (minutes)"),
-      )),
+      child: totalTimeField
+      ),
     ]);
   }
 
@@ -159,17 +196,6 @@ class _InputForm extends State<InputForm> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Column(children: [
-      SizedBox(height: 20),
-      buttons(),
-      if (overviewIsVisible) pageOne(),
-      if (ingredientIsVisible) pageTwo(),
-      if (directionIsVisible) pageThree(),
-    ]);
-  }
-
-  @override
   void dispose() {
     for (final controller in _ingredientControllers) {
       controller.dispose();
@@ -179,29 +205,16 @@ class _InputForm extends State<InputForm> {
       controller.dispose();
     }
 
-    for (final controller in _totalTimeControllers) {
-      controller.dispose();
-    }
-
-    for (final controller in _recipeNameControllers) {
-      controller.dispose();
-    }
+    totalTimeController.dispose();
+    recipeController.dispose();
 
     super.dispose();
   }
 
-  Widget _measurementDropdown() {
-    String dropdownValue = dropDownValues[0];
+  Widget _measurementDropdown(String dropdownValue) {
     return DropdownButton<String>(
       value: dropdownValue,
-      icon: const Icon(Icons.arrow_downward),
-      iconSize: 24,
-      elevation: 16,
-      style: const TextStyle(color: Colors.deepPurple),
-      underline: Container(
-        height: 2,
-        color: Colors.deepPurpleAccent,
-      ),
+      style: const TextStyle(color: Colors.red),
       onChanged: (String newValue) {
         setState(() {
           dropdownValue = newValue;
@@ -236,10 +249,25 @@ class _InputForm extends State<InputForm> {
           controller: controller,
           decoration: InputDecoration(
             border: OutlineInputBorder(),
-            labelText: "Blank " + text,
+            labelText: text,
           ),
         );
-        final unit = _measurementDropdown();
+
+        TextEditingController amountController;
+        TextFormField amountField;
+        DropdownButton unitField;
+        if (text == "Ingredient") {
+          amountController = TextEditingController();
+          amountField = TextFormField(
+            controller: amountController,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: "Amount"
+            )
+          );
+
+
+        }
 
         setState(() {
           if (text == "Direction") {
@@ -248,7 +276,8 @@ class _InputForm extends State<InputForm> {
           } else {
             _ingredientControllers.add(controller);
             _ingredientFields.add(field);
-            _unitFields.add(unit);
+            _ingredientAmountFields.add(amountField);
+            _unitFields.add(unitField);
           }
         });
       },
@@ -261,17 +290,18 @@ class _InputForm extends State<InputForm> {
       itemBuilder: (context, index) {
         return Container(
             margin: EdgeInsets.all(5),
-            child: Row(
+            child: Card(
+            child:Column(
               children: [
                 Container(
-                  width: MediaQuery.of(context).size.width * 0.70,
+                  width: MediaQuery.of(context).size.width * 0.9,
                   child: _ingredientFields[index],
                 ),
                 Container(
                     width: MediaQuery.of(context).size.width * 0.25,
                     child: _unitFields[index]),
               ],
-            ));
+            )));
       },
     );
   }
@@ -304,24 +334,6 @@ class _InputForm extends State<InputForm> {
       'RecipeName': '',
       'TotalTime': ''
     }).then((value) => print(value));
-  }
-
-  Widget _okButton(String text, [Widget nextPage]) {
-    return ElevatedButton(
-      onPressed: () async {
-        if (nextPage == null) {
-          addToDatabase();
-          Navigator.of(context).pop();
-          Navigator.of(context).pop();
-          Navigator.of(context).pop();
-        } else {
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => nextPage));
-        }
-        setState(() {});
-      },
-      child: Text("Next"),
-    );
   }
 
   /*
