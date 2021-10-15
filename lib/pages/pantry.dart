@@ -287,8 +287,8 @@ class _PantryState extends State<Pantry> {
   Widget createLandingPage() {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Pantry'),
-        backgroundColor: Color.fromRGBO(255, 204, 102, 1.0),
+        title: Text('New Pantry'),
+        backgroundColor: Color.fromRGBO(255, 190, 50, 1.0),
       ),
       drawer: PantreeDrawer(user: user),
       body: Container(
@@ -298,19 +298,17 @@ class _PantryState extends State<Pantry> {
           children: <Widget>[
             Container(
               child: Text(
-                'Create a Pantry!',
-                style: TextStyle(color: Colors.black, fontSize: 20),
+                'Create your first Pantry!',
+                style: TextStyle(color: Colors.black, fontSize: 24),
               ),
               margin: EdgeInsets.all(16),
             ),
             TextButton(
-              onPressed: () {
-                createPantry();
-              },
+              onPressed: createPantry,
               child: Text('Create Pantry'),
               style: TextButton.styleFrom(
                   primary: Colors.white,
-                  backgroundColor: Color.fromRGBO(255, 204, 102, 1.0)),
+                  backgroundColor:Colors.lightBlue),
             ),
           ],
         ),

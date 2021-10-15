@@ -59,7 +59,7 @@ class NewPantry extends StatelessWidget {
               },
               child: Text(
                 'Create Pantry!',
-                style: TextStyle(fontSize: 14, color: Colors.black),
+                style: TextStyle(color: Colors.white),
               ),
             ),
           ])),

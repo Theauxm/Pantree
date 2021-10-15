@@ -105,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
             currentIndex: _selectedIndex,
-            selectedItemColor: Colors.amber[800],
+            selectedItemColor: Color.fromRGBO(255, 190, 50, 1.0),
             onTap: _onNavTapped,
           ),
         ));
