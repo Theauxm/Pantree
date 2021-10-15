@@ -31,17 +31,28 @@ class _InputForm extends State<InputForm> {
   PantreeUser user;
   _InputForm({this.user});
 
+  List<String> dropDownValues = [
+    "teaspoon",
+    "tablespoon",
+    "cup",
+    "ounce",
+    "unit",
+    "gallon",
+    "can",
+  ];
+
   List<TextEditingController> _ingredientControllers = [];
-  List<TextField> _ingredientFields = [];
+  List<TextFormField> _ingredientFields = [];
+  List<DropdownButton> _unitFields = [];
 
   List<TextEditingController> _directionControllers = [];
-  List<TextField> _directionFields = [];
+  List<TextFormField> _directionFields = [];
 
   List<TextEditingController> _recipeNameControllers = [];
-  List<TextField> _recipeName;
+  List<TextFormField> _recipeName;
 
   List<TextEditingController> _totalTimeControllers = [];
-  List<TextField> _totalTime;
+  List<TextFormField> _totalTime;
 
   Widget pageOne() {
     final _recipeNameController = TextEditingController();
@@ -49,16 +60,17 @@ class _InputForm extends State<InputForm> {
     final _totalTimeController = TextEditingController();
     _totalTimeControllers.add(_totalTimeController);
 
+    String dropdownValue = dropDownValues[0];
     return Column(
       children: [
-        TextField(
+        TextFormField(
           controller: _recipeNameController,
           decoration: InputDecoration(
             border: OutlineInputBorder(),
             labelText: "Recipe name"
           ),
         ),
-        TextField(
+        TextFormField(
           controller: _totalTimeController,
           decoration: InputDecoration(
               border: OutlineInputBorder(),
@@ -98,6 +110,7 @@ class _InputForm extends State<InputForm> {
 
   @override
   Widget build(BuildContext context) {
+
     return pageOne();
   }
 
@@ -122,6 +135,33 @@ class _InputForm extends State<InputForm> {
     super.dispose();
   }
 
+  Widget _measurementDropdown() {
+    String dropdownValue = dropDownValues[0];
+    return DropdownButton<String>(
+      value: dropdownValue,
+      icon: const Icon(Icons.arrow_downward),
+      iconSize: 24,
+      elevation: 16,
+      style: const TextStyle(color: Colors.deepPurple),
+      underline: Container(
+        height: 2,
+        color: Colors.deepPurpleAccent,
+      ),
+      onChanged: (String newValue) {
+        setState(() {
+          dropdownValue = newValue;
+        });
+      },
+      items: dropDownValues
+          .map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+    );
+  }
+
   Widget _addTile(String text) {
     return ListTile(
       title: Center(
@@ -138,15 +178,16 @@ class _InputForm extends State<InputForm> {
                           fontSize: 20,
                           color: Colors.white)),
                 )))),
-      onTap: () {
+      onTap: () async {
         final controller = TextEditingController();
-        final field = TextField(
+        final field = TextFormField(
           controller: controller,
           decoration: InputDecoration(
             border: OutlineInputBorder(),
             labelText: "Blank " + text,
           ),
         );
+        final unit = _measurementDropdown();
 
         setState(() {
           if (text == "Direction") {
@@ -155,6 +196,7 @@ class _InputForm extends State<InputForm> {
           } else {
             _ingredientControllers.add(controller);
             _ingredientFields.add(field);
+            _unitFields.add(unit);
           }
         });
       },
@@ -167,7 +209,18 @@ class _InputForm extends State<InputForm> {
       itemBuilder: (context, index) {
         return Container(
           margin: EdgeInsets.all(5),
-          child: _ingredientFields[index],
+          child: Row(
+            children: [
+              Container(
+                width: MediaQuery.of(context).size.width * 0.70,
+                child: _ingredientFields[index],
+              ),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.25,
+                child: _unitFields[index]
+              ),
+            ],
+          )
         );
       },
     );
@@ -185,10 +238,19 @@ class _InputForm extends State<InputForm> {
     );
   }
 
+  bool addToDatabase() {
+    // Make document for recipe within recipes
+    // Get user ID path
+    // Add CreationDate, Creator, Credit, Directions, DocumentID, Keywords, RecipeName, TotalTime
+    // Create ingredients collection
+    //    Create document based on each ingredient,
+  }
+
   Widget _okButton(String text, [Widget nextPage]) {
     return ElevatedButton(
       onPressed: () async {
         if (nextPage == null) {
+          addToDatabase();
           Navigator.of(context).pop();
           Navigator.of(context).pop();
           Navigator.of(context).pop();
