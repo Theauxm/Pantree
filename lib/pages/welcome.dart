@@ -89,7 +89,7 @@ class _WelcomePage extends State<WelcomePage> {
                                           'Log in',
                                           style: TextStyle(
                                               fontSize: 14,
-                                              color: Colors.black),
+                                              color: Colors.white),
                                         ),
                                       ),
                                     ),
@@ -109,7 +109,7 @@ class _WelcomePage extends State<WelcomePage> {
                                           'Sign up',
                                           style: TextStyle(
                                               fontSize: 14,
-                                              color: Colors.black),
+                                              color: Colors.white),
                                         ),
                                       ),
                                     ),
@@ -282,7 +282,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
               },
               child: Text(
                 'Create Account',
-                style: TextStyle(fontSize: 14, color: Colors.black),
+                style: TextStyle(fontSize: 14, color: Colors.white),
               ),
             ),
           ])),
