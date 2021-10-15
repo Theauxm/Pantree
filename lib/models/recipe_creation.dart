@@ -1,9 +1,7 @@
-import 'dart:ffi';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../pantreeUser.dart';
-
 
 // Used from https://www.technicalfeeder.com/2021/09/flutter-add-textfield-dynamically/
 class RecipeCreator extends StatelessWidget {
@@ -13,9 +11,9 @@ class RecipeCreator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-          appBar: AppBar(title: Text("Create a Recipe"), backgroundColor: Colors.red[400]),
-          body: InputForm(user: this.user)
-    );
+        appBar: AppBar(
+            title: Text("Create a Recipe"), backgroundColor: Colors.red[400]),
+        body: InputForm(user: this.user));
   }
 }
 
@@ -24,7 +22,9 @@ class InputForm extends StatefulWidget {
   InputForm({this.user});
 
   @override
-  State<StatefulWidget> createState() {return _InputForm(user: this.user);}
+  State<StatefulWidget> createState() {
+    return _InputForm(user: this.user);
+  }
 }
 
 class _InputForm extends State<InputForm> {
@@ -54,64 +54,119 @@ class _InputForm extends State<InputForm> {
   List<TextEditingController> _totalTimeControllers = [];
   List<TextFormField> _totalTime;
 
+  final firestoreInstance = FirebaseFirestore.instance;
+
+  bool overviewIsVisible = true;
+  bool ingredientIsVisible = false;
+  bool directionIsVisible = false;
+
+  Widget buttons() {
+    return Row(
+      children: [
+        Container(
+            height: MediaQuery.of(context).size.height * 0.1,
+            width: MediaQuery.of(context).size.width * 0.30,
+            child: ListTile(
+                onTap: () => setState(() {
+                      overviewIsVisible = true;
+                      ingredientIsVisible = false;
+                      directionIsVisible = false;
+                    }),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(50)),
+                tileColor: Colors.red[400],
+                title: Center(
+                    child: Text("Overview",
+                        style: TextStyle(fontSize: 18, color: Colors.white))))),
+        SizedBox(width: MediaQuery.of(context).size.width * 0.03),
+        Container(
+            height: MediaQuery.of(context).size.height * 0.1,
+            width: MediaQuery.of(context).size.width * 0.30,
+            child: ListTile(
+                onTap: () => setState(() {
+                      overviewIsVisible = false;
+                      ingredientIsVisible = true;
+                      directionIsVisible = false;
+                    }),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(50)),
+                tileColor: Colors.red[400],
+                title: Center(
+                    child: Text("Ingredients",
+                        style: TextStyle(fontSize: 18, color: Colors.white))))),
+        SizedBox(width: MediaQuery.of(context).size.width * 0.03),
+        Container(
+            height: MediaQuery.of(context).size.height * 0.1,
+            width: MediaQuery.of(context).size.width * 0.30,
+            child: ListTile(
+                onTap: () => setState(() {
+                      overviewIsVisible = false;
+                      ingredientIsVisible = false;
+                      directionIsVisible = true;
+                    }),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(50)),
+                tileColor: Colors.red[400],
+                title: Center(
+                    child: Text("Directions",
+                        style: TextStyle(fontSize: 18, color: Colors.white))))),
+      ],
+    );
+  }
+
   Widget pageOne() {
     final _recipeNameController = TextEditingController();
     _recipeNameControllers.add(_recipeNameController);
     final _totalTimeController = TextEditingController();
     _totalTimeControllers.add(_totalTimeController);
 
-    String dropdownValue = dropDownValues[0];
-    return Column(
-      children: [
-        TextFormField(
-          controller: _recipeNameController,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: "Recipe name"
-          ),
-        ),
-        TextFormField(
-          controller: _totalTimeController,
-          decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: "Total Time"
-          ),
-        ),
-        _okButton("", pageTwo("Ingredient"))
-      ]
-    );
+    return Column(children: [
+      SizedBox(height: 20),
+      Container(
+          width: MediaQuery.of(context).size.width * 0.9,
+          child: TextFormField(
+        controller: _recipeNameController,
+        decoration: InputDecoration(
+            border: OutlineInputBorder(), labelText: "Recipe name"),
+      )),
+      SizedBox(height: 20),
+      Container(
+          width: MediaQuery.of(context).size.width * 0.9,
+      child: TextFormField(
+        controller: _totalTimeController,
+        decoration: InputDecoration(
+            border: OutlineInputBorder(), labelText: "Total time to cook (minutes)"),
+      )),
+    ]);
   }
 
-  Widget pageTwo(String text) {
-    return Scaffold(
-        appBar: AppBar(title: Text(text), backgroundColor: Colors.red[400]),
-        body: Column(
-            children: [
-              _addTile(text),
-              Expanded(child: _ingredientsListView(text)),
-              _okButton(text, pageThree("Direction"))
-            ]
-        )
-    );
+  Widget pageTwo() {
+    String text = "Ingredient";
+    return Expanded(
+        child: Column(children: [
+      Expanded(child: _ingredientsListView(text)),
+          _addTile(text),
+    ]));
   }
 
-  Widget pageThree(String text) {
-    return Scaffold(
-        appBar: AppBar(title: Text(text), backgroundColor: Colors.red[400]),
-        body: Column(
-            children: [
-              _addTile(text),
-              Expanded(child: _directionsListView(text)),
-              _okButton(text)
-            ]
-        )
-    );
+  Widget pageThree() {
+    String text = "Direction";
+    return Expanded(
+        child: Column(children: [
+      Expanded(child: _directionsListView(text)),
+          _addTile(text),
+    ]));
   }
 
   @override
   Widget build(BuildContext context) {
-
-    return pageOne();
+    return Column(children: [
+      SizedBox(height: 20),
+      buttons(),
+      if (overviewIsVisible) pageOne(),
+      if (ingredientIsVisible) pageTwo(),
+      if (directionIsVisible) pageThree(),
+    ]);
   }
 
   @override
@@ -152,8 +207,7 @@ class _InputForm extends State<InputForm> {
           dropdownValue = newValue;
         });
       },
-      items: dropDownValues
-          .map<DropdownMenuItem<String>>((String value) {
+      items: dropDownValues.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
           child: Text(value),
@@ -165,19 +219,17 @@ class _InputForm extends State<InputForm> {
   Widget _addTile(String text) {
     return ListTile(
       title: Center(
-        child: Container(
-            width: MediaQuery.of(context).size.width * 0.5,
-            height: MediaQuery.of(context).size.height * 0.1,
-            child: Card(
-            shape: RoundedRectangleBorder(
-                borderRadius:
-                BorderRadius.circular(50)),
-            color: Colors.red[400],
-            child: Center(child: Text("Add " + text,
-                      style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.white)),
-                )))),
+          child: Container(
+              width: MediaQuery.of(context).size.width * 0.5,
+              height: MediaQuery.of(context).size.height * 0.1,
+              child: Card(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50)),
+                  color: Colors.red[400],
+                  child: Center(
+                    child: Text("Add " + text,
+                        style: TextStyle(fontSize: 20, color: Colors.white)),
+                  )))),
       onTap: () async {
         final controller = TextEditingController();
         final field = TextFormField(
@@ -208,20 +260,18 @@ class _InputForm extends State<InputForm> {
       itemCount: _ingredientFields.length,
       itemBuilder: (context, index) {
         return Container(
-          margin: EdgeInsets.all(5),
-          child: Row(
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width * 0.70,
-                child: _ingredientFields[index],
-              ),
-              Container(
-                width: MediaQuery.of(context).size.width * 0.25,
-                child: _unitFields[index]
-              ),
-            ],
-          )
-        );
+            margin: EdgeInsets.all(5),
+            child: Row(
+              children: [
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.70,
+                  child: _ingredientFields[index],
+                ),
+                Container(
+                    width: MediaQuery.of(context).size.width * 0.25,
+                    child: _unitFields[index]),
+              ],
+            ));
       },
     );
   }
@@ -238,12 +288,22 @@ class _InputForm extends State<InputForm> {
     );
   }
 
-  bool addToDatabase() {
+  Future<void> addToDatabase() {
     // Make document for recipe within recipes
     // Get user ID path
     // Add CreationDate, Creator, Credit, Directions, DocumentID, Keywords, RecipeName, TotalTime
     // Create ingredients collection
     //    Create document based on each ingredient,
+    return firestoreInstance.collection('recipes').add({
+      'CreationDate': FieldValue.serverTimestamp(),
+      'Creator': '',
+      'Credit': '',
+      'Directions': '',
+      'DocumentID': '',
+      'Keywords': '',
+      'RecipeName': '',
+      'TotalTime': ''
+    }).then((value) => print(value));
   }
 
   Widget _okButton(String text, [Widget nextPage]) {
@@ -255,15 +315,14 @@ class _InputForm extends State<InputForm> {
           Navigator.of(context).pop();
           Navigator.of(context).pop();
         } else {
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => nextPage));
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => nextPage));
         }
         setState(() {});
       },
       child: Text("Next"),
     );
   }
-
 
   /*
   Widget _okButton(String text, [Widget nextPage]) {
@@ -303,4 +362,3 @@ class _InputForm extends State<InputForm> {
 
    */
 }
-
