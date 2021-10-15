@@ -25,6 +25,7 @@ class ImageFromGalleryEx extends StatefulWidget {
 class ImageFromGalleryExState extends State<ImageFromGalleryEx> {
   final firestoreInstance = FirebaseFirestore.instance;
   final GlobalKey<State> _keyLoader = new GlobalKey<State>();
+  final TextEditingController description = TextEditingController();
   var _image;
   var picture;
   var imagePicker;
@@ -51,7 +52,7 @@ class ImageFromGalleryExState extends State<ImageFromGalleryEx> {
           .add({
         'image': "gs://pantree-4347e.appspot.com/uploads/" + fileName,
         'userID': "/users/" + user.uid,
-        'description': "A cool picture."
+        'description': description.text
       }).then((value) {
         firestoreInstance.collection('users').doc(user.uid).update({
           'PostIDs': FieldValue.arrayUnion([value]),
@@ -145,6 +146,7 @@ class ImageFromGalleryExState extends State<ImageFromGalleryEx> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
                   child: TextField(
+                    controller: description,
                     decoration: const InputDecoration(
                         border: OutlineInputBorder(), hintText: 'Description'),
                   )),

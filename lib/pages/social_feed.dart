@@ -142,19 +142,19 @@ class _socialState extends State<social_feed> {
                   CircleAvatar( //use a stack here
                   //backgroundImage: NetworkImage(userAvatarUrl),
                   backgroundColor: Colors.blueGrey,
-                  child: const Text('BW'),
+                  child:  Text(user.name.toString().substring(0,1)),
                   minRadius: 30,
                   maxRadius: 40,
                 ),
                   Column(
                       children:[
-                        Text('30'), //place holder for number
+                        Text(user.posts.length.toString()),
                         Text('Posts')
                       ]
                   ),
                   Column(
                       children:[
-                        Text('300'), //place holder for number
+                        Text(user.friends.length.toString()),
                         Text('Friends')
                       ]
                   ),

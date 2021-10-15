@@ -29,12 +29,52 @@ class ImageViewerState extends State<ImageViewer> {
   Widget build(BuildContext context) {
     return new Scaffold(
         appBar: AppBar(),
-        body: new Image.network(
-        URL,
-        fit: BoxFit.cover,
-        height: double.infinity,
-        width: double.infinity,
-        alignment: Alignment.center,
-    ));
+        body:
+        Container(
+
+          child: Column(
+            children: [
+              Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+              ConstrainedBox(
+              constraints: new BoxConstraints(
+              minHeight: 100,
+                minWidth: 100,
+                maxHeight: 450,
+                maxWidth: 350,
+              ),
+          child:
+                  Center(
+                    child:
+                    new Image.network(
+                      URL,
+                      fit: BoxFit.cover,
+                      //height: double.infinity,
+                      //width: double.infinity,
+                      alignment: Alignment.center,
+                    )
+                    ,
+                  )
+              )],
+              ),
+              Row(
+                //mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+
+                        Text(description),
+                      ]
+              ),
+
+
+            ],
+          )
+
+
+
+
+    )
+    );
   }
 }
