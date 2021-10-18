@@ -7,6 +7,7 @@ import 'package:pantree/models/new_pantry_item.dart';
 import '../pantreeUser.dart';
 import '../models/drawer.dart';
 import '../models/newPantry.dart';
+import '../models/edit_pantry.dart';
 
 extension StringExtension on String {
   String get inCaps =>
@@ -31,6 +32,7 @@ extension StringExtension on String {
 class Pantry extends StatefulWidget {
   final PantreeUser user;
   Pantry({this.user});
+
   @override
   _PantryState createState() => _PantryState(user: user);
 }
@@ -45,6 +47,7 @@ class _PantryState extends State<Pantry> {
   Map<String, DocumentReference>
       _pantryMap; // private NOTE: bad design - it will fuck with users collaborating on multiple pantries with the same name
   // DocumentSnapshot cache;
+  bool primary = false; // todo: having a primary variable in this file will make it so every collaborator is affected when someone changes the default
 
   Future<dynamic> getData() async {
     DocumentReference tempPantry;
@@ -134,12 +137,24 @@ class _PantryState extends State<Pantry> {
         .catchError((error) => print("FAILURE: couldn't delete $doc: $error"));
   }
 
-  void createPantry() {
+  void createPantry(bool makePrimary) {
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => (NewPantry(
                   user: user,
+                  makePrimary: makePrimary,
+                ))));
+  }
+
+  void editPantry() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => (EditPantry(
+                  user: user,
+                  pantry: _selectedPantry,
+                  makePrimary: primary,
                 ))));
   }
 
@@ -174,9 +189,27 @@ class _PantryState extends State<Pantry> {
             ),
             items: _pantryMap.keys.map<DropdownMenuItem<String>>((val) {
               return DropdownMenuItem<String>(
-                value: val,
-                child: Text(val),
-              );
+                  value: val,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    //crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                          child: Text(val,
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600)),
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.edit),
+                        onPressed: editPantry,
+                      ),
+                    ],
+                  ));
             }).toList(),
             onChanged: (String newVal) {
               setState(() {
@@ -204,7 +237,7 @@ class _PantryState extends State<Pantry> {
         ),
         PopupMenuButton<String>(
           onSelected: (selected) {
-            createPantry();
+            createPantry(false);
           },
           itemBuilder: (BuildContext context) {
             return {'Create a new pantry'}.map((String choice) {
@@ -310,11 +343,10 @@ class _PantryState extends State<Pantry> {
               margin: EdgeInsets.all(16),
             ),
             TextButton(
-              onPressed: createPantry,
+              onPressed: () => createPantry(true),
               child: Text('Create Pantry'),
               style: TextButton.styleFrom(
-                  primary: Colors.white,
-                  backgroundColor:Colors.lightBlue),
+                  primary: Colors.white, backgroundColor: Colors.lightBlue),
             ),
           ],
         ),

@@ -5,9 +5,10 @@ import 'package:pantree/models/dialogs.dart';
 class NewPantry extends StatelessWidget {
   PantreeUser user;
   final TextEditingController _PantryName = TextEditingController();
+  bool makePrimary;
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
 
-  NewPantry({this.user});
+  NewPantry({this.user, this.makePrimary});
 
   final GlobalKey<State> _keyLoader = new GlobalKey<State>();
 
@@ -70,13 +71,21 @@ class NewPantry extends StatelessWidget {
         "Name": name,
         "Owner": FirebaseFirestore.instance.collection("users").doc(user.uid),
       }).then((value) {
-        FirebaseFirestore.instance.collection("users").doc(user.uid).update({
-          'PantryIDs': FieldValue.arrayUnion([value]),
-        });
+        if (makePrimary) {
+          FirebaseFirestore.instance.collection("users").doc(user.uid).update({
+            'PPID': FieldValue.arrayUnion([value]),
+            'PantryIDs': FieldValue.arrayUnion([value]),
+          });
+        }
+        else {
+          FirebaseFirestore.instance.collection("users").doc(user.uid).update({
+            'PantryIDs': FieldValue.arrayUnion([value]),
+          });
+        }
       });
-    } catch (e) {
-      return false;
     }
+    catch (e) {return false;}
+
     return true;
   }
 
