@@ -48,8 +48,8 @@ class ImageTileState extends State<ImageTile>{
   }
 
   void handleImageTilePress(BuildContext context, URL, description) {
-    print("hey i got tapped " + URL);
-    print("description: " + description);
+    //print("hey i got tapped " + URL);
+    //print("description: " + description);
     Navigator.push(context,
         MaterialPageRoute(builder: (context) => ImageViewer(URL, description)));
     //TODO: may also need to add the description here

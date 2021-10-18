@@ -33,16 +33,20 @@ class ImageViewerState extends State<ImageViewer> {
         Container(
 
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          //crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
               ConstrainedBox(
               constraints: new BoxConstraints(
-              minHeight: 100,
-                minWidth: 100,
-                maxHeight: 450,
-                maxWidth: 350,
+              //minHeight: 100,
+                //minWidth: 100,
+                //maxHeight: 450,
+               // maxWidth: 350,
+                  maxHeight: MediaQuery.of(context).size.height / 1.7,
+                  maxWidth: MediaQuery.of(context).size.width / 1.2
               ),
           child:
                   Center(
@@ -53,6 +57,8 @@ class ImageViewerState extends State<ImageViewer> {
                       //height: double.infinity,
                       //width: double.infinity,
                       alignment: Alignment.center,
+                      //height: MediaQuery.of(context).size.height / 2.5,
+                      //width: MediaQuery.of(context).size.width /.5,
                     )
                     ,
                   )
