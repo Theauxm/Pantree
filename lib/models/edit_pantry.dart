@@ -3,13 +3,24 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pantree/pantreeUser.dart';
 import 'package:flutter/services.dart';
 
-class NewPantry extends StatelessWidget {
-  PantreeUser user;
+class EditPantry extends StatefulWidget {
+  final PantreeUser user;
+  final DocumentReference pantry;
   bool makePrimary;
+  EditPantry({this.user, this.pantry, this.makePrimary});
+
+  @override
+  _EditPantryState createState() => _EditPantryState(user: user, pantry: pantry, makePrimary: makePrimary);
+}
+
+class _EditPantryState extends State<EditPantry> {
+  final PantreeUser user;
+  final DocumentReference pantry;
+  bool makePrimary;
+  _EditPantryState({this.user, this.pantry, this.makePrimary});
+
   final TextEditingController _pantryNameTextController = TextEditingController();
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
-
-  NewPantry({this.user, this.makePrimary});
 
   // @override
   // void dispose() {
@@ -21,7 +32,7 @@ class NewPantry extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Create new Pantry"),
+        title: Text("Edit Pantry"),
       ),
       body: Form(
           key: _form,
@@ -44,22 +55,34 @@ class NewPantry extends StatelessWidget {
                   border: OutlineInputBorder(),
                 )),
             SizedBox(height: 10),
+            CheckboxListTile(
+              title: Text("Make Primary Pantry"),
+              checkColor: Colors.white,
+              selectedTileColor: Color.fromRGBO(255, 190, 50, 1.0),
+              value: makePrimary,
+              onChanged: (bool value) {
+                setState(() {
+                  makePrimary = value;
+                });
+              },
+            ),
+            SizedBox(height: 10),
             TextButton(
               style: TextButton.styleFrom(backgroundColor: Colors.blue),
               onPressed: () {
                 String title = "Failed!";
-                String message = "Pantry Creation Failed Try again!";
+                String message = "Pantry Edit Failed Try again!";
                 if (_form.currentState.validate()) {
-                  if (createPantry(_pantryNameTextController.text)) {
+                  if (editPantry(_pantryNameTextController.text, makePrimary)) {
                     title = "Success!";
                     message =
-                        "Pantry Creation was Successful Return to your Pantries!";
+                        "Pantry Edit was Successful Return to your Pantries!";
                   }
                 }
                 showAlertDialog(context, title, message);
               },
               child: Text(
-                'Create Pantry!',
+                'Save Changes',
                 style: TextStyle(color: Colors.white),
               ),
             ),
@@ -67,23 +90,15 @@ class NewPantry extends StatelessWidget {
     );
   }
 
-  bool createPantry(name) {
+  bool editPantry(String name, bool makePrimary) {
     try {
-      FirebaseFirestore.instance.collection("pantries").add({
+      if (makePrimary) {
+        FirebaseFirestore.instance.collection("users").doc(user.uid).update({
+          'PPID': FieldValue.arrayUnion([pantry]),
+        });
+      }
+      FirebaseFirestore.instance.collection("pantries").doc(pantry.id).update({
         "Name": name,
-        "Owner": FirebaseFirestore.instance.collection("users").doc(user.uid),
-      }).then((value) {
-        if (makePrimary) {
-          FirebaseFirestore.instance.collection("users").doc(user.uid).update({
-            'PPID': FieldValue.arrayUnion([value]),
-            'PantryIDs': FieldValue.arrayUnion([value]),
-          });
-        }
-        else {
-          FirebaseFirestore.instance.collection("users").doc(user.uid).update({
-            'PantryIDs': FieldValue.arrayUnion([value]),
-          });
-        }
       });
     }
     catch (e) {return false;}
