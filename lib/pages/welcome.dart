@@ -39,8 +39,15 @@ class _WelcomePage extends State<WelcomePage> {
         body: Builder(
             builder: (context) => SingleChildScrollView(
                   child: Center(
-                    child: Column(children: [
-                      Image.asset('assets/images/prototype_logo.png'),
+                    child: Column(
+                        children: [
+                          Padding(
+                          padding: const EdgeInsets.all(8.0),
+                            ),
+                          Image.asset('assets/images/pantree.png'),
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                          ),
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Container(
