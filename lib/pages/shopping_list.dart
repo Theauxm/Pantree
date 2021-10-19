@@ -94,7 +94,7 @@ class _ListState extends State<ShoppingList> {
           context,
           MaterialPageRoute(
               builder: (context) =>
-              (ExportList(user: user, list: _selectedList))));
+              (ExportList(user: user, list: _selectedList, exportList: user.pantries))));
     } else{
       showError(context);
     }

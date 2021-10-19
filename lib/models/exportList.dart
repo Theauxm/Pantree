@@ -5,9 +5,10 @@ import 'package:pantree/pantreeUser.dart';
 class ExportList extends StatefulWidget {
   final PantreeUser user;
   final DocumentReference list;
-  ExportList({this.user, this.list});
+  final List exportList;
+  ExportList({this.user, this.list, this.exportList});
   @override
-  _ExportListState createState() => _ExportListState(user: user, list: list);
+  _ExportListState createState() => _ExportListState(user: user, list: list, exportList: exportList);
 }
 
 class _ExportListState extends State<ExportList> {
@@ -17,8 +18,9 @@ class _ExportListState extends State<ExportList> {
       "https://i2.wp.com/ceklog.kindel.com/wp-content/uploads/2013/02/firefox_2018-07-10_07-50-11.png";
   String _selectedPantryName;
   DocumentReference _selectedPantry;
+  List exportList;
   final DocumentReference list;
-  _ExportListState({this.user, this.list});
+  _ExportListState({this.user, this.list, this.exportList});
   Map<String, DocumentReference> _pantryMap;
 
   Future<dynamic> getData() async {
@@ -28,7 +30,7 @@ class _ExportListState extends State<ExportList> {
     await user.updateData(); // important: refreshes the user's data
     _pantryMap = Map<String, DocumentReference>(); // instantiate the map
 
-    for (DocumentReference ref in user.pantries) {
+    for (DocumentReference ref in exportList) {
       // go through each doc ref and add to list of pantry names + map
       String pantryName = "";
       await ref.get().then((DocumentSnapshot snapshot) {

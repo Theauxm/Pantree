@@ -96,7 +96,7 @@ class _HomePageState extends State<ViewRecipe> {
     return TextButton(
       onPressed: () {
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => ExportList(user: this.user, list: this.recipe.reference)));
+            builder: (context) => ExportList(user: this.user, list: this.recipe.reference, exportList: user.shoppingLists)));
         //builder: (context) => AddToShoppingList(user: this.user, recipe: this.recipe)));
       },
       child: Text("Add to Shopping List", style: TextStyle(fontSize: 20))
