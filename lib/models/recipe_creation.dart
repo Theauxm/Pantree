@@ -47,10 +47,10 @@ class _InputForm extends State<InputForm> {
   List<TextFormField> _directionFields = [];
 
   TextEditingController recipeController = TextEditingController();
-  TextFormField recipeField = null;
+  TextFormField recipeField;
 
   TextEditingController totalTimeController = TextEditingController();
-  TextFormField totalTimeField = null;
+  TextFormField totalTimeField;
 
   final firestoreInstance = FirebaseFirestore.instance;
 
@@ -265,8 +265,6 @@ class _InputForm extends State<InputForm> {
               labelText: "Amount"
             )
           );
-
-
         }
 
         setState(() {
@@ -318,22 +316,60 @@ class _InputForm extends State<InputForm> {
     );
   }
 
+  Set<String> getKeywords(String word) {
+    word = word.toLowerCase();
+
+    Set<String> keywords = {};
+    for (int i = 0; i < word.length; i++)
+      for (int j = 0; j < word.length; j++) {
+        if (i > j)
+          continue;
+        keywords.add(word.substring(i, j + 1));
+      }
+
+    return keywords;
+  }
+
   Future<void> addToDatabase() {
-    // Make document for recipe within recipes
-    // Get user ID path
-    // Add CreationDate, Creator, Credit, Directions, DocumentID, Keywords, RecipeName, TotalTime
-    // Create ingredients collection
-    //    Create document based on each ingredient,
-    return firestoreInstance.collection('recipes').add({
+    DocumentReference newRecipe = firestoreInstance.collection('recipes').doc();
+    Set<String> allKeywords = {};
+    for (TextEditingController ingred in _ingredientControllers) {
+      Set<String> ingredKeywords = getKeywords(ingred.text.toLowerCase());
+      allKeywords.addAll(ingredKeywords);
+      DocumentReference ingredInstance = firestoreInstance.collection('food').doc(ingred.text.toLowerCase());
+
+      ingredInstance.get()
+          .then((docSnapshot) {
+            if (docSnapshot.exists) {
+              ingredInstance.update({
+                  'recipe_ids' : [newRecipe.id]
+              });
+            } else {
+              ingredInstance.set({
+                  'recipe_ids' : [newRecipe.id],
+                  'Image' : "",
+                  'Keywords' : ingredKeywords.toList()
+                });
+            }
+      });
+    }
+
+    List<String> directions = [];
+    for (TextEditingController dir in _directionControllers) {
+      directions.add(dir.text);
+    }
+
+    allKeywords.addAll(getKeywords(recipeController.text.toLowerCase()));
+    newRecipe.set({
       'CreationDate': FieldValue.serverTimestamp(),
-      'Creator': '',
-      'Credit': '',
-      'Directions': '',
-      'DocumentID': '',
-      'Keywords': '',
-      'RecipeName': '',
-      'TotalTime': ''
-    }).then((value) => print(value));
+      'Creator': this.user.name,
+      'Credit': this.user.name,
+      'Directions': directions,
+      'DocumentID': [newRecipe.id],
+      'Keywords': allKeywords.toList(),
+      'RecipeName': recipeController.text,
+      'TotalTime': int.parse(totalTimeController.text)
+    });
   }
 
   /*
