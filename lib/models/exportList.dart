@@ -72,6 +72,15 @@ class _ExportListState extends State<ExportList> {
     return Scaffold(
         appBar: AppBar(
           title: Text("Export Items to Pantry!"),
+            actions: <Widget>[
+              Padding(
+                padding: EdgeInsets.only(right: 20.0),
+                child: TextButton(
+                  child: Text("Select All"),
+                  style: TextButton.styleFrom(primary: Colors.white, textStyle: TextStyle(fontSize: 18)),
+                  onPressed: selectAll,)
+              ),
+            ]
         ),
         body: Column(children: [
           DropdownButtonFormField<String>(
@@ -103,6 +112,7 @@ class _ExportListState extends State<ExportList> {
             elevation: 0,
             dropdownColor: Colors.lightBlue,
           ),
+
           Expanded(
             child: ListView.builder(
                 itemCount: items.length,
@@ -121,7 +131,8 @@ class _ExportListState extends State<ExportList> {
                                 style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
-                                    letterSpacing: 0.5),
+                                    letterSpacing: 0.5,
+                                ),
                               ),
                               value: items[index].isCheck,
                               secondary: Container(
@@ -172,7 +183,14 @@ class _ExportListState extends State<ExportList> {
     }
     return true;
   }
+  selectAll() {
+    items.forEach((element) {
+      element.isCheck = true;
+    });
+    setState(() {
 
+    });
+  }
   showExportDialog(BuildContext context) {
     Widget cancelButton = TextButton(
         style: TextButton.styleFrom(
