@@ -10,7 +10,7 @@ class RecipeCreator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-        return InputForm(user: this.user);
+    return InputForm(user: this.user);
   }
 }
 
@@ -38,10 +38,29 @@ class _InputForm extends State<InputForm> {
     "can",
   ];
 
+  List<String> amountValues = [
+    '1',
+    '1/2',
+    '1/4',
+    '1/8',
+    '1/16',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    '10',
+  ];
+
   List<TextEditingController> _ingredientControllers = [];
   List<TextFormField> _ingredientFields = [];
-  List<TextFormField> _ingredientAmountFields = [];
+  List<DropdownButton> _ingredientAmountFields = [];
   List<DropdownButton> _unitFields = [];
+  List<DropDownController> _ingredientAmountControllers = [];
+  List<DropDownController> _unitControllers = [];
 
   List<TextEditingController> _directionControllers = [];
   List<TextFormField> _directionFields = [];
@@ -62,25 +81,15 @@ class _InputForm extends State<InputForm> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            title: Text("Create a Recipe"), backgroundColor: Colors.red[400],
+          title: Text("Create a Recipe"),
+          backgroundColor: Colors.red[400],
           actions: [
             IconButton(
                 onPressed: () {
-                  print(recipeController.text);
-                  print(totalTimeController.text);
-
-                  for (TextEditingController cont in _ingredientControllers) {
-                    print(cont.text);
-                  }
-
-                  for (TextEditingController cont in _directionControllers) {
-                    print(cont.text);
-                  }
-
+                  addToDatabase();
                   Navigator.of(context).pop();
                 },
-              icon: const Icon(Icons.check_box)
-            )
+                icon: const Icon(Icons.check_box))
           ],
         ),
         body: Column(children: [
@@ -159,21 +168,19 @@ class _InputForm extends State<InputForm> {
       totalTimeField = TextFormField(
         controller: totalTimeController,
         decoration: InputDecoration(
-            border: OutlineInputBorder(), labelText: "Total time to cook (minutes)"),
+            border: OutlineInputBorder(),
+            labelText: "Total time to cook (minutes)"),
       );
     }
 
     return Column(children: [
       SizedBox(height: 20),
       Container(
-          width: MediaQuery.of(context).size.width * 0.9,
-          child: recipeField
-      ),
+          width: MediaQuery.of(context).size.width * 0.9, child: recipeField),
       SizedBox(height: 20),
       Container(
           width: MediaQuery.of(context).size.width * 0.9,
-      child: totalTimeField
-      ),
+          child: totalTimeField),
     ]);
   }
 
@@ -182,7 +189,7 @@ class _InputForm extends State<InputForm> {
     return Expanded(
         child: Column(children: [
       Expanded(child: _ingredientsListView(text)),
-          _addTile(text),
+      _addTile(text),
     ]));
   }
 
@@ -191,7 +198,7 @@ class _InputForm extends State<InputForm> {
     return Expanded(
         child: Column(children: [
       Expanded(child: _directionsListView(text)),
-          _addTile(text),
+      _addTile(text),
     ]));
   }
 
@@ -211,13 +218,13 @@ class _InputForm extends State<InputForm> {
     super.dispose();
   }
 
-  Widget _measurementDropdown(String dropdownValue) {
+  Widget _measurementDropdown(DropDownController dropdownValue, List<String> values) {
     return DropdownButton<String>(
-      value: dropdownValue,
-      style: const TextStyle(color: Colors.red),
+      value: dropdownValue.text,
+      style: const TextStyle(color: Colors.red, fontSize: 20),
       onChanged: (String newValue) {
         setState(() {
-          dropdownValue = newValue;
+          dropdownValue.text = newValue;
         });
       },
       items: dropDownValues.map<DropdownMenuItem<String>>((String value) {
@@ -253,18 +260,15 @@ class _InputForm extends State<InputForm> {
           ),
         );
 
-        TextEditingController amountController;
-        TextFormField amountField;
+        DropdownButton amountField;
+        DropDownController amountController;
         DropdownButton unitField;
+        DropDownController unitController;
         if (text == "Ingredient") {
-          amountController = TextEditingController();
-          amountField = TextFormField(
-            controller: amountController,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: "Amount"
-            )
-          );
+          amountController = DropDownController(dropDownValues[0]);
+          unitController = DropDownController(amountValues[0]);
+          unitField = _measurementDropdown(amountController, dropDownValues);
+          amountField = _measurementDropdown(unitController, amountValues);
         }
 
         setState(() {
@@ -276,6 +280,8 @@ class _InputForm extends State<InputForm> {
             _ingredientFields.add(field);
             _ingredientAmountFields.add(amountField);
             _unitFields.add(unitField);
+            _ingredientAmountControllers.add(amountController);
+            _unitControllers.add(unitController);
           }
         });
       },
@@ -289,15 +295,21 @@ class _InputForm extends State<InputForm> {
         return Container(
             margin: EdgeInsets.all(5),
             child: Card(
-            child:Column(
+                child: Column(
               children: [
                 Container(
                   width: MediaQuery.of(context).size.width * 0.9,
                   child: _ingredientFields[index],
                 ),
                 Container(
-                    width: MediaQuery.of(context).size.width * 0.25,
-                    child: _unitFields[index]),
+                    width: MediaQuery.of(context).size.width * 0.9,
+                    child: Row(
+                      children: [
+                        _unitFields[index],
+                        _ingredientAmountFields[index]
+                      ]
+                    )
+                )
               ],
             )));
       },
@@ -322,8 +334,7 @@ class _InputForm extends State<InputForm> {
     Set<String> keywords = {};
     for (int i = 0; i < word.length; i++)
       for (int j = 0; j < word.length; j++) {
-        if (i > j)
-          continue;
+        if (i > j) continue;
         keywords.add(word.substring(i, j + 1));
       }
 
@@ -332,26 +343,33 @@ class _InputForm extends State<InputForm> {
 
   Future<void> addToDatabase() {
     DocumentReference newRecipe = firestoreInstance.collection('recipes').doc();
+    CollectionReference ingredientCollection =
+        newRecipe.collection('ingredients');
+
+    print(newRecipe.id);
     Set<String> allKeywords = {};
     for (TextEditingController ingred in _ingredientControllers) {
       Set<String> ingredKeywords = getKeywords(ingred.text.toLowerCase());
       allKeywords.addAll(ingredKeywords);
-      DocumentReference ingredInstance = firestoreInstance.collection('food').doc(ingred.text.toLowerCase());
+      DocumentReference ingredInstance =
+          firestoreInstance.collection('food').doc(ingred.text.toLowerCase());
 
-      ingredInstance.get()
-          .then((docSnapshot) {
-            if (docSnapshot.exists) {
-              ingredInstance.update({
-                  'recipe_ids' : [newRecipe.id]
-              });
-            } else {
-              ingredInstance.set({
-                  'recipe_ids' : [newRecipe.id],
-                  'Image' : "",
-                  'Keywords' : ingredKeywords.toList()
-                });
-            }
+      ingredInstance.get().then((docSnapshot) {
+        if (docSnapshot.exists) {
+          ingredInstance.update({
+            'recipe_ids': [newRecipe.id]
+          });
+        } else {
+          ingredInstance.set({
+            'recipe_ids': [newRecipe.id],
+            'Image': "",
+            'Keywords': ingredKeywords.toList()
+          });
+        }
       });
+
+      ingredientCollection
+          .add({'Item': ingredInstance.id, 'Quantity': 0, 'Unit': "N/A"});
     }
 
     List<String> directions = [];
@@ -362,8 +380,8 @@ class _InputForm extends State<InputForm> {
     allKeywords.addAll(getKeywords(recipeController.text.toLowerCase()));
     newRecipe.set({
       'CreationDate': FieldValue.serverTimestamp(),
-      'Creator': this.user.name,
-      'Credit': this.user.name,
+      'Creator': this.user.docID,
+      'Credit': this.user.docID,
       'Directions': directions,
       'DocumentID': [newRecipe.id],
       'Keywords': allKeywords.toList(),
@@ -371,42 +389,10 @@ class _InputForm extends State<InputForm> {
       'TotalTime': int.parse(totalTimeController.text)
     });
   }
+}
 
-  /*
-  Widget _okButton(String text, [Widget nextPage]) {
-    return ElevatedButton(
-      onPressed: () async {
-        String text = _ingredientControllers
-            .where((element) => element.text != "")
-            .fold("", (acc, element) => acc += "${element.text}\n");
-        final alert = AlertDialog(
-          title: Text("Count: ${_ingredientControllers.length}"),
-          content: Text(text.trim()),
-          actions: [
-            TextButton(
-              onPressed: () {
-                if (nextPage == null) {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
-                } else {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => nextPage));
-                }
-              },
-              child: Text("Next"),
-            ),
-          ],
-        );
-        await showDialog(
-          context: context,
-          builder: (BuildContext context) => alert,
-        );
-        setState(() {});
-      },
-      child: Text("Next"),
-    );
-  }
+class DropDownController {
+  String text;
 
-   */
+  DropDownController(this.text);
 }

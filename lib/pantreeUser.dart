@@ -17,6 +17,7 @@ class PantreeUser {
   var posts;
   var PPID;
   var PSID;
+  var docID;
 
 
   //this is from the FirebaseAuth, and contains info related from Authentication
@@ -47,6 +48,7 @@ class PantreeUser {
         this.posts = documentSnapshot.data()['PostIDs'],
         this.PPID = documentSnapshot.data()['PPID'],
         this.PSID = documentSnapshot.data()['PSID'],
+        this.docID = documentSnapshot.id
       }
     });
   }
