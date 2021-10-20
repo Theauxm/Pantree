@@ -33,14 +33,21 @@ class _WelcomePage extends State<WelcomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: Text("Welcome!"),
-        ),
+       // appBar: AppBar(
+          //title: Text("Welcome!"),
+       // ),
         body: Builder(
             builder: (context) => SingleChildScrollView(
                   child: Center(
-                    child: Column(children: [
-                      Image.asset('assets/images/prototype_logo.png'),
+                    child: Column(
+                        children: [
+                          Padding(
+                          padding: const EdgeInsets.all(30.0),
+                            ),
+                          Image.asset('assets/images/pantree.png'),
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                          ),
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Container(
