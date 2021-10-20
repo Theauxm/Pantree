@@ -37,7 +37,7 @@ class NewPantry extends StatelessWidget {
                   return null;
                 },
                 inputFormatters: [
-                  LengthLimitingTextInputFormatter(20),
+                  LengthLimitingTextInputFormatter(18),
                 ],
                 decoration: InputDecoration(
                   labelText: "New Pantry Name",

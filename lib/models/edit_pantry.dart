@@ -6,27 +6,45 @@ import 'package:flutter/services.dart';
 class EditPantry extends StatefulWidget {
   final PantreeUser user;
   final DocumentReference pantry;
+  String name;
   bool makePrimary;
-  EditPantry({this.user, this.pantry, this.makePrimary});
+  EditPantry({this.user, this.pantry, this.name, this.makePrimary});
 
   @override
-  _EditPantryState createState() => _EditPantryState(user: user, pantry: pantry, makePrimary: makePrimary);
+  _EditPantryState createState() => _EditPantryState(user: user, pantry: pantry, name: name, makePrimary: makePrimary);
 }
 
 class _EditPantryState extends State<EditPantry> {
   final PantreeUser user;
   final DocumentReference pantry;
+  String name;
   bool makePrimary;
-  _EditPantryState({this.user, this.pantry, this.makePrimary});
+  _EditPantryState({this.user, this.pantry, this.name, this.makePrimary});
 
-  final TextEditingController _pantryNameTextController = TextEditingController();
+  TextEditingController _pantryNameTextController;
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
+  final _focusNode = FocusNode();
 
   // @override
   // void dispose() {
   //   _PantryNameTextController.dispose();
   //   super.dispose(); // NewPantry needs to be Stateful*** for this to properly dispose
   // }
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(() {
+      if(_focusNode.hasFocus) {
+        _pantryNameTextController.selection = TextSelection(baseOffset: 0, extentOffset: _pantryNameTextController.text.length);
+      }
+    });
+  }
+
+  initialValue(val) {
+    _pantryNameTextController = TextEditingController(text: val);
+    return _pantryNameTextController;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,8 +55,10 @@ class _EditPantryState extends State<EditPantry> {
       body: Form(
           key: _form,
           child: Column(children: <Widget>[
+            SizedBox(height: 10),
             TextFormField(
-                controller: _pantryNameTextController,
+                controller: initialValue(name),
+                focusNode: _focusNode,
                 validator: (value) {
                   if (value.isEmpty || value == null) {
                     return 'Please enter a name for your pantry';
@@ -48,7 +68,7 @@ class _EditPantryState extends State<EditPantry> {
                   return null;
                 },
                 inputFormatters: [
-                  LengthLimitingTextInputFormatter(20),
+                  LengthLimitingTextInputFormatter(18),
                 ],
                 decoration: InputDecoration(
                   labelText: "New Pantry Name",
@@ -101,7 +121,10 @@ class _EditPantryState extends State<EditPantry> {
         "Name": name,
       });
     }
-    catch (e) {return false;}
+    catch (e) {
+      print(e);
+      return false;
+    }
 
     return true;
   }
