@@ -28,6 +28,9 @@ class NewPantry extends StatelessWidget {
                   if (validator.isEmpty) return 'Empty';
                   return null;
                 },
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(18),
+                ],
                 decoration: InputDecoration(
                   labelText: "New Pantry Name",
                   border: OutlineInputBorder(),

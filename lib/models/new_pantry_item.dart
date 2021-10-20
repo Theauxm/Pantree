@@ -23,7 +23,7 @@ class _NewPantryItemState extends State<NewPantryItem> {
   void dispose() {
     _addItemTextController.dispose();
     _addQtyTextController.dispose();
-    super.dispose();
+    super.dispose(); // end dispose() with this
   }
 
   Future<void> addNewItem(String item, String qty, String unit) {
@@ -41,7 +41,7 @@ class _NewPantryItemState extends State<NewPantryItem> {
       }
       // now add it to the user pantry
       widget.pantry
-          .collection('ingredients')
+          .collection('Ingredients')
           .add({
             'Item': doc.reference,
             'Quantity': int.parse(qty),

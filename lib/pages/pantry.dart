@@ -47,7 +47,15 @@ class _PantryState extends State<Pantry> {
   Map<String, DocumentReference>
       _pantryMap; // private NOTE: bad design - it will fuck with users collaborating on multiple pantries with the same name
   // DocumentSnapshot cache;
-  bool primary = false; // todo: having a primary variable in this file will make it so every collaborator is affected when someone changes the default
+  bool loading = true;
+
+  @override
+  void initState() {
+    super.initState(); // start initState() with this
+    getData().then((val) => {setPantry()});
+    setListener();
+    //pantryMain();
+  }
 
   Future<dynamic> getData() async {
     DocumentReference tempPantry;
@@ -62,7 +70,6 @@ class _PantryState extends State<Pantry> {
       await ref.get().then((DocumentSnapshot snapshot) {
         pantryName = snapshot.data()['Name']; // get the pantry name as a string
       });
-      // todo: check for [upcoming] 'primary' boolean val and set _selectedPantry/Name vals to that
       tempPantry = ref; // this will have to do for now
       tempName = pantryName;
       _pantryMap[pantryName] = ref; // map the doc ref to its name
@@ -70,9 +77,13 @@ class _PantryState extends State<Pantry> {
 
     // very important: use setState() to force a call to build()
     setState(() {
-      _selectedPantry = tempPantry;
-      _selectedPantryName = tempName;
+      loading = false;
     });
+    /*setState(() {
+        _selectedPantry = tempPantry;
+        _selectedPantryName = tempName;
+      });
+    */
   }
 
   setListener() {
@@ -88,11 +99,19 @@ class _PantryState extends State<Pantry> {
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-    getData();
-    setListener();
+  setPantry() {
+    List<dynamic> primary = user.PPID;
+    if (primary != null) {
+      _pantryMap.forEach((k, v) => print('${k}: ${v}\n'));
+      for (MapEntry e in _pantryMap.entries) {
+        if (e.value == primary[0]) {
+          setState(() {
+            _selectedPantry = e.value;
+            _selectedPantryName = e.key;
+          });
+        }
+      }
+    }
   }
 
   showDeleteDialog(BuildContext context, String item, DocumentSnapshot ds) {
@@ -147,14 +166,16 @@ class _PantryState extends State<Pantry> {
                 ))));
   }
 
-  void editPantry() {
+  void editPantry(String name) {
+    print("NAME: $name");
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => (EditPantry(
                   user: user,
                   pantry: _selectedPantry,
-                  makePrimary: primary,
+                  name: name,
+                  makePrimary: false,
                 ))));
   }
 
@@ -166,8 +187,16 @@ class _PantryState extends State<Pantry> {
 
   @override
   Widget build(BuildContext context) {
-    if (user.pantries.length == 0) {
-      // handle user with no pantries case todo: update with loading widget
+    return pantryMain();
+  }
+
+  Widget pantryMain() {
+    if (loading) {
+      return Center(child: CircularProgressIndicator());
+    }
+
+    if (_selectedPantry == null) {
+      // handle user with no pantries case - send to create a pantry screen
       return createLandingPage();
     }
     if(_selectedPantry == null){
@@ -175,53 +204,68 @@ class _PantryState extends State<Pantry> {
     }
 
     // User pantry dropdown selector
-    final makeDropDown = Container(
-        padding: EdgeInsets.only(left: 17.0),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-            value: _selectedPantryName,
-            style: TextStyle(
-                color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
-            icon: Icon(
-              Icons.arrow_drop_down,
-              color: Colors.white,
-              size: 30.0,
-            ),
-            items: _pantryMap.keys.map<DropdownMenuItem<String>>((val) {
-              return DropdownMenuItem<String>(
-                  value: val,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    //crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Container(
-                          child: Text(val,
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w600)),
+    final makeDropDown = StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
+          }
+          return Container(
+            padding: EdgeInsets.only(left: 17.0),
+            child: DropdownButton<String>(
+              value: _selectedPantryName,
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600),
+              icon: Icon(
+                Icons.arrow_drop_down,
+                color: Colors.white,
+                size: 30.0,
+              ),
+              items: _pantryMap.keys.map<DropdownMenuItem<String>>((val) {
+                return DropdownMenuItem<String>(
+                    value: val,
+                    child: Row(
+                      //mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      //crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            child: Text(val,
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600)),
+                          ),
                         ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: editPantry,
-                      ),
-                    ],
-                  ));
-            }).toList(),
-            onChanged: (String newVal) {
-              setState(() {
-                _selectedPantry = _pantryMap[newVal];
-                _selectedPantryName = newVal;
-              });
-            },
-            hint: Text("Select Pantry"),
-            elevation: 0,
-            dropdownColor: Colors.lightBlue,
-          ),
-        ));
+                        /*Align(
+                          alignment: Alignment(1.0, 0.5),
+                          child: IconButton(
+                            icon: Icon(Icons.edit),
+                            onPressed: () => {editPantry(val)},
+                          ),
+                        ),*/
+                      ],
+                    ));
+              }).toList(),
+              onChanged: (String newVal) {
+                setState(() {
+                  _selectedPantry = _pantryMap[newVal];
+                  _selectedPantryName = newVal;
+                });
+              },
+              hint: Text("Select Pantry"),
+              elevation: 0,
+              underline: DropdownButtonHideUnderline(child: Container()),
+              dropdownColor: Colors.lightBlue,
+            ),
+          );
+        });
 
     // top appbar
     final makeAppBar = AppBar(
@@ -237,10 +281,22 @@ class _PantryState extends State<Pantry> {
         ),
         PopupMenuButton<String>(
           onSelected: (selected) {
-            createPantry(false);
+            switch (selected) {
+              case 'Create a new pantry':
+                {
+                  createPantry(false);
+                }
+                break;
+              case 'Edit selected pantry':
+                {
+                  editPantry(_selectedPantryName);
+                }
+                break;
+            }
           },
           itemBuilder: (BuildContext context) {
-            return {'Create a new pantry'}.map((String choice) {
+            return {'Create a new pantry', 'Edit selected pantry'}
+                .map((String choice) {
               return PopupMenuItem<String>(
                 value: choice,
                 child: Text(choice),
@@ -253,11 +309,13 @@ class _PantryState extends State<Pantry> {
 
     // list of cards
     final makeBody = Column(children: [
+      // SizedBox(height: 10),
       // Sets up a stream builder to listen for changes inside the database.
       StreamBuilder(
           stream: _selectedPantry.collection('ingredients').snapshots(),
           builder: (context, snapshot) {
-            if (!snapshot.hasData) return const Text('Loading....');
+            if (!snapshot.hasData || snapshot.data == null)
+              return Center(child: CircularProgressIndicator());
             return Expanded(
                 child: ListView(
                     children: snapshot.data.docs.map<Widget>((doc) {
@@ -343,7 +401,9 @@ class _PantryState extends State<Pantry> {
               margin: EdgeInsets.all(16),
             ),
             TextButton(
-              onPressed: () => createPantry(true),
+              onPressed: (() {
+                createPantry(true);
+              }),
               child: Text('Create Pantry'),
               style: TextButton.styleFrom(
                   primary: Colors.white, backgroundColor: Colors.lightBlue),
