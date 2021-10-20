@@ -34,7 +34,7 @@ class _NewPantryItemState extends State<NewPantryItem> {
       }
       // now add it to the user pantry
       widget.pantry
-          .collection('Ingredients')
+          .collection('ingredients')
           .add({
             'Item': doc.reference,
             'Quantity': int.parse(qty)
