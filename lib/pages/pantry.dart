@@ -75,15 +75,14 @@ class _PantryState extends State<Pantry> {
       _pantryMap[pantryName] = ref; // map the doc ref to its name
     }
 
-    // very important: use setState() to force a call to build()
-    setState(() {
-      loading = false;
-    });
-    /*setState(() {
+    // make sure widget hasn't been disposed before rebuild
+    if (mounted) {
+      setState(() { // setState() forces a call to build()
+        loading = false;
         _selectedPantry = tempPantry;
         _selectedPantryName = tempName;
       });
-    */
+    }
   }
 
   setListener() {
@@ -92,10 +91,10 @@ class _PantryState extends State<Pantry> {
         .doc(user.uid)
         .snapshots()
         .listen((event) {
-          if(event.data()['PantryIDs'].length != user.pantries.length){
-      user.pantries = event.data()['PantryIDs'];
-      getData();
-    }
+      if (event.data()['PantryIDs'].length != user.pantries.length) {
+        user.pantries = event.data()['PantryIDs'];
+        getData();
+      }
     });
   }
 
@@ -166,9 +165,8 @@ class _PantryState extends State<Pantry> {
                 ))));
   }
 
-  void editPantry(String name) {
-    print("NAME: $name");
-    Navigator.push(
+  Future<void> editPantry(String name) async {
+    var result = await Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => (EditPantry(
@@ -177,6 +175,14 @@ class _PantryState extends State<Pantry> {
                   name: name,
                   makePrimary: false,
                 ))));
+    if(mounted) {
+      setState(() {
+        DocumentReference tempRef = _pantryMap[_selectedPantryName];
+        _pantryMap.remove(_selectedPantryName);
+        _pantryMap[result] = tempRef;
+        _selectedPantryName = result;
+      });
+    }
   }
 
   String formatDate(Timestamp time) {
@@ -199,7 +205,7 @@ class _PantryState extends State<Pantry> {
       // handle user with no pantries case - send to create a pantry screen
       return createLandingPage();
     }
-    if(_selectedPantry == null){
+    if (_selectedPantry == null) {
       return Center(child: CircularProgressIndicator());
     }
 
