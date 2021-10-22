@@ -266,16 +266,18 @@ class _InputForm extends State<InputForm> {
       itemCount: _ingredientFields.length,
       itemBuilder: (context, index) {
         return Container(
-            margin: EdgeInsets.all(5),
+            margin: EdgeInsets.all(6),
             child: Card(
+              elevation: 8,
                 child: Column(
               children: [
                 Container(
+                  padding: const EdgeInsets.all(7.0),
                   width: MediaQuery.of(context).size.width * 0.9,
                   child: _ingredientFields[index],
                 ),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.02),
                 Container(
+                    padding: const EdgeInsets.all(7.0),
                     width: MediaQuery.of(context).size.width * 0.9,
                     child: Row(
                       children: [
@@ -331,6 +333,9 @@ class _InputForm extends State<InputForm> {
     Set<String> allKeywords = {};
     for (int i = 0; i < _ingredientControllers.length; i++) {
       TextEditingController ingred = _ingredientControllers[i];
+      if (ingred.text == "") {
+        continue;
+      }
       TextEditingController unit = _unitControllers[i];
       TextEditingController amount = _ingredientAmountControllers[i];
 
@@ -354,7 +359,7 @@ class _InputForm extends State<InputForm> {
       });
 
       ingredientCollection
-          .add({'Item': ingredInstance.id, 'Quantity': double.tryParse(amount.text), 'Unit': unit.text});
+          .add({'Item': firestoreInstance.collection('food').doc(ingredInstance.id), 'Quantity': double.tryParse(amount.text), 'Unit': unit.text});
     }
 
     List<String> directions = [];
@@ -365,7 +370,7 @@ class _InputForm extends State<InputForm> {
     allKeywords.addAll(getKeywords(recipeController.text.toLowerCase()));
     newRecipe.set({
       'CreationDate': FieldValue.serverTimestamp(),
-      'Creator': this.user.docID,
+      'Creator': firestoreInstance.collection('users').doc(this.user.docID),
       'Credit': this.user.name,
       'Directions': directions,
       'DocumentID': [newRecipe.id],

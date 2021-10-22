@@ -134,14 +134,6 @@ class _HomePageState extends State<ViewRecipe> {
                           margin: const EdgeInsets.only(
                               top: 10.0, right: 10.0, left: 10.0, bottom: 10.0)),
                       Container(
-                          child: boldPartOfText("Created By: ", recipe["Creator"].id),
-                          margin: const EdgeInsets.only(
-                              top: 10.0, right: 10.0, left: 10.0, bottom: 10.0)),
-                      Container(
-                          child: boldPartOfText("Credit: ", recipe["Credit"].toString()),
-                          margin: const EdgeInsets.only(
-                              top: 10.0, right: 10.0, left: 10.0, bottom: 10.0)),
-                      Container(
                           child: boldPartOfText("Date Added: ", DateTime.parse(recipe["CreationDate"].toDate().toString()).toString().substring(0, 10)),
                           margin: const EdgeInsets.only(
                               top: 10.0, right: 10.0, left: 10.0, bottom: 10.0)),
