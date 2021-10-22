@@ -17,6 +17,7 @@ class PantreeUser {
   var posts;
   var PPID;
   var PSID;
+  var docID;
   var pendingFriends;
   var friendRequests;
   var pendingFriendsCount;
@@ -50,6 +51,7 @@ class PantreeUser {
         this.posts = documentSnapshot.data()['PostIDs'],
         this.PPID = documentSnapshot.data()['PPID'],
         this.PSID = documentSnapshot.data()['PSID'],
+        this.docID = documentSnapshot.id
       }
     });
   }
