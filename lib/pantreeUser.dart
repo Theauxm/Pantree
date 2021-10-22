@@ -83,7 +83,7 @@ getUserProfile() async {
       return FirebaseAuth.instance.signOut();
     }
   }
-  updateFriends(documentSnapshot.id, theUser);
+  var f = await updateFriends(documentSnapshot.id, theUser);
   theUser.name = documentSnapshot.data()['Username'];
   theUser.shoppingLists = documentSnapshot.data()['ShoppingIDs'];
   theUser.recipes = documentSnapshot.data()['RecipeIDs'];
@@ -93,7 +93,9 @@ getUserProfile() async {
   theUser.PSID = documentSnapshot.data()['PSID'];
   theUser.friendsCount = documentSnapshot.data()['Friends'];
   theUser.pendingFriendsCount = documentSnapshot.data()['PendingFriends'];
-  return theUser;
+  if(f) {//Ensure friends have been loaded in.
+    return theUser;
+  }
 }
 
 Future<bool> updateFriends (String id, PantreeUser user) async{
