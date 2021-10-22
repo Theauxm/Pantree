@@ -33,14 +33,21 @@ class _WelcomePage extends State<WelcomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: Text("Welcome!"),
-        ),
+       // appBar: AppBar(
+          //title: Text("Welcome!"),
+       // ),
         body: Builder(
             builder: (context) => SingleChildScrollView(
                   child: Center(
-                    child: Column(children: [
-                      Image.asset('assets/images/prototype_logo.png'),
+                    child: Column(
+                        children: [
+                          Padding(
+                          padding: const EdgeInsets.all(30.0),
+                            ),
+                          Image.asset('assets/images/pantree.png'),
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                          ),
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Container(
@@ -82,7 +89,7 @@ class _WelcomePage extends State<WelcomePage> {
                                           'Log in',
                                           style: TextStyle(
                                               fontSize: 14,
-                                              color: Colors.black),
+                                              color: Colors.white),
                                         ),
                                       ),
                                     ),
@@ -102,7 +109,7 @@ class _WelcomePage extends State<WelcomePage> {
                                           'Sign up',
                                           style: TextStyle(
                                               fontSize: 14,
-                                              color: Colors.black),
+                                              color: Colors.white),
                                         ),
                                       ),
                                     ),
@@ -136,7 +143,8 @@ Future<void> handleNewUsers(String docID, String displayName) async {
         FirebaseFirestore.instance.collection('users').doc(docID).set({
           'Username': displayName,
           'PantryIDs': [],
-          'FriendIDs': [],
+          'Friends': 0,
+          'PendingFriends': 0,
           'RecipeIDs': [],
           'ShoppingIDs': [],
           'PostIDs': [],
@@ -274,7 +282,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
               },
               child: Text(
                 'Create Account',
-                style: TextStyle(fontSize: 14, color: Colors.black),
+                style: TextStyle(fontSize: 14, color: Colors.white),
               ),
             ),
           ])),

@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pantree/pantreeUser.dart';
 import 'package:pantree/models/dialogs.dart';
+import 'package:flutter/services.dart';
+
 class NewPantry extends StatelessWidget {
   PantreeUser user;
   final TextEditingController _PantryName = TextEditingController();
+  bool makePrimary;
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
 
-  NewPantry({this.user});
+  NewPantry({this.user, this.makePrimary});
 
   final GlobalKey<State> _keyLoader = new GlobalKey<State>();
 
@@ -27,6 +30,9 @@ class NewPantry extends StatelessWidget {
                   if (validator.isEmpty) return 'Empty';
                   return null;
                 },
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(18),
+                ],
                 decoration: InputDecoration(
                   labelText: "New Pantry Name",
                   border: OutlineInputBorder(),
@@ -39,7 +45,7 @@ class NewPantry extends StatelessWidget {
               },
               child: Text(
                 'Create Pantry!',
-                style: TextStyle(fontSize: 14, color: Colors.black),
+                style: TextStyle(color: Colors.white),
               ),
             ),
           ])),
@@ -70,13 +76,21 @@ class NewPantry extends StatelessWidget {
         "Name": name,
         "Owner": FirebaseFirestore.instance.collection("users").doc(user.uid),
       }).then((value) {
-        FirebaseFirestore.instance.collection("users").doc(user.uid).update({
-          'PantryIDs': FieldValue.arrayUnion([value]),
-        });
+        if (makePrimary) {
+          FirebaseFirestore.instance.collection("users").doc(user.uid).update({
+            'PPID': FieldValue.arrayUnion([value]),
+            'PantryIDs': FieldValue.arrayUnion([value]),
+          });
+        }
+        else {
+          FirebaseFirestore.instance.collection("users").doc(user.uid).update({
+            'PantryIDs': FieldValue.arrayUnion([value]),
+          });
+        }
       });
-    } catch (e) {
-      return false;
     }
+    catch (e) {return false;}
+
     return true;
   }
 

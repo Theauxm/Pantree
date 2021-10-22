@@ -18,6 +18,10 @@ class PantreeUser {
   var PPID;
   var PSID;
   var docID;
+  var pendingFriends;
+  var friendRequests;
+  var pendingFriendsCount;
+  var friendsCount;
 
 
   //this is from the FirebaseAuth, and contains info related from Authentication
@@ -42,7 +46,6 @@ class PantreeUser {
       if (documentSnapshot.exists) {
         this.name = documentSnapshot.data()['Username'],
         this.shoppingLists = documentSnapshot.data()['ShoppingIDs'],
-        this.friends = documentSnapshot.data()['FriendIDs'],
         this.recipes = documentSnapshot.data()['RecipeIDs'],
         this.pantries = documentSnapshot.data()['PantryIDs'],
         this.posts = documentSnapshot.data()['PostIDs'],
@@ -80,13 +83,45 @@ getUserProfile() async {
       return FirebaseAuth.instance.signOut();
     }
   }
+  updateFriends(documentSnapshot.id, theUser);
   theUser.name = documentSnapshot.data()['Username'];
   theUser.shoppingLists = documentSnapshot.data()['ShoppingIDs'];
-  theUser.friends = documentSnapshot.data()['FriendIDs'];
   theUser.recipes = documentSnapshot.data()['RecipeIDs'];
   theUser.pantries = documentSnapshot.data()['PantryIDs'];
   theUser.posts = documentSnapshot.data()['PostIDs'];
   theUser.PPID = documentSnapshot.data()['PPID'];
   theUser.PSID = documentSnapshot.data()['PSID'];
+  theUser.friendsCount = documentSnapshot.data()['Friends'];
+  theUser.pendingFriendsCount = documentSnapshot.data()['PendingFriends'];
   return theUser;
+}
+
+Future<bool> updateFriends (String id, PantreeUser user) async{
+  Map friendsList = Map<DocumentReference, DocumentReference>();
+  Map pending =  Map<DocumentReference, DocumentReference>();;
+  Map requested =  Map<DocumentReference, DocumentReference>();;
+  DocumentReference ref = FirebaseFirestore.instance.doc('/users/'+id);
+  var friends = await FirebaseFirestore.instance
+      .collection('friendships')
+      .where('users',  arrayContains: ref).get();
+  friends.docs.forEach((element) {
+    if(element.data()['accepted']){
+      if(element.data()['users'][0] == ref) {
+        friendsList[element.data()['users'][1]] = element.reference;
+      } else{
+        friendsList[element.data()['users'][0]] = element.reference;;
+      }
+    } else{
+      if(element.data()['users'][0] == ref) {
+        pending[element.data()['users'][1]] = element.reference;
+      } else{
+        requested[element.data()['users'][0]] = element.reference;
+      }
+    }
+  }
+  );
+  user.friendRequests = requested;
+  user.friends = friendsList;
+  user.pendingFriends = pending;
+  return true;
 }
