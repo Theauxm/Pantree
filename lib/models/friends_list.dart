@@ -56,7 +56,7 @@ class FriendsListState extends State<FriendsList> {
         friendRequests[friendUsername] = ref;
       }
       // very important: se setState() to force a call to build()
-      setState(() {});
+      if(mounted) {setState(() {});}
     }
   }
 
