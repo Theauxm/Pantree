@@ -28,39 +28,12 @@ class _InputForm extends State<InputForm> {
   PantreeUser user;
   _InputForm({this.user});
 
-  List<String> dropDownValues = [
-    "teaspoon",
-    "tablespoon",
-    "cup",
-    "ounce",
-    "unit",
-    "gallon",
-    "can",
-  ];
-
-  List<String> amountValues = [
-    '1',
-    '1/2',
-    '1/4',
-    '1/8',
-    '1/16',
-    '2',
-    '3',
-    '4',
-    '5',
-    '6',
-    '7',
-    '8',
-    '9',
-    '10',
-  ];
-
   List<TextEditingController> _ingredientControllers = [];
   List<TextFormField> _ingredientFields = [];
-  List<DropdownButton> _ingredientAmountFields = [];
-  List<DropdownButton> _unitFields = [];
-  List<DropDownController> _ingredientAmountControllers = [];
-  List<DropDownController> _unitControllers = [];
+  List<TextFormField> _ingredientAmountFields = [];
+  List<TextFormField> _unitFields = [];
+  List<TextEditingController> _ingredientAmountControllers = [];
+  List<TextEditingController> _unitControllers = [];
 
   List<TextEditingController> _directionControllers = [];
   List<TextFormField> _directionFields = [];
@@ -160,7 +133,8 @@ class _InputForm extends State<InputForm> {
       recipeField = TextFormField(
         controller: recipeController,
         decoration: InputDecoration(
-            border: OutlineInputBorder(), labelText: "Recipe name"),
+            border: OutlineInputBorder(),
+            labelText: "Recipe name"),
       );
     }
 
@@ -169,7 +143,8 @@ class _InputForm extends State<InputForm> {
         controller: totalTimeController,
         decoration: InputDecoration(
             border: OutlineInputBorder(),
-            labelText: "Total time to cook (minutes)"),
+            labelText: "Total time to cook (minutes)",
+        ),
       );
     }
 
@@ -218,24 +193,6 @@ class _InputForm extends State<InputForm> {
     super.dispose();
   }
 
-  Widget _measurementDropdown(DropDownController dropdownValue, List<String> values) {
-    return DropdownButton<String>(
-      value: dropdownValue.text,
-      style: const TextStyle(color: Colors.red, fontSize: 20),
-      onChanged: (String newValue) {
-        setState(() {
-          dropdownValue.text = newValue;
-        });
-      },
-      items: dropDownValues.map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
-      }).toList(),
-    );
-  }
-
   Widget _addTile(String text) {
     return ListTile(
       title: Center(
@@ -260,15 +217,31 @@ class _InputForm extends State<InputForm> {
           ),
         );
 
-        DropdownButton amountField;
-        DropDownController amountController;
-        DropdownButton unitField;
-        DropDownController unitController;
+        TextFormField amountField;
+        TextEditingController amountController;
+        TextFormField unitField;
+        TextEditingController unitController;
         if (text == "Ingredient") {
-          amountController = DropDownController(dropDownValues[0]);
-          unitController = DropDownController(amountValues[0]);
-          unitField = _measurementDropdown(amountController, dropDownValues);
-          amountField = _measurementDropdown(unitController, amountValues);
+          amountController = TextEditingController();
+          unitController = TextEditingController();
+          unitField = TextFormField(
+            controller: unitController,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              label: Text("Unit: teaspoon, can, etc.",
+                style: TextStyle(fontSize: 15),
+              )
+            )
+          );
+          amountField = TextFormField(
+            controller: amountController,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              label: Text("Amount: Must be a number",
+                style: TextStyle(fontSize: 15),
+              )
+            )
+          );
         }
 
         setState(() {
@@ -301,12 +274,20 @@ class _InputForm extends State<InputForm> {
                   width: MediaQuery.of(context).size.width * 0.9,
                   child: _ingredientFields[index],
                 ),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.02),
                 Container(
                     width: MediaQuery.of(context).size.width * 0.9,
                     child: Row(
                       children: [
-                        _unitFields[index],
-                        _ingredientAmountFields[index]
+                        Container(
+                          width: MediaQuery.of(context).size.width * 0.4,
+                          child: _unitFields[index]
+                        ),
+                        SizedBox(width: MediaQuery.of(context).size.width * 0.04),
+                        Container(
+                            width: MediaQuery.of(context).size.width * 0.4,
+                            child: _ingredientAmountFields[index]
+                        )
                       ]
                     )
                 )
@@ -345,10 +326,14 @@ class _InputForm extends State<InputForm> {
     DocumentReference newRecipe = firestoreInstance.collection('recipes').doc();
     CollectionReference ingredientCollection =
         newRecipe.collection('ingredients');
-
     print(newRecipe.id);
+
     Set<String> allKeywords = {};
-    for (TextEditingController ingred in _ingredientControllers) {
+    for (int i = 0; i < _ingredientControllers.length; i++) {
+      TextEditingController ingred = _ingredientControllers[i];
+      TextEditingController unit = _unitControllers[i];
+      TextEditingController amount = _ingredientAmountControllers[i];
+
       Set<String> ingredKeywords = getKeywords(ingred.text.toLowerCase());
       allKeywords.addAll(ingredKeywords);
       DocumentReference ingredInstance =
@@ -369,7 +354,7 @@ class _InputForm extends State<InputForm> {
       });
 
       ingredientCollection
-          .add({'Item': ingredInstance.id, 'Quantity': 0, 'Unit': "N/A"});
+          .add({'Item': ingredInstance.id, 'Quantity': double.tryParse(amount.text), 'Unit': unit.text});
     }
 
     List<String> directions = [];
@@ -381,18 +366,12 @@ class _InputForm extends State<InputForm> {
     newRecipe.set({
       'CreationDate': FieldValue.serverTimestamp(),
       'Creator': this.user.docID,
-      'Credit': this.user.docID,
+      'Credit': this.user.name,
       'Directions': directions,
       'DocumentID': [newRecipe.id],
       'Keywords': allKeywords.toList(),
       'RecipeName': recipeController.text,
-      'TotalTime': int.parse(totalTimeController.text)
+      'TotalTime': int.tryParse(totalTimeController.text)
     });
   }
-}
-
-class DropDownController {
-  String text;
-
-  DropDownController(this.text);
 }
