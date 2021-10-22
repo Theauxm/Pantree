@@ -30,15 +30,11 @@ dependencies:
 
   firebase_auth: ^1.0.1
 
-  firebase_auth_ui: ^1.0.1
-
   cloud_firestore: ^1.0.2
 
   firebase_storage: ^10.0.3
 
   image_picker: ^0.8.4
-
-  flutter_form_builder: ^6.1.0+1
 
 
 
