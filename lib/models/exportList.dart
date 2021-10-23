@@ -55,7 +55,7 @@ class _ExportListState extends State<ExportList> {
                 img: img,
                 title: e.data()['Item'].id.toString(),
                 isCheck: false,
-                ref: e);
+                ref: e,);
           }).toList();
         });
       });
@@ -169,12 +169,16 @@ class _ExportListState extends State<ExportList> {
   }
 
   bool exportChart() {
+    DateTime now = new DateTime.now();
+    DateTime date = new DateTime(now.year, now.month, now.day);
     try {
       items.forEach((element) {
         if (element.isCheck) {
           _selectedPantry.collection("ingredients").add({
             "Item": element.ref.data()['Item'],
             "Quantity": element.ref.data()['Quantity'],
+            'Unit': element.ref.data()['Unit'],
+            'DateAdded': date
           }).then((value) {
             if(removeItems) {
               element.ref.reference.delete();

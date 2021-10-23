@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:pantree/models/custom_fab.dart';
 import 'package:pantree/models/drawer.dart';
+import 'package:pantree/models/modules.dart';
 import 'package:pantree/models/new_pantry_item.dart';
 import '../pantreeUser.dart';
 import '../models/drawer.dart';
@@ -113,56 +114,17 @@ class _PantryState extends State<Pantry> {
     }
   }
 
-  showDeleteDialog(BuildContext context, String item, DocumentSnapshot ds) {
-    Widget cancelButton = TextButton(
-        style: TextButton.styleFrom(
-            backgroundColor: Colors.lightBlue, primary: Colors.white),
-        child: Text("NO"),
-        onPressed: () {
-          Navigator.of(context, rootNavigator: true).pop();
-        });
 
-    Widget okButton = TextButton(
-      style: TextButton.styleFrom(primary: Colors.lightBlue),
-      child: Text("YES"),
-      onPressed: () {
-        deleteItem(ds);
-        Navigator.of(context, rootNavigator: true).pop();
-      },
-    );
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Are you sure?"),
-          content:
-              Text("Do you really want to delete \"$item\" from your pantry?"),
-          actions: [
-            cancelButton,
-            okButton,
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> deleteItem(DocumentSnapshot ds) async {
-    DocumentReference doc = ds.reference;
-    await doc
-        .delete()
-        .then((value) => print("SUCCESS: $doc has been deleted"))
-        .catchError((error) => print("FAILURE: couldn't delete $doc: $error"));
-  }
 
   void createPantry(bool makePrimary) {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => (NewPantry(
-                  user: user,
-                  makePrimary: makePrimary,
-                ))));
+            builder: (context) => (NewItemList(
+              user: user,
+              usedByWidget: "Pantry",
+              makePrimary: makePrimary,
+            ))));
   }
 
   Future<void> editPantry(String name) async {
@@ -183,12 +145,6 @@ class _PantryState extends State<Pantry> {
         _selectedPantryName = result;
       });
     }
-  }
-
-  String formatDate(Timestamp time) {
-    DateTime date = time.toDate();
-    DateFormat formatter = DateFormat("MM/dd/yyyy");
-    return formatter.format(date);
   }
 
   @override
@@ -326,45 +282,7 @@ class _PantryState extends State<Pantry> {
                 child: ListView(
                     children: snapshot.data.docs.map<Widget>((doc) {
               return Container(
-                child: Card(
-                  elevation: 7.0,
-                  margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 3.0),
-                  child: ListTile(
-                    leading: Icon(Icons.fastfood_rounded),
-                    title: Text(
-                      doc['Item'].id.toString().capitalizeFirstOfEach,
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w600),
-                    ),
-                    subtitle: Container(
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                          Text(
-                            "Quantity: " +
-                                doc['Quantity'].toString() +
-                                " " +
-                                doc['Unit'].toString().capitalizeFirstOfEach,
-                            style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.w600),
-                          ),
-                          Text(
-                            "Date Added: " + formatDate(doc['DateAdded']),
-                            style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.w600),
-                          ),
-                        ])),
-                    trailing: IconButton(
-                      icon: Icon(Icons.delete, size: 20.0),
-                      onPressed: (() {
-                        showDeleteDialog(
-                            context,
-                            doc['Item'].id.toString().capitalizeFirstOfEach,
-                            doc);
-                      }),
-                    ),
-                  ),
-                ),
+                child: itemCard(doc, context)
               );
             }).toList()));
           }),
@@ -382,7 +300,7 @@ class _PantryState extends State<Pantry> {
                     context,
                     MaterialPageRoute(
                         builder: (context) =>
-                            NewPantryItem(pantry: _selectedPantry)))
+                            NewFoodItem(itemList: _selectedPantry,usedByWidget: "Pantry",)))
               }),
         ));
   }

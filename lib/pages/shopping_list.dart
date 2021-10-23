@@ -1,30 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pantree/models/modules.dart';
 import '../pantreeUser.dart';
 import '../models/drawer.dart';
 import '../models/newShoppingList.dart';
 import '../models/exportList.dart';
 import '../models/new_list_item.dart';
 
-extension StringExtension on String {
-  String get inCaps =>
-      this.length > 0 ? '${this[0].toUpperCase()}${this.substring(1)}' : '';
-  String get allInCaps => this.toUpperCase();
-  String get capitalizeFirstOfEach => this
-      .replaceAll(RegExp(' +'), ' ')
-      .split(" ")
-      .map((str) => str.inCaps)
-      .join(" ");
-  String get capitalizeFirstLetter => (this?.isNotEmpty ?? false)
-      ? '${this[0].toUpperCase()}${this.substring(1)}'
-      : this;
-  String capitalize() {
-    if (this == null || this == "") {
-      return "";
-    }
-    return "${this[0].toUpperCase()}${this.substring(1)}";
-  }
-}
 
 class ShoppingList extends StatefulWidget {
   final PantreeUser user;
@@ -96,15 +78,17 @@ class _ListState extends State<ShoppingList> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => NewListItem(list: _selectedList)));
+            builder: (context) => NewFoodItem(itemList: _selectedList, usedByWidget: "Shopping List",)));
   }
 
   void createNewList() {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => (NewShoppingList(
+            builder: (context) => (NewItemList(
                   user: user,
+                  usedByWidget: "Shopping List",
+                  makePrimary: true,
                 ))));
   }
 
@@ -196,35 +180,7 @@ class _ListState extends State<ShoppingList> {
                 child: ListView(
                     children: snapshot.data.docs.map<Widget>((doc) {
               return Container(
-                child: Card(
-                  elevation: 7.0,
-                  margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 3.0),
-                  child: ListTile(
-                    leading: Icon(Icons.fastfood_rounded),
-                    title: Text(
-                      doc['Item'].id.toString().capitalizeFirstOfEach,
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w600),
-                    ),
-                    subtitle: Text(
-                      "Quantity: " +
-                          doc['Quantity'].toString() +
-                          " " +
-                          doc['Unit'].toString().capitalizeFirstOfEach,
-                      style: const TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.w600),
-                    ),
-                    trailing: IconButton(
-                      icon: Icon(Icons.delete, size: 20.0),
-                      onPressed: (() {
-                        showDeleteDialog(
-                            context,
-                            doc['Item'].id.toString().capitalizeFirstOfEach,
-                            doc);
-                      }),
-                    ),
-                  ),
-                ),
+                child: itemCard(doc, context)
               );
             }).toList()));
           }),
@@ -285,39 +241,6 @@ class _ListState extends State<ShoppingList> {
     );
   }
 
-  showDeleteDialog(BuildContext context, String item, DocumentSnapshot ds) {
-    Widget cancelButton = TextButton(
-        style: TextButton.styleFrom(
-            backgroundColor: Colors.lightBlue, primary: Colors.white),
-        child: Text("NO"),
-        onPressed: () {
-          Navigator.of(context, rootNavigator: true).pop();
-        });
-
-    Widget okButton = TextButton(
-      style: TextButton.styleFrom(primary: Colors.lightBlue),
-      child: Text("YES"),
-      onPressed: () {
-        deleteItem(ds);
-        Navigator.of(context, rootNavigator: true).pop();
-      },
-    );
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Are you sure?"),
-          content:
-              Text("Do you really want to delete \"$item\" from your pantry?"),
-          actions: [
-            cancelButton,
-            okButton,
-          ],
-        );
-      },
-    );
-  }
 
   showError(BuildContext context) {
     Widget okButton = TextButton(
@@ -340,13 +263,5 @@ class _ListState extends State<ShoppingList> {
         );
       },
     );
-  }
-
-  Future<void> deleteItem(DocumentSnapshot ds) async {
-    DocumentReference doc = ds.reference;
-    await doc
-        .delete()
-        .then((value) => print("SUCCESS: $doc has been deleted"))
-        .catchError((error) => print("FAILURE: couldn't delete $doc: $error"));
   }
 }
