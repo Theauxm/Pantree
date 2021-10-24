@@ -127,7 +127,7 @@ class _PantryState extends State<Pantry> {
     }
     if (_selectedPantry == null) {
       // handle user with no pantries case - send to create a pantry screen
-      return createLandingPage();
+      return createLandingPage(user,"Pantry", context);
     }
 
     // User pantry dropdown selector
@@ -270,36 +270,4 @@ class _PantryState extends State<Pantry> {
         ));
   }
 
-  Widget createLandingPage() {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('New Pantry'),
-        backgroundColor: Color.fromRGBO(255, 190, 50, 1.0),
-      ),
-      drawer: PantreeDrawer(user: user),
-      body: Container(
-        alignment: Alignment.center,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              child: Text(
-                'Create your first Pantry!',
-                style: TextStyle(color: Colors.black, fontSize: 24),
-              ),
-              margin: EdgeInsets.all(16),
-            ),
-            TextButton(
-              onPressed: (() {
-                createPantry(true);
-              }),
-              child: Text('Create Pantry'),
-              style: TextButton.styleFrom(
-                  primary: Colors.white, backgroundColor: Colors.lightBlue),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

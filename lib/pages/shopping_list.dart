@@ -118,7 +118,7 @@ class _ListState extends State<ShoppingList> {
   @override
   Widget build(BuildContext context) {
     if (user.shoppingLists.length == 0) {
-      return createLandingPage();
+      return createLandingPage(user,"Shopping List", context);
     }
     if (_selectedList == null) {
       return Center(child: CircularProgressIndicator());
@@ -239,36 +239,7 @@ class _ListState extends State<ShoppingList> {
             ]));
   }
 
-  Widget createLandingPage() {
-    return Scaffold(
-      appBar: AppBar(title: Text('Shopping Lists')),
-      drawer: PantreeDrawer(user: user),
-      body: Container(
-        alignment: Alignment.center,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              child: Text(
-                'Create a Shopping List!',
-                style: TextStyle(color: Colors.black, fontSize: 20),
-              ),
-              margin: EdgeInsets.all(16),
-            ),
-            TextButton(
-              onPressed: () {
-                createNewList();
-              },
-              child: Text('Create Shopping List'),
-              style: TextButton.styleFrom(
-                  primary: Colors.white,
-                  backgroundColor: Colors.lightBlueAccent),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+
 
   showError(BuildContext context) {
     Widget okButton = TextButton(

@@ -6,6 +6,7 @@ import '../models/static_functions.dart';
 import '../models/extensions.dart';
 import '../models/dialogs.dart';
 import '../pantreeUser.dart';
+import '../models/drawer.dart';
 
 /// Add new Item to Pantry/Shopping list
 /// [itemList] - Document Reference to either the current Pantry/Shopping list
@@ -253,7 +254,7 @@ class NewItemList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Create new" + usedByView),
+        title: Text("Create new " + usedByView),
       ),
       body: Form(
           key: _form,
@@ -268,7 +269,7 @@ class NewItemList extends StatelessWidget {
                   LengthLimitingTextInputFormatter(18),
                 ],
                 decoration: InputDecoration(
-                  labelText: usedByView + "Name",
+                  labelText: usedByView + " Name",
                   border: OutlineInputBorder(),
                 )),
             SizedBox(height: 10),
@@ -278,7 +279,7 @@ class NewItemList extends StatelessWidget {
                 _handleSubmit(context, _listNameTextController.text);
               },
               child: Text(
-                'Create' + usedByView,
+                'Create ' + usedByView,
                 style: TextStyle(fontSize: 14, color: Colors.black),
               ),
             ),
@@ -511,4 +512,43 @@ class _EditState extends State<Edit> {
       },
     );
   }
+}
+
+///Create teh Landing pages for Shoppinglist/Pantry
+Widget createLandingPage(user,usedByView,context) {
+  return Scaffold(
+    appBar: AppBar(title: Text(usedByView+"s")),
+    drawer: PantreeDrawer(user: user),
+    body: Container(
+      alignment: Alignment.center,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Container(
+            child: Text(
+              'Create a $usedByView!',
+              style: TextStyle(color: Colors.black, fontSize: 20),
+            ),
+            margin: EdgeInsets.all(16),
+          ),
+          TextButton(
+            onPressed: () {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => (NewItemList(
+                user: user,
+                usedByView: usedByView,
+                makePrimary: true,
+              ))));
+            },
+            child: Text('Create $usedByView'),
+            style: TextButton.styleFrom(
+                primary: Colors.white,
+                backgroundColor: Colors.lightBlueAccent),
+          ),
+        ],
+      ),
+    ),
+  );
 }
