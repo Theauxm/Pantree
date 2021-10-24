@@ -451,10 +451,13 @@ class _EditState extends State<Edit> {
                   if (editPantry(_pantryNameTextController.text, makePrimary)) {
                     title = "Success!";
                     message =
-                    "${widget.usedByView}  edit was successful. Press OK to return to your ${widget.usedByView} !";
+                    "Your ${widget.usedByView} has been edited. \nPress OK to return to your ${widget.usedByView}!";
+                    showAlertDialog(context, title, message, true);
+                  }
+                  else {
+                    showAlertDialog(context, title, message, false);
                   }
                 }
-                showAlertDialog(context, title, message);
               },
               child: Text(
                 'Save Changes',
@@ -491,13 +494,18 @@ class _EditState extends State<Edit> {
     return true;
   }
 
-  showAlertDialog(BuildContext context, String t, String m) async {
+  showAlertDialog(BuildContext context, String t, String m, bool success) async {
     // set up the button
     Widget okButton = TextButton(
       child: Text("OK"),
       onPressed: () {
-        Navigator.of(context, rootNavigator: true).pop();
-        Navigator.of(context).pop(newName);
+        if (success) {
+          Navigator.of(context, rootNavigator: true).pop();
+          Navigator.of(context).pop(newName);
+        }
+        else {
+          Navigator.of(context, rootNavigator: true).pop();
+        }
       },
     );
 

@@ -8,7 +8,6 @@ import '../pantreeUser.dart';
 class Pantry extends StatefulWidget {
   final PantreeUser user;
   const Pantry ({Key key, this.user}) : super(key: key);
-  //Pantry({this.user});
 
   @override
   _PantryState createState() => _PantryState(user: user);
@@ -41,7 +40,12 @@ class _PantryState extends State<Pantry> {
       // go through each doc ref and add to list of pantry names + map
       String pantryName = "";
       await ref.get().then((DocumentSnapshot snapshot) {
-        pantryName = snapshot.data()['Name']; // get the pantry name as a string
+        if (ref == user.PPID) {
+          pantryName = snapshot.data()['Name'] + "*";
+        }
+        else {
+          pantryName = snapshot.data()['Name']; // get the pantry name as a string
+        }
       });
       tempPantry = ref; // this will have to do for now
       tempName = pantryName;
@@ -72,11 +76,11 @@ class _PantryState extends State<Pantry> {
   }
 
   setPantry() {
-    List<dynamic> primary = user.PPID;
+    DocumentReference primary = user.PPID;
     if (primary != null) {
       _pantryMap.forEach((k, v) => print('${k}: ${v}\n'));
       for (MapEntry e in _pantryMap.entries) {
-        if (e.value == primary[0]) {
+        if (e.value == primary) {
           setState(() {
             _selectedPantry = e.value;
             _selectedPantryName = e.key;
@@ -113,6 +117,7 @@ class _PantryState extends State<Pantry> {
         _pantryMap.remove(_selectedPantryName);
         _pantryMap[result] = tempRef;
         _selectedPantryName = result;
+        //getData();
       });
     }
   }
@@ -132,16 +137,7 @@ class _PantryState extends State<Pantry> {
     }
 
     // User pantry dropdown selector
-    final makeDropDown = StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
-          }
-          return Container(
+    final makeDropDown = Container(
             padding: EdgeInsets.only(left: 17.0),
             child: DropdownButton<String>(
               value: _selectedPantryName,
@@ -171,13 +167,6 @@ class _PantryState extends State<Pantry> {
                                     fontWeight: FontWeight.w600)),
                           ),
                         ),
-                        /*Align(
-                          alignment: Alignment(1.0, 0.5),
-                          child: IconButton(
-                            icon: Icon(Icons.edit),
-                            onPressed: () => {editPantry(val)},
-                          ),
-                        ),*/
                       ],
                     ));
               }).toList(),
@@ -193,7 +182,6 @@ class _PantryState extends State<Pantry> {
               dropdownColor: Colors.lightBlue,
             ),
           );
-        });
 
     // top appbar
     final makeAppBar = AppBar(
@@ -270,5 +258,4 @@ class _PantryState extends State<Pantry> {
               }),
         ));
   }
-
 }
