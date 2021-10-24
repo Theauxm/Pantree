@@ -104,6 +104,7 @@ class _ListState extends State<ShoppingList> {
               user: user,
               itemList: _selectedList,
               name: _selectedListName,
+              usedByView: "Shopping List",
             ))));
     if(mounted && result != _selectedListName) {
       setState(() {

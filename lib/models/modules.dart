@@ -386,14 +386,14 @@ class _EditState extends State<Edit> {
     });
     newName = widget.name;
     if (widget.usedByView == "Pantry") {
-      if (widget.user.PPID[0] == widget.itemList) {
+      if (widget.user.PPID == widget.itemList) {
         makePrimary = true;
       } else {
         makePrimary = false;
       }
     } else {
       // other case is for usedByView == "Shopping List"
-      if (widget.user.PSID[0] == widget.itemList) {
+      if (widget.user.PSID == widget.itemList) {
         makePrimary = true;
       } else {
         makePrimary = false;
@@ -405,7 +405,7 @@ class _EditState extends State<Edit> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Edit Pantry"),
+        title: Text("Edit "+widget.usedByView),
       ),
       body: Form(
           key: _form,
@@ -416,7 +416,7 @@ class _EditState extends State<Edit> {
                 focusNode: _focusNode,
                 validator: (value) {
                   if (value.isEmpty || value == null) {
-                    return 'Please enter a name for your pantry';
+                    return 'Please enter a name for your '+widget.usedByView;
                   } else if (!RegExp(r"^[a-zA-Z\s\']+$").hasMatch(value)) {
                     return "Name can only contain letters";
                   }
@@ -426,12 +426,12 @@ class _EditState extends State<Edit> {
                   LengthLimitingTextInputFormatter(18),
                 ],
                 decoration: InputDecoration(
-                  labelText: "New Pantry Name",
+                  labelText: "New ${widget.usedByView} Name",
                   border: OutlineInputBorder(),
                 )),
             SizedBox(height: 10),
             CheckboxListTile(
-              title: Text("Make Primary Pantry"),
+              title: Text("Make Primary ${widget.usedByView}"),
               checkColor: Colors.white,
               selectedTileColor: Color.fromRGBO(255, 190, 50, 1.0),
               value: makePrimary,
@@ -446,12 +446,12 @@ class _EditState extends State<Edit> {
               style: TextButton.styleFrom(backgroundColor: Colors.blue),
               onPressed: () {
                 String title = "Failed!";
-                String message = "Pantry edit failed, please try again.";
+                String message = "${widget.usedByView} edit failed, please try again.";
                 if (_form.currentState.validate()) {
                   if (editPantry(_pantryNameTextController.text, makePrimary)) {
                     title = "Success!";
                     message =
-                    "Pantry edit was successful. Press OK to return to your pantry!";
+                    "${widget.usedByView}  edit was successful. Press OK to return to your ${widget.usedByView} !";
                   }
                 }
                 showAlertDialog(context, title, message);

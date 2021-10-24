@@ -105,6 +105,7 @@ class _PantryState extends State<Pantry> {
                   user: user,
                   itemList: _selectedPantry,
                   name: _selectedPantryName,
+                usedByView: "Pantry"
                 ))));
     if(mounted && result != _selectedPantryName) {
       setState(() {
