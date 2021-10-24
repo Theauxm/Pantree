@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pantree/models/modules.dart';
+import 'package:pantree/models/drawer.dart';
 import '../pantreeUser.dart';
-import '../models/drawer.dart';
-import '../models/newShoppingList.dart';
 import '../models/exportList.dart';
-import '../models/new_list_item.dart';
-
 
 class ShoppingList extends StatefulWidget {
   final PantreeUser user;
-  ShoppingList({this.user});
+  const ShoppingList({Key key, this.user}) : super(key: key);
+  // ShoppingList({this.user});
 
   @override
   _ListState createState() => _ListState(user: user);
@@ -22,35 +20,41 @@ class _ListState extends State<ShoppingList> {
 
   final firestoreInstance = FirebaseFirestore.instance;
   DocumentReference _selectedList; // private
-  String _selectedListName;
-  int listsLength;// private
+  String _selectedListName; // private
+  int listsLength;
   Map<String, DocumentReference>
-      _pantryMap; // private NOTE: bad design - it will fuck with users collaborating on multiple pantries with the same name
-  // DocumentSnapshot cache;
+      _listMap; // private NOTE: bad design - it will fuck with users collaborating on multiple pantries with the same name
+
+  @override
+  void initState() {
+    super.initState(); // start initState() with this
+    getData();
+    setListener();
+  }
 
   Future<dynamic> getData() async {
     DocumentReference tempPantry;
     String tempName;
 
-    //await user.updateData(); // important: refreshes the user's data
-    _pantryMap = Map<String, DocumentReference>(); // instantiate the map
+    _listMap = Map<String, DocumentReference>(); // instantiate the map
     for (DocumentReference ref in user.shoppingLists) {
-      // go through each doc ref and add to list of pantry names + map
-      String pantryName = "";
+      // go through each doc ref and add to list of list names + map
+      String listName = "";
       await ref.get().then((DocumentSnapshot snapshot) {
-        pantryName = snapshot.data()['Name']; // get the pantry name as a string
+        listName = snapshot.data()['Name']; // get the list name as a string
       });
-      // todo: check for [upcoming] 'primary' boolean val and set _selectedPantry/Name vals to that
       tempPantry = ref; // this will have to do for now
-      tempName = pantryName;
-      _pantryMap[pantryName] = ref; // map the doc ref to its name
+      tempName = listName;
+      _listMap[listName] = ref; // map the doc ref to its name
     }
 
-    // very important: se setState() to force a call to build()
-    setState(() {
-      _selectedList = tempPantry;
-      _selectedListName = tempName;
-    });
+    // make sure widget hasn't been disposed before rebuild
+    if (mounted) {
+      setState(() { // setState() forces a call to build()
+        _selectedList = tempPantry;
+        _selectedListName = tempName;
+      });
+    }
   }
 
   //Listener for when a user changes! Re-Reads all the pantry Data!
@@ -60,25 +64,25 @@ class _ListState extends State<ShoppingList> {
         .doc(user.uid)
         .snapshots()
         .listen((DocumentSnapshot event) {
-          if(event.data()['ShoppingIDs'].length != user.shoppingLists.length){
-            user.shoppingLists = event.data()['ShoppingIDs'];
-            getData();
-          }
+      if (event.data()['ShoppingIDs'].length != user.shoppingLists.length) {
+        user.shoppingLists = event.data()['ShoppingIDs'];
+        getData();
+      }
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-    getData();
-    setListener();
-  }
-
-  void addNewItem() {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => NewFoodItem(itemList: _selectedList, usedByWidget: "Shopping List",)));
+  void exportList() {
+    if (user.pantries.length > 0) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => (ExportList(
+                  user: user,
+                  list: _selectedList,
+                  exportList: user.pantries))));
+    } else {
+      showError(context);
+    }
   }
 
   void createNewList() {
@@ -87,20 +91,27 @@ class _ListState extends State<ShoppingList> {
         MaterialPageRoute(
             builder: (context) => (NewItemList(
                   user: user,
-                  usedByWidget: "Shopping List",
+                  usedByView: "Shopping List",
                   makePrimary: true,
                 ))));
   }
 
-  void exportList() {
-    if (user.pantries.length > 0) {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-              (ExportList(user: user, list: _selectedList, exportList: user.pantries))));
-    } else{
-      showError(context);
+  Future<void> editList() async {
+    var result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => (Edit(
+              user: user,
+              itemList: _selectedList,
+              name: _selectedListName,
+            ))));
+    if(mounted && result != _selectedListName) {
+      setState(() {
+        DocumentReference tempRef = _listMap[_selectedListName];
+        _listMap.remove(_selectedListName);
+        _listMap[result] = tempRef;
+        _selectedListName = result;
+      });
     }
   }
 
@@ -109,7 +120,7 @@ class _ListState extends State<ShoppingList> {
     if (user.shoppingLists.length == 0) {
       return createLandingPage();
     }
-    if(_selectedList == null){
+    if (_selectedList == null) {
       return Center(child: CircularProgressIndicator());
     }
 
@@ -126,7 +137,7 @@ class _ListState extends State<ShoppingList> {
               color: Colors.white,
               size: 30.0,
             ),
-            items: _pantryMap.keys.map<DropdownMenuItem<String>>((val) {
+            items: _listMap.keys.map<DropdownMenuItem<String>>((val) {
               return DropdownMenuItem<String>(
                 value: val,
                 child: Text(val),
@@ -134,7 +145,7 @@ class _ListState extends State<ShoppingList> {
             }).toList(),
             onChanged: (String newVal) {
               setState(() {
-                _selectedList = _pantryMap[newVal];
+                _selectedList = _listMap[newVal];
                 _selectedListName = newVal;
               });
             },
@@ -156,10 +167,22 @@ class _ListState extends State<ShoppingList> {
         ),
         PopupMenuButton<String>(
           onSelected: (selected) {
-            createNewList();
+            switch (selected) {
+              case 'Create a new list':
+                {
+                  createNewList();
+                }
+                break;
+              case 'Edit selected list':
+                {
+                  editList();
+                }
+                break;
+            }
           },
           itemBuilder: (BuildContext context) {
-            return {'Create New List'}.map((String choice) {
+            return {'Create a new list', 'Edit selected list'}
+                .map((String choice) {
               return PopupMenuItem<String>(
                 value: choice,
                 child: Text(choice),
@@ -179,9 +202,7 @@ class _ListState extends State<ShoppingList> {
             return Expanded(
                 child: ListView(
                     children: snapshot.data.docs.map<Widget>((doc) {
-              return Container(
-                child: itemCard(doc, context)
-              );
+              return Container(child: itemCard(doc, context));
             }).toList()));
           }),
     ]);
@@ -205,7 +226,15 @@ class _ListState extends State<ShoppingList> {
               FloatingActionButton(
                 backgroundColor: Colors.lightBlue,
                 child: const Icon(Icons.add),
-                onPressed: addNewItem,
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => NewFoodItem(
+                            itemList: _selectedList,
+                            usedByView: "Shopping List",
+                          )));
+                },
               ),
             ]));
   }
@@ -240,7 +269,6 @@ class _ListState extends State<ShoppingList> {
       ),
     );
   }
-
 
   showError(BuildContext context) {
     Widget okButton = TextButton(

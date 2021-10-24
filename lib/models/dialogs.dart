@@ -76,11 +76,8 @@ class Dialogs {
       },
     );
   }
-
-
-
-
 }
+
 Future<void> deleteItem(DocumentSnapshot ds) async {
   DocumentReference doc = ds.reference;
   await doc
@@ -88,6 +85,7 @@ Future<void> deleteItem(DocumentSnapshot ds) async {
       .then((value) => print("SUCCESS: $doc has been deleted"))
       .catchError((error) => print("FAILURE: couldn't delete $doc: $error"));
 }
+
 showDeleteDialog(BuildContext context, String item, DocumentSnapshot ds) {
   Widget cancelButton = TextButton(
       style: TextButton.styleFrom(
@@ -112,7 +110,7 @@ showDeleteDialog(BuildContext context, String item, DocumentSnapshot ds) {
       return AlertDialog(
         title: Text("Are you sure?"),
         content:
-        Text("Do you really want to remove \"$item\""),
+        Text("Do you really want to remove \"$item\"?"),
         actions: [
           cancelButton,
           okButton,

@@ -1,18 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import '../models/static_functions.dart';
 import '../models/extensions.dart';
-import 'package:intl/intl.dart';
 import '../models/dialogs.dart';
 import '../pantreeUser.dart';
 
- /// Add new Item to Pantry/Shopping list
- /// [itemList]- Document Reference to either the current pantry/ shoppinglist
- /// [usedByWidget]- Name of the view using this widget
+/// Add new Item to Pantry/Shopping list
+/// [itemList] - Document Reference to either the current Pantry/Shopping list
+/// [usedByView] - Name of the view using this widget
 class NewFoodItem extends StatefulWidget {
   final DocumentReference itemList;
-  final String usedByWidget;// Will be "Shopping list" /"Pantry"
-  const NewFoodItem({Key key, this.itemList, this.usedByWidget}) : super(key: key);
+  final String usedByView; // Will be either "Shopping list" or "Pantry"
+  const NewFoodItem({Key key, this.itemList, this.usedByView})
+      : super(key: key);
 
   @override
   _NewFoodItemState createState() => _NewFoodItemState();
@@ -46,18 +48,19 @@ class _NewFoodItemState extends State<NewFoodItem> {
           'Keywords': getKeywords(item)
         }); // adds doc with specified name and no fields
       }
-      // now add it to the user pantry/shoppinglist
+      // now add it to the user Pantry/Shopping list
       widget.itemList
           .collection('ingredients')
           .add({
-        'Item': doc.reference,
-        'Quantity': int.parse(qty),
-        'Unit': unit,
-        'DateAdded': date
-      }) // adds doc with auto-ID and fields
-          .then((_) => print('$qty $item(s) added to user pantry/shoppinglist!'))
-          .catchError(
-              (error) => print('Failed to add $item to user pantry/shoppinglist: $error'));
+            'Item': doc.reference,
+            'Quantity': int.parse(qty),
+            'Unit': unit,
+            'DateAdded': date
+          }) // adds doc with auto-ID and fields
+          .then(
+              (_) => print('$qty $item(s) added to user Pantry/Shopping list!'))
+          .catchError((error) => print(
+              'Failed to add $item to user Pantry/Shopping list: $error'));
     });
   }
 
@@ -66,7 +69,7 @@ class _NewFoodItemState extends State<NewFoodItem> {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Color.fromRGBO(255, 190, 50, 1.0),
-          title: Text("Add Item to Your "+ widget.usedByWidget),
+          title: Text("Add Item to Your " + widget.usedByView),
         ),
         body: Container(
             margin: EdgeInsets.all(15.0),
@@ -145,7 +148,8 @@ class _NewFoodItemState extends State<NewFoodItem> {
                               });
                             },
                             hint: Text("Select unit"),
-                            underline: DropdownButtonHideUnderline(child: Container()),
+                            underline:
+                                DropdownButtonHideUnderline(child: Container()),
                             elevation: 0,
                             dropdownColor: Color.fromRGBO(255, 190, 50, 1.0),
                             selectedItemBuilder: (BuildContext context) {
@@ -157,7 +161,8 @@ class _NewFoodItemState extends State<NewFoodItem> {
                                       _selectedUnit,
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
-                                          color: Colors.black54, fontSize: 16.0),
+                                          color: Colors.black54,
+                                          fontSize: 16.0),
                                     ));
                               }).toList();
                             }),
@@ -188,11 +193,10 @@ class _NewFoodItemState extends State<NewFoodItem> {
   }
 }
 
-
-
 /// Create Card for Pantry/shopping list
-///
-Widget itemCard(doc,context){
+/// [doc] - Document Reference to either the current Pantry/Shopping list
+/// [context] - Name of the view using this widget
+Widget itemCard(doc, context) {
   return Card(
     elevation: 7.0,
     margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 3.0),
@@ -200,39 +204,34 @@ Widget itemCard(doc,context){
       leading: Icon(Icons.fastfood_rounded),
       title: Text(
         doc['Item'].id.toString().capitalizeFirstOfEach,
-        style: const TextStyle(
-            fontSize: 16, fontWeight: FontWeight.w600),
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
       ),
       subtitle: Container(
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Quantity: " +
-                      doc['Quantity'].toString() +
-                      " " +
-                      doc['Unit'].toString().capitalizeFirstOfEach,
-                  style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  "Date Added: " + formatDate(doc['DateAdded']),
-                  style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w600),
-                ),
-              ])),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(
+          "Quantity: " +
+              doc['Quantity'].toString() +
+              " " +
+              doc['Unit'].toString().capitalizeFirstOfEach,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        ),
+        Text(
+          "Date Added: " + formatDate(doc['DateAdded']),
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        ),
+      ])),
       trailing: IconButton(
         icon: Icon(Icons.delete, size: 20.0),
         onPressed: (() {
           showDeleteDialog(
-              context,
-              doc['Item'].id.toString().capitalizeFirstOfEach,
-              doc);
+              context, doc['Item'].id.toString().capitalizeFirstOfEach, doc);
         }),
       ),
     ),
   );
 }
+
 ///Helper method for creating cards
 String formatDate(Timestamp time) {
   DateTime date = time.toDate();
@@ -240,50 +239,13 @@ String formatDate(Timestamp time) {
   return formatter.format(date);
 }
 
-
-
-/// Creates popup menu for ShoppingList/Pantry
-//
-// Widget viewOptions(DocumentReference ){
-//   return PopupMenuButton<String>(
-//     onSelected: (selected) {
-//       switch (selected) {
-//         case 'Create a new pantry':
-//           {
-//             createPantry(false);
-//           }
-//           break;
-//         case 'Edit selected pantry':
-//           {
-//             editPantry(_selectedPantryName);
-//           }
-//           break;
-//       }
-//     },
-//     itemBuilder: (BuildContext context) {
-//       return {'Create a new pantry', 'Edit selected pantry'}
-//           .map((String choice) {
-//         return PopupMenuItem<String>(
-//           value: choice,
-//           child: Text(choice),
-//         );
-//       }).toList();
-//     },
-//   );
-// }
-
-
-
-
-
-
 class NewItemList extends StatelessWidget {
   PantreeUser user;
-  final String usedByWidget;
-  final TextEditingController _ListName = TextEditingController();
+  final String usedByView;
+  final TextEditingController _listNameTextController = TextEditingController();
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
   bool makePrimary;
-  NewItemList({this.user, this.usedByWidget, this.makePrimary});
+  NewItemList({this.user, this.usedByView, this.makePrimary});
 
   final GlobalKey<State> _keyLoader = new GlobalKey<State>();
 
@@ -291,29 +253,32 @@ class NewItemList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Create new" +usedByWidget),
+        title: Text("Create new" + usedByView),
       ),
       body: Form(
           key: _form,
           child: Column(children: <Widget>[
             TextFormField(
-                controller: _ListName,
+                controller: _listNameTextController,
                 validator: (validator) {
                   if (validator.isEmpty) return 'Empty';
                   return null;
                 },
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(18),
+                ],
                 decoration: InputDecoration(
-                  labelText: usedByWidget+ "Name",
+                  labelText: usedByView + "Name",
                   border: OutlineInputBorder(),
                 )),
             SizedBox(height: 10),
             TextButton(
               style: TextButton.styleFrom(backgroundColor: Colors.blue),
               onPressed: () {
-                _handleSubmit(context, _ListName.text);
+                _handleSubmit(context, _listNameTextController.text);
               },
               child: Text(
-                'Create'+usedByWidget,
+                'Create' + usedByView,
                 style: TextStyle(fontSize: 14, color: Colors.black),
               ),
             ),
@@ -324,14 +289,21 @@ class NewItemList extends StatelessWidget {
   Future<void> _handleSubmit(BuildContext context, name) async {
     try {
       Dialogs.showLoadingDialog(context, _keyLoader);
-      bool b = await createShoppingList(name);
-      Navigator.of(_keyLoader.currentContext,rootNavigator: true).pop();
+      bool b = await createItemList(name);
+      Navigator.of(_keyLoader.currentContext, rootNavigator: true).pop();
       if (b) {
-        Dialogs.showDialogCreatePL(context, "Success",
-            usedByWidget+"Creation was Successful Return to your $usedByWidget!","Return to $usedByWidget");
-      } else{
-        Dialogs.showDialogCreatePL(context, "Failed",
-            "Something went wrong! Try again later!","Return to "+usedByWidget);
+        Dialogs.showDialogCreatePL(
+            context,
+            "Success",
+            usedByView +
+                "Creation was Successful Return to your $usedByView!",
+            "Return to $usedByView");
+      } else {
+        Dialogs.showDialogCreatePL(
+            context,
+            "Failed",
+            "Something went wrong! Try again later!",
+            "Return to " + usedByView);
       }
       //Navigator.pushReplacementNamed(context, "/home");
     } catch (error) {
@@ -339,13 +311,13 @@ class NewItemList extends StatelessWidget {
     }
   }
 
-  Future<bool> createShoppingList(name) async{
-    String collectionName="shopping_lists";
-    String fieldname = "ShoppingIDs";
+  Future<bool> createItemList(name) async {
+    String collectionName = "shopping_lists";
+    String fieldName = "ShoppingIDs";
     String primaryField = 'PSID';
-    if(usedByWidget == "Pantry"){
+    if (usedByView == "Pantry") {
       collectionName = "pantries";
-      fieldname = "PantryIDs";
+      fieldName = "PantryIDs";
       primaryField = 'PPID';
     }
     try {
@@ -355,13 +327,12 @@ class NewItemList extends StatelessWidget {
       }).then((value) {
         if (makePrimary) {
           FirebaseFirestore.instance.collection("users").doc(user.uid).update({
-            primaryField: FieldValue.arrayUnion([value]),
-            fieldname: FieldValue.arrayUnion([value]),
+            primaryField: value,
+            fieldName: FieldValue.arrayUnion([value]),
           });
-        }
-        else {
+        } else {
           FirebaseFirestore.instance.collection("users").doc(user.uid).update({
-            fieldname: FieldValue.arrayUnion([value]),
+            fieldName: FieldValue.arrayUnion([value]),
           });
         }
       });
@@ -370,5 +341,174 @@ class NewItemList extends StatelessWidget {
     }
     return true;
   }
+}
 
+/// Edit a Pantry/Shopping list
+/// [user] - The current user
+/// [itemList] - Document Reference to either the current Pantry/Shopping list
+/// [usedByView] - Name of the view using this widget
+/// [name] - The original Pantry/Shopping list name
+class Edit extends StatefulWidget {
+  final PantreeUser user;
+  final DocumentReference itemList;
+  final String usedByView; // Will be either "Shopping list" or "Pantry"
+  final String name;
+  const Edit({Key key, this.user, this.itemList, this.name, this.usedByView})
+      : super(key: key);
+
+  @override
+  _EditState createState() => _EditState();
+}
+
+class _EditState extends State<Edit> {
+  TextEditingController _pantryNameTextController;
+  final GlobalKey<FormState> _form = GlobalKey<FormState>();
+  final _focusNode = FocusNode();
+  String newName = "";
+  bool makePrimary;
+
+  @override
+  void dispose() {
+    _pantryNameTextController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _pantryNameTextController = TextEditingController(text: widget.name);
+    _focusNode.addListener(() {
+      if (_focusNode.hasFocus) {
+        _pantryNameTextController.selection = TextSelection(
+            baseOffset: 0, extentOffset: _pantryNameTextController.text.length);
+      }
+    });
+    newName = widget.name;
+    if (widget.usedByView == "Pantry") {
+      if (widget.user.PPID[0] == widget.itemList) {
+        makePrimary = true;
+      } else {
+        makePrimary = false;
+      }
+    } else {
+      // other case is for usedByView == "Shopping List"
+      if (widget.user.PSID[0] == widget.itemList) {
+        makePrimary = true;
+      } else {
+        makePrimary = false;
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Edit Pantry"),
+      ),
+      body: Form(
+          key: _form,
+          child: Column(children: <Widget>[
+            SizedBox(height: 10),
+            TextFormField(
+                controller: _pantryNameTextController,
+                focusNode: _focusNode,
+                validator: (value) {
+                  if (value.isEmpty || value == null) {
+                    return 'Please enter a name for your pantry';
+                  } else if (!RegExp(r"^[a-zA-Z\s\']+$").hasMatch(value)) {
+                    return "Name can only contain letters";
+                  }
+                  return null;
+                },
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(18),
+                ],
+                decoration: InputDecoration(
+                  labelText: "New Pantry Name",
+                  border: OutlineInputBorder(),
+                )),
+            SizedBox(height: 10),
+            CheckboxListTile(
+              title: Text("Make Primary Pantry"),
+              checkColor: Colors.white,
+              selectedTileColor: Color.fromRGBO(255, 190, 50, 1.0),
+              value: makePrimary,
+              onChanged: (bool value) {
+                setState(() {
+                  makePrimary = value;
+                });
+              },
+            ),
+            SizedBox(height: 10),
+            TextButton(
+              style: TextButton.styleFrom(backgroundColor: Colors.blue),
+              onPressed: () {
+                String title = "Failed!";
+                String message = "Pantry edit failed, please try again.";
+                if (_form.currentState.validate()) {
+                  if (editPantry(_pantryNameTextController.text, makePrimary)) {
+                    title = "Success!";
+                    message =
+                    "Pantry edit was successful. Press OK to return to your pantry!";
+                  }
+                }
+                showAlertDialog(context, title, message);
+              },
+              child: Text(
+                'Save Changes',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ])),
+    );
+  }
+
+  bool editPantry(String name, bool makePrimary) {
+    String primaryField = 'PSID';
+    if (widget.usedByView == "Pantry") {
+      primaryField = 'PPID';
+    }
+    try {
+      if (name != widget.name) {
+        newName = name;
+        widget.itemList.update({
+          "Name": name,
+        }).catchError((error) => print("Failed to update Pantry/Shopping list name: $error"));
+      }
+
+      if (makePrimary) {
+        FirebaseFirestore.instance.collection("users").doc(widget.user.uid).update({
+          primaryField: widget.itemList,
+        }).catchError(
+                (error) => print("Failed to update default Pantry/Shopping list: $error"));
+      }
+    } catch (e) {
+      print(e);
+      return false;
+    }
+    return true;
+  }
+
+  showAlertDialog(BuildContext context, String t, String m) async {
+    // set up the button
+    Widget okButton = TextButton(
+      child: Text("OK"),
+      onPressed: () {
+        Navigator.of(context, rootNavigator: true).pop();
+        Navigator.of(context).pop(newName);
+      },
+    );
+
+    AlertDialog alert =
+    AlertDialog(title: Text(t), content: Text(m), actions: [okButton]);
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
 }

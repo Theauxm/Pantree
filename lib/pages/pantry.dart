@@ -1,38 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
+import 'package:pantree/models/modules.dart';
 import 'package:pantree/models/custom_fab.dart';
 import 'package:pantree/models/drawer.dart';
-import 'package:pantree/models/modules.dart';
-import 'package:pantree/models/new_pantry_item.dart';
 import '../pantreeUser.dart';
-import '../models/drawer.dart';
-import '../models/newPantry.dart';
-import '../models/edit_pantry.dart';
-
-extension StringExtension on String {
-  String get inCaps =>
-      this.length > 0 ? '${this[0].toUpperCase()}${this.substring(1)}' : '';
-  String get allInCaps => this.toUpperCase();
-  String get capitalizeFirstOfEach => this
-      .replaceAll(RegExp(' +'), ' ')
-      .split(" ")
-      .map((str) => str.inCaps)
-      .join(" ");
-  String get capitalizeFirstLetter => (this?.isNotEmpty ?? false)
-      ? '${this[0].toUpperCase()}${this.substring(1)}'
-      : this;
-  String capitalize() {
-    if (this == null || this == "") {
-      return "";
-    }
-    return "${this[0].toUpperCase()}${this.substring(1)}";
-  }
-}
 
 class Pantry extends StatefulWidget {
   final PantreeUser user;
-  Pantry({this.user});
+  const Pantry ({Key key, this.user}) : super(key: key);
+  //Pantry({this.user});
 
   @override
   _PantryState createState() => _PantryState(user: user);
@@ -47,7 +23,6 @@ class _PantryState extends State<Pantry> {
   String _selectedPantryName; // private
   Map<String, DocumentReference>
       _pantryMap; // private NOTE: bad design - it will fuck with users collaborating on multiple pantries with the same name
-  // DocumentSnapshot cache;
   bool loading = true;
 
   @override
@@ -55,16 +30,13 @@ class _PantryState extends State<Pantry> {
     super.initState(); // start initState() with this
     getData().then((val) => {setPantry()});
     setListener();
-    //pantryMain();
   }
 
   Future<dynamic> getData() async {
     DocumentReference tempPantry;
     String tempName;
 
-    //await user.updateData(); // important: refreshes the user's data
     _pantryMap = Map<String, DocumentReference>(); // instantiate the map
-
     for (DocumentReference ref in user.pantries) {
       // go through each doc ref and add to list of pantry names + map
       String pantryName = "";
@@ -114,30 +86,27 @@ class _PantryState extends State<Pantry> {
     }
   }
 
-
-
   void createPantry(bool makePrimary) {
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => (NewItemList(
               user: user,
-              usedByWidget: "Pantry",
+              usedByView: "Pantry",
               makePrimary: makePrimary,
             ))));
   }
 
-  Future<void> editPantry(String name) async {
+  Future<void> editPantry() async {
     var result = await Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => (EditPantry(
+            builder: (context) => (Edit(
                   user: user,
-                  pantry: _selectedPantry,
-                  name: name,
-                  makePrimary: false,
+                  itemList: _selectedPantry,
+                  name: _selectedPantryName,
                 ))));
-    if(mounted) {
+    if(mounted && result != _selectedPantryName) {
       setState(() {
         DocumentReference tempRef = _pantryMap[_selectedPantryName];
         _pantryMap.remove(_selectedPantryName);
@@ -156,13 +125,9 @@ class _PantryState extends State<Pantry> {
     if (loading) {
       return Center(child: CircularProgressIndicator());
     }
-
     if (_selectedPantry == null) {
       // handle user with no pantries case - send to create a pantry screen
       return createLandingPage();
-    }
-    if (_selectedPantry == null) {
-      return Center(child: CircularProgressIndicator());
     }
 
     // User pantry dropdown selector
@@ -251,7 +216,7 @@ class _PantryState extends State<Pantry> {
                 break;
               case 'Edit selected pantry':
                 {
-                  editPantry(_selectedPantryName);
+                  editPantry();
                 }
                 break;
             }
@@ -300,7 +265,7 @@ class _PantryState extends State<Pantry> {
                     context,
                     MaterialPageRoute(
                         builder: (context) =>
-                            NewFoodItem(itemList: _selectedPantry,usedByWidget: "Pantry",)))
+                            NewFoodItem(itemList: _selectedPantry,usedByView: "Pantry",)))
               }),
         ));
   }
