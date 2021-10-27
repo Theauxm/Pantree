@@ -106,6 +106,9 @@ class _socialState extends State<social_feed> {
 
   @override
   Widget build(BuildContext context) {
+    if(user.name == null){
+      return Center(child: CircularProgressIndicator());
+    }
 
     return Scaffold(
         drawer: PantreeDrawer(user: this.user),

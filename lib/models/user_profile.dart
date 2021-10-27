@@ -42,18 +42,19 @@ class _profileState extends State<user_profile> {
   Future<void> getData() async {
     var profile = await profileRef.get();
     username = profile.data()['Username'];
-    posts = profile.data()['postIDs'];
+    posts = profile.data()['PostIDs'];
     friends = profile.data()['Friends'];
 
 
-    images = Map<String, DocumentReference>(); // instantiate the map
+    images; // instantiate the map
 
     for (DocumentReference ref in posts) {
       String imageLink = "";
       await ref.get().then((DocumentSnapshot snapshot) {
         imageLink = snapshot.data()['image']; // get the image link as a string
       });
-      images.add(imageLink);
+      //images.add(imageLink);
+      //images[imageLink] = ref;
     }
 
     setState(() {
@@ -68,6 +69,9 @@ class _profileState extends State<user_profile> {
 
   @override
   Widget build(BuildContext context) {
+    if(username == null){
+      return Center(child: CircularProgressIndicator());
+    }
     return Scaffold(
         //drawer: PantreeDrawer(
         //user: this.user
@@ -75,7 +79,7 @@ class _profileState extends State<user_profile> {
     appBar: AppBar(
     backgroundColor: Colors.lightGreen,
 
-    title: Text('hey')),
+    title: Text(username)),
 
     body:Container(
 
@@ -181,7 +185,7 @@ class _profileState extends State<user_profile> {
     padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
 
     itemBuilder: (context, index){
-    return ImageTile(postRef : images[index]);
+    return ImageTile(postRef : posts[index]);
     },
     )
     )
