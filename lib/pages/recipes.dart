@@ -370,7 +370,7 @@ class SearchResultsListView extends StatelessWidget {
                                                 right: 5.0,
                                                 left: 5.0,
                                                 bottom: 5.0),
-                                            child: Text(recipe["Credit"],
+                                            child: Text(recipe["Credit"].toString(),
                                                 style: TextStyle(
                                                   fontSize: 18.0,
                                                   color: Colors.white,

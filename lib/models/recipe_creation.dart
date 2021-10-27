@@ -4,19 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../pantreeUser.dart';
 
 // Used from https://www.technicalfeeder.com/2021/09/flutter-add-textfield-dynamically/
-class RecipeCreator extends StatelessWidget {
+class RecipeCreator extends StatefulWidget {
   PantreeUser user;
   RecipeCreator({this.user});
-
-  @override
-  Widget build(BuildContext context) {
-    return InputForm(user: this.user);
-  }
-}
-
-class InputForm extends StatefulWidget {
-  PantreeUser user;
-  InputForm({this.user});
 
   @override
   State<StatefulWidget> createState() {
@@ -24,16 +14,17 @@ class InputForm extends StatefulWidget {
   }
 }
 
-class _InputForm extends State<InputForm> {
+class _InputForm extends State<RecipeCreator> {
   PantreeUser user;
   _InputForm({this.user});
+  final List<String> units = ['Cups', 'Oz.', 'Tsp.', 'Tbsp.', 'Unit'];
 
   List<TextEditingController> _ingredientControllers = [];
   List<TextFormField> _ingredientFields = [];
-  List<TextFormField> _ingredientAmountFields = [];
-  List<TextFormField> _unitFields = [];
+  List<Form> _ingredientAmountFields = [];
+  List<Container> _unitFields = [];
   List<TextEditingController> _ingredientAmountControllers = [];
-  List<TextEditingController> _unitControllers = [];
+  List<String> _selectedUnits = [];
 
   List<TextEditingController> _directionControllers = [];
   List<TextFormField> _directionFields = [];
@@ -42,7 +33,7 @@ class _InputForm extends State<InputForm> {
   TextFormField recipeField;
 
   TextEditingController totalTimeController = TextEditingController();
-  TextFormField totalTimeField;
+  Form totalTimeField;
 
   final firestoreInstance = FirebaseFirestore.instance;
 
@@ -139,13 +130,27 @@ class _InputForm extends State<InputForm> {
     }
 
     if (totalTimeField == null) {
-      totalTimeField = TextFormField(
+      final GlobalKey<FormState> _form = GlobalKey<FormState>();
+      totalTimeField = Form(key: _form, child: TextFormField(
+        validator: (value) {
+          if (value.isEmpty || value == null) {
+            return "Please enter a quantity";
+          } else if (value == "0") {
+            return "Cannot be 0";
+          } else if (!RegExp(r"^[0-9]*$").hasMatch(value)) {
+            return "Must be a number";
+          }
+          return null;
+        },
+        onChanged: (String newVal) {
+          _form.currentState.validate();
+        },
         controller: totalTimeController,
         decoration: InputDecoration(
             border: OutlineInputBorder(),
             labelText: "Total time to cook (minutes)",
         ),
-      );
+      ));
     }
 
     return Column(children: [
@@ -193,7 +198,56 @@ class _InputForm extends State<InputForm> {
     super.dispose();
   }
 
+  Widget _createDropdownMenu(String _selectedUnit) {
+    return Container(
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(
+              color: Color.fromRGBO(255, 190, 50, 1.0),
+              width: 1,
+              style: BorderStyle.solid)),
+      child: DropdownButton<String>(
+          isDense: false,
+          itemHeight: 58.0,
+          value: _selectedUnit,
+          style: TextStyle(color: Colors.white),
+          icon: Icon(Icons.arrow_drop_down,
+              color: Colors.black),
+          items: units.map<DropdownMenuItem<String>>((val) {
+            return DropdownMenuItem<String>(
+              value: val,
+              child: Text(val),
+            );
+          }).toList(),
+          onChanged: (String newVal) {
+            setState(() {
+              _selectedUnit = newVal;
+            });
+          },
+          hint: Text("Select unit"),
+          underline:
+          DropdownButtonHideUnderline(child: Container()),
+          elevation: 0,
+          dropdownColor: Color.fromRGBO(255, 190, 50, 1.0),
+          selectedItemBuilder: (BuildContext context) {
+            return units.map((String val) {
+              return Container(
+                  alignment: Alignment.centerRight,
+                  width: 50,
+                  child: Text(
+                    _selectedUnit,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: Colors.black54,
+                        fontSize: 16.0),
+                  ));
+            }).toList();
+          }),
+    );
+  }
+
   Widget _addTile(String text) {
+    String _selectedUnit = units[0];
     return ListTile(
       title: Center(
           child: Container(
@@ -207,7 +261,8 @@ class _InputForm extends State<InputForm> {
                     child: Text("Add " + text,
                         style: TextStyle(fontSize: 20, color: Colors.white)),
                   )))),
-      onTap: () async {
+      onTap: () {
+        final GlobalKey<FormState> _form = GlobalKey<FormState>();
         final controller = TextEditingController();
         final field = TextFormField(
           controller: controller,
@@ -217,30 +272,81 @@ class _InputForm extends State<InputForm> {
           ),
         );
 
-        TextFormField amountField;
+        Form amountField;
         TextEditingController amountController;
-        TextFormField unitField;
-        TextEditingController unitController;
+        Container unitField;
         if (text == "Ingredient") {
           amountController = TextEditingController();
-          unitController = TextEditingController();
-          unitField = TextFormField(
-            controller: unitController,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              label: Text("Unit: teaspoon, can, etc.",
-                style: TextStyle(fontSize: 15),
-              )
+          unitField = Container(
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(
+                    color: Colors.red[400],
+                    width: 1,
+                    style: BorderStyle.solid)),
+            child: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return DropdownButton<String>(
+                    isDense: false,
+                    itemHeight: 58.0,
+                    value: _selectedUnit,
+                    style: TextStyle(color: Colors.white),
+                    icon: Icon(Icons.arrow_drop_down,
+                        color: Colors.black),
+                    items: units.map<DropdownMenuItem<String>>((val) {
+                      return DropdownMenuItem<String>(
+                        value: val,
+                        child: Text(val),
+                      );
+                    }).toList(),
+                    onChanged: (String newVal) {
+                      setState(() {
+                        _selectedUnit = newVal;
+                      });
+                    },
+                    hint: Text("Select unit"),
+                    underline: DropdownButtonHideUnderline(child: Container()),
+                    elevation: 0,
+                    dropdownColor: Colors.red[400],
+                    selectedItemBuilder: (BuildContext context) {
+                      return units.map((String val) {
+                        return Container(
+                            alignment: Alignment.centerRight,
+                            width: 50,
+                            child: Text(
+                              _selectedUnit,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  color: Colors.black54,
+                                  fontSize: 16.0),
+                            ));
+                      }).toList();
+                    });
+              }
             )
           );
-          amountField = TextFormField(
+          amountField = Form(key: _form, child: TextFormField(
+              validator: (value) {
+                if (value.isEmpty || value == null) {
+                  return "Please enter a quantity";
+                } else if (value == "0") {
+                  return "Cannot be 0";
+                } else if (!RegExp(r"^[0-9]*$").hasMatch(value)) {
+                  return "Must be a number";
+                }
+                return null;
+              },
+              onChanged: (String newVal) {
+              _form.currentState.validate();
+              },
             controller: amountController,
             decoration: InputDecoration(
               border: OutlineInputBorder(),
-              label: Text("Amount: Must be a number",
+              label: Text("Amount",
                 style: TextStyle(fontSize: 15),
               )
             )
+          )
           );
         }
 
@@ -254,7 +360,7 @@ class _InputForm extends State<InputForm> {
             _ingredientAmountFields.add(amountField);
             _unitFields.add(unitField);
             _ingredientAmountControllers.add(amountController);
-            _unitControllers.add(unitController);
+            _selectedUnits.add(_selectedUnit);
           }
         });
       },
@@ -282,14 +388,14 @@ class _InputForm extends State<InputForm> {
                     child: Row(
                       children: [
                         Container(
-                          width: MediaQuery.of(context).size.width * 0.4,
-                          child: _unitFields[index]
+                            width: MediaQuery.of(context).size.width * 0.4,
+                            child: _ingredientAmountFields[index]
                         ),
                         SizedBox(width: MediaQuery.of(context).size.width * 0.04),
                         Container(
                             width: MediaQuery.of(context).size.width * 0.4,
-                            child: _ingredientAmountFields[index]
-                        )
+                            child: _unitFields[index]
+                        ),
                       ]
                     )
                 )
@@ -336,7 +442,7 @@ class _InputForm extends State<InputForm> {
       if (ingred.text == "") {
         continue;
       }
-      TextEditingController unit = _unitControllers[i];
+      String unit = _selectedUnits[i];
       TextEditingController amount = _ingredientAmountControllers[i];
 
       Set<String> ingredKeywords = getKeywords(ingred.text.toLowerCase());
@@ -359,7 +465,7 @@ class _InputForm extends State<InputForm> {
       });
 
       ingredientCollection
-          .add({'Item': firestoreInstance.collection('food').doc(ingredInstance.id), 'Quantity': double.tryParse(amount.text), 'Unit': unit.text});
+          .add({'Item': firestoreInstance.collection('food').doc(ingredInstance.id), 'Quantity': double.tryParse(amount.text), 'Unit': unit});
     }
 
     List<String> directions = [];
