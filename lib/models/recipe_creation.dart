@@ -21,7 +21,7 @@ class _InputForm extends State<RecipeCreator> {
 
   List<TextEditingController> _ingredientControllers = [];
   List<TextFormField> _ingredientFields = [];
-  List<TextFormField> _ingredientAmountFields = [];
+  List<Form> _ingredientAmountFields = [];
   List<Container> _unitFields = [];
   List<TextEditingController> _ingredientAmountControllers = [];
   List<String> _selectedUnits = [];
@@ -33,7 +33,7 @@ class _InputForm extends State<RecipeCreator> {
   TextFormField recipeField;
 
   TextEditingController totalTimeController = TextEditingController();
-  TextFormField totalTimeField;
+  Form totalTimeField;
 
   final firestoreInstance = FirebaseFirestore.instance;
 
@@ -130,13 +130,27 @@ class _InputForm extends State<RecipeCreator> {
     }
 
     if (totalTimeField == null) {
-      totalTimeField = TextFormField(
+      final GlobalKey<FormState> _form = GlobalKey<FormState>();
+      totalTimeField = Form(key: _form, child: TextFormField(
+        validator: (value) {
+          if (value.isEmpty || value == null) {
+            return "Please enter a quantity";
+          } else if (value == "0") {
+            return "Cannot be 0";
+          } else if (!RegExp(r"^[0-9]*$").hasMatch(value)) {
+            return "Must be a number";
+          }
+          return null;
+        },
+        onChanged: (String newVal) {
+          _form.currentState.validate();
+        },
         controller: totalTimeController,
         decoration: InputDecoration(
             border: OutlineInputBorder(),
             labelText: "Total time to cook (minutes)",
         ),
-      );
+      ));
     }
 
     return Column(children: [
@@ -233,7 +247,7 @@ class _InputForm extends State<RecipeCreator> {
   }
 
   Widget _addTile(String text) {
-    String _selectedUnit = "Unit";
+    String _selectedUnit = units[0];
     return ListTile(
       title: Center(
           child: Container(
@@ -248,6 +262,7 @@ class _InputForm extends State<RecipeCreator> {
                         style: TextStyle(fontSize: 20, color: Colors.white)),
                   )))),
       onTap: () {
+        final GlobalKey<FormState> _form = GlobalKey<FormState>();
         final controller = TextEditingController();
         final field = TextFormField(
           controller: controller,
@@ -257,7 +272,7 @@ class _InputForm extends State<RecipeCreator> {
           ),
         );
 
-        TextFormField amountField;
+        Form amountField;
         TextEditingController amountController;
         Container unitField;
         if (text == "Ingredient") {
@@ -266,55 +281,72 @@ class _InputForm extends State<RecipeCreator> {
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(4),
                 border: Border.all(
-                    color: Color.fromRGBO(255, 190, 50, 1.0),
+                    color: Colors.red[400],
                     width: 1,
                     style: BorderStyle.solid)),
-            child: DropdownButton<String>(
-                isDense: false,
-                itemHeight: 58.0,
-                value: _selectedUnit,
-                style: TextStyle(color: Colors.white),
-                icon: Icon(Icons.arrow_drop_down,
-                    color: Colors.black),
-                items: units.map<DropdownMenuItem<String>>((val) {
-                  return DropdownMenuItem<String>(
-                    value: val,
-                    child: Text(val),
-                  );
-                }).toList(),
-                onChanged: (String newVal) {
-                  setState(() {
-                    _selectedUnit = newVal;
-                  });
-                },
-                hint: Text("Select unit"),
-                underline:
-                DropdownButtonHideUnderline(child: Container()),
-                elevation: 0,
-                dropdownColor: Color.fromRGBO(255, 190, 50, 1.0),
-                selectedItemBuilder: (BuildContext context) {
-                  return units.map((String val) {
-                    return Container(
-                        alignment: Alignment.centerRight,
-                        width: 50,
-                        child: Text(
-                          _selectedUnit,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              color: Colors.black54,
-                              fontSize: 16.0),
-                        ));
-                  }).toList();
-                }),
+            child: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return DropdownButton<String>(
+                    isDense: false,
+                    itemHeight: 58.0,
+                    value: _selectedUnit,
+                    style: TextStyle(color: Colors.white),
+                    icon: Icon(Icons.arrow_drop_down,
+                        color: Colors.black),
+                    items: units.map<DropdownMenuItem<String>>((val) {
+                      return DropdownMenuItem<String>(
+                        value: val,
+                        child: Text(val),
+                      );
+                    }).toList(),
+                    onChanged: (String newVal) {
+                      setState(() {
+                        _selectedUnit = newVal;
+                      });
+                    },
+                    hint: Text("Select unit"),
+                    underline: DropdownButtonHideUnderline(child: Container()),
+                    elevation: 0,
+                    dropdownColor: Colors.red[400],
+                    selectedItemBuilder: (BuildContext context) {
+                      return units.map((String val) {
+                        return Container(
+                            alignment: Alignment.centerRight,
+                            width: 50,
+                            child: Text(
+                              _selectedUnit,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  color: Colors.black54,
+                                  fontSize: 16.0),
+                            ));
+                      }).toList();
+                    });
+              }
+            )
           );
-          amountField = TextFormField(
+          amountField = Form(key: _form, child: TextFormField(
+              validator: (value) {
+                if (value.isEmpty || value == null) {
+                  return "Please enter a quantity";
+                } else if (value == "0") {
+                  return "Cannot be 0";
+                } else if (!RegExp(r"^[0-9]*$").hasMatch(value)) {
+                  return "Must be a number";
+                }
+                return null;
+              },
+              onChanged: (String newVal) {
+              _form.currentState.validate();
+              },
             controller: amountController,
             decoration: InputDecoration(
               border: OutlineInputBorder(),
-              label: Text("Amount: Must be a number",
+              label: Text("Amount",
                 style: TextStyle(fontSize: 15),
               )
             )
+          )
           );
         }
 
