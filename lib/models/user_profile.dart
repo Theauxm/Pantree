@@ -17,7 +17,7 @@ class user_profile extends StatefulWidget {
   String status;
 
 
-  user_profile({this.profileRef, this.status}); //receive the document snapshot here
+  user_profile({Key key, this.profileRef, this.status}) : super(key: key); //receive the document snapshot here
 
   @override
   _profileState createState() => _profileState(profileRef: profileRef);
@@ -118,8 +118,8 @@ class _profileState extends State<user_profile> {
     ),
     Column(
     children:[
-    Text('1000'), //place holder for number
-    Text('Likes')
+    Text(widget.status.toString()), //place holder for number
+    Text('Friend Status')
     ]
     )
     ],
