@@ -8,7 +8,6 @@ import '../models/exportList.dart';
 class ShoppingList extends StatefulWidget {
   final PantreeUser user;
   const ShoppingList({Key key, this.user}) : super(key: key);
-  // ShoppingList({this.user});
 
   @override
   _ListState createState() => _ListState(user: user);
@@ -23,7 +22,8 @@ class _ListState extends State<ShoppingList> {
   String _selectedListName; // private
   int listsLength;
   Map<String, DocumentReference>
-      _listMap; // private NOTE: bad design - it will fuck with users collaborating on multiple pantries with the same name
+      _listMap; // private NOTE: bad design - it will fuck with users collaborating on multiple lists with the same name
+  bool loading = true;
 
   @override
   void initState() {
@@ -41,7 +41,11 @@ class _ListState extends State<ShoppingList> {
       // go through each doc ref and add to list of list names + map
       String listName = "";
       await ref.get().then((DocumentSnapshot snapshot) {
-        listName = snapshot.data()['Name']; // get the list name as a string
+        if (ref == user.PPID) {
+          listName = snapshot.data()['Name'] + "*";
+        } else {
+          listName = snapshot.data()['Name']; // get the list name as a string
+        }
       });
       tempPantry = ref; // this will have to do for now
       tempName = listName;
@@ -50,25 +54,50 @@ class _ListState extends State<ShoppingList> {
 
     // make sure widget hasn't been disposed before rebuild
     if (mounted) {
-      setState(() { // setState() forces a call to build()
+      setState(() {
+        // setState() forces a call to build()
+        loading = false;
         _selectedList = tempPantry;
         _selectedListName = tempName;
       });
     }
   }
 
-  //Listener for when a user changes! Re-Reads all the pantry Data!
+  // Listener for when a user adds a list
   setListener() {
     FirebaseFirestore.instance
         .collection("users")
         .doc(user.uid)
         .snapshots()
-        .listen((DocumentSnapshot event) {
+        .listen((event) {
       if (event.data()['ShoppingIDs'].length != user.shoppingLists.length) {
         user.shoppingLists = event.data()['ShoppingIDs'];
         getData();
       }
     });
+  }
+
+  showError(BuildContext context) {
+    Widget okButton = TextButton(
+      style: TextButton.styleFrom(primary: Colors.lightBlue),
+      child: Text("Ok"),
+      onPressed: () {
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("No Pantries"),
+          content: Text("You don't have any pantries to export to!"),
+          actions: [
+            okButton,
+          ],
+        );
+      },
+    );
   }
 
   void exportList() {
@@ -85,14 +114,14 @@ class _ListState extends State<ShoppingList> {
     }
   }
 
-  void createNewList() {
+  void createNewList(bool makePrimary) {
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => (NewItemList(
                   user: user,
                   usedByView: "Shopping List",
-                  makePrimary: true,
+                  makePrimary: makePrimary,
                 ))));
   }
 
@@ -101,12 +130,12 @@ class _ListState extends State<ShoppingList> {
         context,
         MaterialPageRoute(
             builder: (context) => (Edit(
-              user: user,
-              itemList: _selectedList,
-              name: _selectedListName,
-              usedByView: "Shopping List",
-            ))));
-    if(mounted && result != _selectedListName) {
+                  user: user,
+                  itemList: _selectedList,
+                  name: _selectedListName,
+                  usedByView: "Shopping List",
+                ))));
+    if (mounted && result != _selectedListName && result is String) {
       setState(() {
         DocumentReference tempRef = _listMap[_selectedListName];
         _listMap.remove(_selectedListName);
@@ -118,17 +147,21 @@ class _ListState extends State<ShoppingList> {
 
   @override
   Widget build(BuildContext context) {
-    if (user.shoppingLists.length == 0) {
-      return createLandingPage(user,"Shopping List", context);
+    return listMain();
+  }
+
+  Widget listMain() {
+    if (loading) {
+      return Center(child: CircularProgressIndicator());
     }
     if (_selectedList == null) {
-      return Center(child: CircularProgressIndicator());
+      // handle user with no lists case - send to create a list screen
+      return createLandingPage(user, "Shopping List", context);
     }
 
     // User pantry dropdown selector that listens for changes in users
     final makeDropDown = Container(
         padding: EdgeInsets.only(left: 17.0),
-        child: DropdownButtonHideUnderline(
           child: DropdownButton<String>(
             value: _selectedListName,
             style: TextStyle(
@@ -152,9 +185,10 @@ class _ListState extends State<ShoppingList> {
             },
             hint: Text("Select List"),
             elevation: 0,
+            underline: DropdownButtonHideUnderline(child: Container()),
             dropdownColor: Colors.lightBlue,
           ),
-        ));
+        );
 
     final makeAppBar = AppBar(
       title: makeDropDown,
@@ -171,7 +205,7 @@ class _ListState extends State<ShoppingList> {
             switch (selected) {
               case 'Create a new list':
                 {
-                  createNewList();
+                  createNewList(false);
                 }
                 break;
               case 'Edit selected list':
@@ -199,7 +233,8 @@ class _ListState extends State<ShoppingList> {
       StreamBuilder(
           stream: _selectedList.collection('ingredients').snapshots(),
           builder: (context, snapshot) {
-            if (!snapshot.hasData) return const Text('Loading....');
+            if (!snapshot.hasData || snapshot.data == null)
+              return Center(child: CircularProgressIndicator());
             return Expanded(
                 child: ListView(
                     children: snapshot.data.docs.map<Widget>((doc) {
@@ -211,7 +246,7 @@ class _ListState extends State<ShoppingList> {
     return Scaffold(
         appBar: makeAppBar,
         body: makeBody,
-        drawer: PantreeDrawer(user: this.user),
+        drawer: PantreeDrawer(user: user),
         floatingActionButton: Column(
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.end,
@@ -232,36 +267,11 @@ class _ListState extends State<ShoppingList> {
                       context,
                       MaterialPageRoute(
                           builder: (context) => NewFoodItem(
-                            itemList: _selectedList,
-                            usedByView: "Shopping List",
-                          )));
+                                itemList: _selectedList,
+                                usedByView: "Shopping List",
+                              )));
                 },
               ),
             ]));
-  }
-
-
-
-  showError(BuildContext context) {
-    Widget okButton = TextButton(
-      style: TextButton.styleFrom(primary: Colors.lightBlue),
-      child: Text("Ok"),
-      onPressed: () {
-        Navigator.of(context, rootNavigator: true).pop();
-      },
-    );
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("No Pantries"),
-          content: Text("You don't have any pantries to export to!"),
-          actions: [
-            okButton,
-          ],
-        );
-      },
-    );
   }
 }
