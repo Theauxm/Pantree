@@ -276,7 +276,7 @@ class NewItemList extends StatelessWidget {
                       LengthLimitingTextInputFormatter(18),
                     ],
                     decoration: InputDecoration(
-                      labelText: usedByView + " Name",
+                      labelText: usedByView + " Name (e.g., Theaux's $usedByView)",
                       border: OutlineInputBorder(),
                     )),
                 SizedBox(height: 10),
@@ -353,6 +353,7 @@ class NewItemList extends StatelessWidget {
 }
 
 var globalContext;
+
 /// Edit a Pantry/Shopping list
 /// [user] - The current user
 /// [itemList] - Document Reference to either the current Pantry/Shopping list
@@ -386,14 +387,16 @@ class _EditState extends State<Edit> {
   @override
   void initState() {
     super.initState();
-    _pantryNameTextController = TextEditingController(text: widget.name);
+    newName = widget.name;
+    if (newName.endsWith("*"))
+      newName = newName.substring(0, newName.length - 1);
+    _pantryNameTextController = TextEditingController(text: newName);
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
         _pantryNameTextController.selection = TextSelection(
             baseOffset: 0, extentOffset: _pantryNameTextController.text.length);
       }
     });
-    newName = widget.name;
     if (widget.usedByView == "Pantry") {
       if (widget.user.PPID == widget.itemList) {
         makePrimary = true;
@@ -415,16 +418,19 @@ class _EditState extends State<Edit> {
           context: context,
           builder: (context) => new AlertDialog(
             title: new Text('Discard Changes?'),
-            content: new Text('Changes to your ${widget.usedByView.toLowerCase()} will not be saved.'),
+            content: new Text(
+                'Changes to your ${widget.usedByView.toLowerCase()} will not be saved.'),
             actions: <Widget>[
               TextButton(
-                onPressed: () => Navigator.of(context, rootNavigator: true).pop(false),
+                onPressed: () =>
+                    Navigator.of(context, rootNavigator: true).pop(false),
                 child: new Text('No'),
               ),
               TextButton(
                 onPressed: () {
                   Navigator.of(context, rootNavigator: true).pop();
-                  Navigator.of(globalContext).pop(true);},
+                  Navigator.of(globalContext).pop(true);
+                },
                 child: new Text('Yes'),
               ),
             ],
@@ -563,7 +569,7 @@ class _EditState extends State<Edit> {
   }
 }
 
-///Create teh Landing pages for ShoppingList/Pantry
+///Create the Landing pages for ShoppingList/Pantry
 Widget createLandingPage(user, usedByView, context) {
   return Scaffold(
     appBar: AppBar(title: Text(usedByView + "s")),
