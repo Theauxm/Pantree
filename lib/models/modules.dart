@@ -265,7 +265,7 @@ class NewItemList extends StatelessWidget {
                     controller: _listNameTextController,
                     validator: (value) {
                       if (value.isEmpty || value == null) {
-                        return 'Please enter a name';
+                        return 'Please enter a name for your ${usedByView.toLowerCase()}';
                       } else if (!RegExp(r"^[a-zA-Z0-9\s\']+$")
                           .hasMatch(value)) {
                         return "Name must be alphanumeric";
@@ -276,7 +276,8 @@ class NewItemList extends StatelessWidget {
                       LengthLimitingTextInputFormatter(18),
                     ],
                     decoration: InputDecoration(
-                      labelText: usedByView + " Name (e.g., Theaux's $usedByView)",
+                      labelText:
+                          usedByView + " Name (e.g., Theaux's $usedByView)",
                       border: OutlineInputBorder(),
                     )),
                 SizedBox(height: 10),
@@ -458,9 +459,10 @@ class _EditState extends State<Edit> {
                     validator: (value) {
                       if (value.isEmpty || value == null) {
                         return 'Please enter a name for your ' +
-                            widget.usedByView;
-                      } else if (!RegExp(r"^[a-zA-Z\s\']+$").hasMatch(value)) {
-                        return "Name can only contain letters";
+                            widget.usedByView.toLowerCase();
+                      } else if (!RegExp(r"^[a-zA-Z0-9\s\']+$")
+                          .hasMatch(value)) {
+                        return "Name must be alphanumeric";
                       }
                       return null;
                     },
