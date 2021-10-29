@@ -84,7 +84,7 @@ class _NewFoodItemState extends State<NewFoodItem> {
                         return 'Please enter a name';
                       } else if (!RegExp(r"^[a-zA-Z0-9\s\']+$")
                           .hasMatch(value)) {
-                        return "Name can only contain letters";
+                        return "Name must be alphanumeric";
                       }
                       return null;
                     },
@@ -256,34 +256,43 @@ class NewItemList extends StatelessWidget {
       appBar: AppBar(
         title: Text("Create new " + usedByView),
       ),
-      body: Form(
-          key: _form,
-          child: Column(children: <Widget>[
-            TextFormField(
-                controller: _listNameTextController,
-                validator: (validator) {
-                  if (validator.isEmpty) return 'Empty';
-                  return null;
-                },
-                inputFormatters: [
-                  LengthLimitingTextInputFormatter(18),
-                ],
-                decoration: InputDecoration(
-                  labelText: usedByView + " Name",
-                  border: OutlineInputBorder(),
-                )),
-            SizedBox(height: 10),
-            TextButton(
-              style: TextButton.styleFrom(backgroundColor: Colors.blue),
-              onPressed: () {
-                _handleSubmit(context, _listNameTextController.text);
-              },
-              child: Text(
-                'Create ' + usedByView,
-                style: TextStyle(fontSize: 14, color: Colors.black),
-              ),
-            ),
-          ])),
+      body: Container(
+          margin: EdgeInsets.all(15.0),
+          child: Form(
+              key: _form,
+              child: Column(children: [
+                TextFormField(
+                    controller: _listNameTextController,
+                    validator: (value) {
+                      if (value.isEmpty || value == null) {
+                        return 'Please enter a name';
+                      } else if (!RegExp(r"^[a-zA-Z0-9\s\']+$")
+                          .hasMatch(value)) {
+                        return "Name must be alphanumeric";
+                      }
+                      return null;
+                    },
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(18),
+                    ],
+                    decoration: InputDecoration(
+                      labelText: usedByView + " Name",
+                      border: OutlineInputBorder(),
+                    )),
+                SizedBox(height: 10),
+                TextButton(
+                  style: TextButton.styleFrom(backgroundColor: Colors.blue),
+                  onPressed: () {
+                    if (_form.currentState.validate()) {
+                      _handleSubmit(context, _listNameTextController.text);
+                    }
+                  },
+                  child: Text(
+                    'Create ' + usedByView,
+                    style: TextStyle(fontSize: 14, color: Colors.white),
+                  ),
+                ),
+              ]))),
     );
   }
 
@@ -296,8 +305,7 @@ class NewItemList extends StatelessWidget {
         Dialogs.showDialogCreatePL(
             context,
             "Success",
-            usedByView +
-                "Creation was Successful Return to your $usedByView!",
+            usedByView + "Creation was Successful Return to your $usedByView!",
             "Return to $usedByView");
       } else {
         Dialogs.showDialogCreatePL(
@@ -344,6 +352,7 @@ class NewItemList extends StatelessWidget {
   }
 }
 
+var globalContext;
 /// Edit a Pantry/Shopping list
 /// [user] - The current user
 /// [itemList] - Document Reference to either the current Pantry/Shopping list
@@ -401,71 +410,99 @@ class _EditState extends State<Edit> {
     }
   }
 
+  Future<bool> _onWillPop() async {
+    return (await showDialog(
+          context: context,
+          builder: (context) => new AlertDialog(
+            title: new Text('Discard Changes?'),
+            content: new Text('Changes to your ${widget.usedByView.toLowerCase()} will not be saved.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.of(context, rootNavigator: true).pop(false),
+                child: new Text('No'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop();
+                  Navigator.of(globalContext).pop(true);},
+                child: new Text('Yes'),
+              ),
+            ],
+          ),
+        )) ??
+        false; // return false in case it's null (due to async)
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Edit "+widget.usedByView),
-      ),
-      body: Form(
-          key: _form,
-          child: Column(children: <Widget>[
-            SizedBox(height: 10),
-            TextFormField(
-                controller: _pantryNameTextController,
-                focusNode: _focusNode,
-                validator: (value) {
-                  if (value.isEmpty || value == null) {
-                    return 'Please enter a name for your '+widget.usedByView;
-                  } else if (!RegExp(r"^[a-zA-Z\s\']+$").hasMatch(value)) {
-                    return "Name can only contain letters";
-                  }
-                  return null;
-                },
-                inputFormatters: [
-                  LengthLimitingTextInputFormatter(18),
-                ],
-                decoration: InputDecoration(
-                  labelText: "New ${widget.usedByView} Name",
-                  border: OutlineInputBorder(),
-                )),
-            SizedBox(height: 10),
-            CheckboxListTile(
-              title: Text("Make Primary ${widget.usedByView}"),
-              checkColor: Colors.white,
-              selectedTileColor: Color.fromRGBO(255, 190, 50, 1.0),
-              value: makePrimary,
-              onChanged: (bool value) {
-                setState(() {
-                  makePrimary = value;
-                });
-              },
-            ),
-            SizedBox(height: 10),
-            TextButton(
-              style: TextButton.styleFrom(backgroundColor: Colors.blue),
-              onPressed: () {
-                String title = "Failed!";
-                String message = "${widget.usedByView} edit failed, please try again.";
-                if (_form.currentState.validate()) {
-                  if (editPantry(_pantryNameTextController.text, makePrimary)) {
-                    title = "Success!";
-                    message =
-                    "Your ${widget.usedByView} has been edited. \nPress OK to return to your ${widget.usedByView}!";
-                    showAlertDialog(context, title, message, true);
-                  }
-                  else {
-                    showAlertDialog(context, title, message, false);
-                  }
-                }
-              },
-              child: Text(
-                'Save Changes',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ])),
-    );
+    globalContext = context;
+    return WillPopScope(
+        onWillPop: _onWillPop,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text("Edit " + widget.usedByView),
+          ),
+          body: Form(
+              key: _form,
+              child: Column(children: <Widget>[
+                SizedBox(height: 10),
+                TextFormField(
+                    controller: _pantryNameTextController,
+                    focusNode: _focusNode,
+                    validator: (value) {
+                      if (value.isEmpty || value == null) {
+                        return 'Please enter a name for your ' +
+                            widget.usedByView;
+                      } else if (!RegExp(r"^[a-zA-Z\s\']+$").hasMatch(value)) {
+                        return "Name can only contain letters";
+                      }
+                      return null;
+                    },
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(18),
+                    ],
+                    decoration: InputDecoration(
+                      labelText: "New ${widget.usedByView} Name",
+                      border: OutlineInputBorder(),
+                    )),
+                SizedBox(height: 10),
+                CheckboxListTile(
+                  title: Text("Make Primary ${widget.usedByView}"),
+                  checkColor: Colors.white,
+                  selectedTileColor: Color.fromRGBO(255, 190, 50, 1.0),
+                  value: makePrimary,
+                  onChanged: (bool value) {
+                    setState(() {
+                      makePrimary = value;
+                    });
+                  },
+                ),
+                SizedBox(height: 10),
+                TextButton(
+                  style: TextButton.styleFrom(backgroundColor: Colors.blue),
+                  onPressed: () {
+                    String title = "Failed!";
+                    String message =
+                        "${widget.usedByView} edit failed, please try again.";
+                    if (_form.currentState.validate()) {
+                      if (editPantry(
+                          _pantryNameTextController.text, makePrimary)) {
+                        title = "Success!";
+                        message =
+                            "Your ${widget.usedByView} has been edited. \nPress OK to return to your ${widget.usedByView}!";
+                        showAlertDialog(context, title, message, true);
+                      } else {
+                        showAlertDialog(context, title, message, false);
+                      }
+                    }
+                  },
+                  child: Text(
+                    'Save Changes',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ])),
+        ));
   }
 
   bool editPantry(String name, bool makePrimary) {
@@ -478,14 +515,18 @@ class _EditState extends State<Edit> {
         newName = name;
         widget.itemList.update({
           "Name": name,
-        }).catchError((error) => print("Failed to update Pantry/Shopping list name: $error"));
+        }).catchError((error) =>
+            print("Failed to update Pantry/Shopping list name: $error"));
       }
 
       if (makePrimary) {
-        FirebaseFirestore.instance.collection("users").doc(widget.user.uid).update({
+        FirebaseFirestore.instance
+            .collection("users")
+            .doc(widget.user.uid)
+            .update({
           primaryField: widget.itemList,
-        }).catchError(
-                (error) => print("Failed to update default Pantry/Shopping list: $error"));
+        }).catchError((error) =>
+                print("Failed to update default Pantry/Shopping list: $error"));
       }
     } catch (e) {
       print(e);
@@ -494,7 +535,8 @@ class _EditState extends State<Edit> {
     return true;
   }
 
-  showAlertDialog(BuildContext context, String t, String m, bool success) async {
+  showAlertDialog(
+      BuildContext context, String t, String m, bool success) async {
     // set up the button
     Widget okButton = TextButton(
       child: Text("OK"),
@@ -502,15 +544,14 @@ class _EditState extends State<Edit> {
         if (success) {
           Navigator.of(context, rootNavigator: true).pop();
           Navigator.of(context).pop(newName);
-        }
-        else {
+        } else {
           Navigator.of(context, rootNavigator: true).pop();
         }
       },
     );
 
     AlertDialog alert =
-    AlertDialog(title: Text(t), content: Text(m), actions: [okButton]);
+        AlertDialog(title: Text(t), content: Text(m), actions: [okButton]);
 
     // show the dialog
     showDialog(
@@ -522,10 +563,10 @@ class _EditState extends State<Edit> {
   }
 }
 
-///Create teh Landing pages for Shoppinglist/Pantry
-Widget createLandingPage(user,usedByView,context) {
+///Create teh Landing pages for ShoppingList/Pantry
+Widget createLandingPage(user, usedByView, context) {
   return Scaffold(
-    appBar: AppBar(title: Text(usedByView+"s")),
+    appBar: AppBar(title: Text(usedByView + "s")),
     drawer: PantreeDrawer(user: user),
     body: Container(
       alignment: Alignment.center,
@@ -541,19 +582,18 @@ Widget createLandingPage(user,usedByView,context) {
           ),
           TextButton(
             onPressed: () {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => (NewItemList(
-                user: user,
-                usedByView: usedByView,
-                makePrimary: true,
-              ))));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => (NewItemList(
+                            user: user,
+                            usedByView: usedByView,
+                            makePrimary: true,
+                          ))));
             },
             child: Text('Create $usedByView'),
             style: TextButton.styleFrom(
-                primary: Colors.white,
-                backgroundColor: Colors.lightBlueAccent),
+                primary: Colors.white, backgroundColor: Colors.lightBlueAccent),
           ),
         ],
       ),

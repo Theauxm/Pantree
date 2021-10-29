@@ -111,7 +111,7 @@ class _PantryState extends State<Pantry> {
                   name: _selectedPantryName,
                 usedByView: "Pantry"
                 ))));
-    if(mounted && result != _selectedPantryName) {
+    if(mounted && result != _selectedPantryName && result is String) {
       setState(() {
         DocumentReference tempRef = _pantryMap[_selectedPantryName];
         _pantryMap.remove(_selectedPantryName);
