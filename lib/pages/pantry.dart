@@ -32,6 +32,7 @@ class _PantryState extends State<Pantry> {
   }
 
   Future<dynamic> getData() async {
+    print('GETDATA() CALLED');
     DocumentReference tempPantry;
     String tempName;
 
@@ -56,7 +57,7 @@ class _PantryState extends State<Pantry> {
     if (mounted) {
       setState(() {
         // setState() forces a call to build()
-        loading = false;
+        if (loading) loading = false;
         _selectedPantry = tempPantry;
         _selectedPantryName = tempName;
       });
@@ -70,8 +71,19 @@ class _PantryState extends State<Pantry> {
         .doc(user.uid)
         .snapshots()
         .listen((event) {
+      bool update = false;
       if (event.data()['PantryIDs'].length != user.pantries.length) {
+        print("INSIDE LISTENER --> PANTRIES");
         user.pantries = event.data()['PantryIDs'];
+        update = true;
+      }
+      if (event.data()['PPID'].toString() != user.PPID.toString()) {
+        print("INSIDE LISTENER --> PPID");
+        user.PPID = event.data()['PPID'];
+        //update = true;
+        print("UPDATE: $update");
+      }
+      if (update) {
         getData();
       }
     });
@@ -112,15 +124,133 @@ class _PantryState extends State<Pantry> {
                 itemList: _selectedPantry,
                 name: _selectedPantryName,
                 usedByView: "Pantry"))));
-    if (mounted && result != _selectedPantryName && result is String) {
+    print("RETURNED TO EDITPANTRY()");
+
+    /*String normalizedPantryName = "";
+    if (_selectedPantryName.endsWith("*")) {
+      normalizedPantryName =
+          _selectedPantryName.substring(0, _selectedPantryName.length - 1);
+    } else {
+      normalizedPantryName = _selectedPantryName;
+    }
+    print("RAW PANTRY NAME: $_selectedPantryName");
+    print("NORMALIZED PANTRY NAME: $normalizedPantryName");*/
+    print("RESULT: $result");
+    if (result is List) {
+      updatePantries(result[0], result[1], result[2]);
+    }
+  }
+
+  Future<dynamic> updatePantries(String newName, bool primaryChanged, bool isPrimary) async {
+    print("PANTRY MAP BEFORE CLEAR: $_pantryMap");
+    print("USER PANTRIES BEFORE MAP CLEAR: ${user.pantries}");
+    DocumentReference primaryPantry;
+    String primaryPantryName;
+
+    _pantryMap.clear();
+    for (DocumentReference ref in user.pantries) {
+      // repopulate pantry map
+      String pantryName = "";
+      await ref.get().then((DocumentSnapshot snapshot) {
+        if (ref == user.PPID) {
+          pantryName = snapshot.data()['Name'] + "*";
+          primaryPantry = ref;
+          primaryPantryName = pantryName;
+        } else {
+          pantryName = snapshot.data()['Name'];
+        }
+      });
+      _pantryMap[pantryName] = ref; // map the doc ref to its name
+    }
+    print("REPOPULATED PANTRY MAP: $_pantryMap");
+
+    if (mounted) {
       setState(() {
-        DocumentReference tempRef = _pantryMap[_selectedPantryName];
-        _pantryMap.remove(_selectedPantryName);
-        _pantryMap[result] = tempRef;
-        _selectedPantryName = result;
-        //getData();
+       if (isPrimary) { // covers both primary --> primary and non-primary --> primary cases
+          _selectedPantry = primaryPantry;
+          _selectedPantryName = primaryPantryName;
+        }
+        else if (!isPrimary && primaryChanged) { // primary --> non-primary
+          // quietly stops the user from not having a primary pantry
+          _selectedPantry = _pantryMap[newName + "*"];
+          _selectedPantryName = newName + "*";
+        }
+        else { // non-primary --> non-primary
+          _selectedPantry = _pantryMap[newName];
+          _selectedPantryName = newName;
+        }
       });
     }
+  }
+
+  void removePantry() {
+    showDeleteDialog(context, _selectedPantryName, _selectedPantry);
+  }
+
+  Future<void> deletePantry(DocumentReference doc) async {
+    // delete pantry from list of pantries
+    await doc
+        .delete()
+        .then((value) => print("SUCCESS: $doc has been deleted from pantries"))
+        .catchError((error) =>
+            print("FAILURE: couldn't delete $doc from pantries: $error"));
+    // delete pantry from user pantries
+    await firestoreInstance
+        .collection('users')
+        .doc(user.uid)
+        .update({
+          'PantryIDs': FieldValue.arrayRemove([_selectedPantry])
+        })
+        .then((value) =>
+            print("SUCCESS: $doc has been deleted from user pantries"))
+        .catchError((error) =>
+            print("FAILURE: couldn't delete $doc from user pantries: $error"));
+    // if pantry is primary, remove it from PPID
+    if (doc == user.PPID) {
+      await firestoreInstance
+          .collection('users')
+          .doc(user.uid)
+          .update({'PPID': FieldValue.delete()})
+          .then((value) =>
+              print("SUCCESS: $doc has been deleted from user pantries"))
+          .catchError((error) => print(
+              "FAILURE: couldn't delete $doc from user pantries: $error"));
+    }
+  }
+
+  showDeleteDialog(
+      BuildContext context, String pantryName, DocumentReference doc) {
+    Widget cancelButton = TextButton(
+        style: TextButton.styleFrom(
+            backgroundColor: Colors.lightBlue, primary: Colors.white),
+        child: Text("NO"),
+        onPressed: () {
+          Navigator.of(context, rootNavigator: true).pop();
+        });
+
+    Widget okButton = TextButton(
+      style: TextButton.styleFrom(primary: Colors.lightBlue),
+      child: Text("YES"),
+      onPressed: () {
+        deletePantry(doc);
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Are you sure?"),
+          content: Text(
+              "Do you really want to remove \"$pantryName\"? This cannot be undone."),
+          actions: [
+            cancelButton,
+            okButton,
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -207,11 +337,19 @@ class _PantryState extends State<Pantry> {
                   editPantry();
                 }
                 break;
+              case 'Remove selected pantry':
+                {
+                  removePantry();
+                }
+                break;
             }
           },
           itemBuilder: (BuildContext context) {
-            return {'Create a new pantry', 'Edit selected pantry'}
-                .map((String choice) {
+            return {
+              'Create a new pantry',
+              'Edit selected pantry',
+              'Remove selected pantry'
+            }.map((String choice) {
               return PopupMenuItem<String>(
                 value: choice,
                 child: Text(choice),

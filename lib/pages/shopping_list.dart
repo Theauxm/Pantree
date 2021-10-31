@@ -41,7 +41,7 @@ class _ListState extends State<ShoppingList> {
       // go through each doc ref and add to list of list names + map
       String listName = "";
       await ref.get().then((DocumentSnapshot snapshot) {
-        if (ref == user.PPID) {
+        if (ref == user.PSID) {
           listName = snapshot.data()['Name'] + "*";
         } else {
           listName = snapshot.data()['Name']; // get the list name as a string
@@ -161,34 +161,34 @@ class _ListState extends State<ShoppingList> {
 
     // User pantry dropdown selector that listens for changes in users
     final makeDropDown = Container(
-        padding: EdgeInsets.only(left: 17.0),
-          child: DropdownButton<String>(
-            value: _selectedListName,
-            style: TextStyle(
-                color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
-            icon: Icon(
-              Icons.arrow_drop_down,
-              color: Colors.white,
-              size: 30.0,
-            ),
-            items: _listMap.keys.map<DropdownMenuItem<String>>((val) {
-              return DropdownMenuItem<String>(
-                value: val,
-                child: Text(val),
-              );
-            }).toList(),
-            onChanged: (String newVal) {
-              setState(() {
-                _selectedList = _listMap[newVal];
-                _selectedListName = newVal;
-              });
-            },
-            hint: Text("Select List"),
-            elevation: 0,
-            underline: DropdownButtonHideUnderline(child: Container()),
-            dropdownColor: Colors.lightBlue,
-          ),
-        );
+      padding: EdgeInsets.only(left: 17.0),
+      child: DropdownButton<String>(
+        value: _selectedListName,
+        style: TextStyle(
+            color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
+        icon: Icon(
+          Icons.arrow_drop_down,
+          color: Colors.white,
+          size: 30.0,
+        ),
+        items: _listMap.keys.map<DropdownMenuItem<String>>((val) {
+          return DropdownMenuItem<String>(
+            value: val,
+            child: Text(val),
+          );
+        }).toList(),
+        onChanged: (String newVal) {
+          setState(() {
+            _selectedList = _listMap[newVal];
+            _selectedListName = newVal;
+          });
+        },
+        hint: Text("Select List"),
+        elevation: 0,
+        underline: DropdownButtonHideUnderline(child: Container()),
+        dropdownColor: Colors.lightBlue,
+      ),
+    );
 
     final makeAppBar = AppBar(
       title: makeDropDown,

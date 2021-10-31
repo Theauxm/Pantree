@@ -378,6 +378,7 @@ class _EditState extends State<Edit> {
   final _focusNode = FocusNode();
   String newName = "";
   bool makePrimary;
+  bool ogPrimaryVal;
 
   @override
   void dispose() {
@@ -401,15 +402,19 @@ class _EditState extends State<Edit> {
     if (widget.usedByView == "Pantry") {
       if (widget.user.PPID == widget.itemList) {
         makePrimary = true;
+        ogPrimaryVal = true;
       } else {
         makePrimary = false;
+        ogPrimaryVal = false;
       }
     } else {
       // other case is for usedByView == "Shopping List"
       if (widget.user.PSID == widget.itemList) {
         makePrimary = true;
+        ogPrimaryVal = true;
       } else {
         makePrimary = false;
+        ogPrimaryVal = false;
       }
     }
   }
@@ -493,7 +498,7 @@ class _EditState extends State<Edit> {
                     String message =
                         "${widget.usedByView} edit failed, please try again.";
                     if (_form.currentState.validate()) {
-                      if (editPantry(
+                      if (editList(
                           _pantryNameTextController.text, makePrimary)) {
                         title = "Success!";
                         message =
@@ -513,7 +518,7 @@ class _EditState extends State<Edit> {
         ));
   }
 
-  bool editPantry(String name, bool makePrimary) {
+  bool editList(String name, bool makePrimary) {
     String primaryField = 'PSID';
     if (widget.usedByView == "Pantry") {
       primaryField = 'PPID';
@@ -545,13 +550,14 @@ class _EditState extends State<Edit> {
 
   showAlertDialog(
       BuildContext context, String t, String m, bool success) async {
+    bool primaryChanged = (makePrimary != ogPrimaryVal) ? true : false;
     // set up the button
     Widget okButton = TextButton(
       child: Text("OK"),
       onPressed: () {
         if (success) {
           Navigator.of(context, rootNavigator: true).pop();
-          Navigator.of(context).pop(newName);
+          Navigator.of(context).pop([newName, primaryChanged, makePrimary]);
         } else {
           Navigator.of(context, rootNavigator: true).pop();
         }
@@ -574,7 +580,7 @@ class _EditState extends State<Edit> {
 ///Create the Landing pages for ShoppingList/Pantry
 Widget createLandingPage(user, usedByView, context) {
   return Scaffold(
-    appBar: AppBar(title: Text(usedByView + "s")),
+    appBar: AppBar(title: Text("Create a " + usedByView)),
     drawer: PantreeDrawer(user: user),
     body: Container(
       alignment: Alignment.center,
