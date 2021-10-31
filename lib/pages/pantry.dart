@@ -124,7 +124,6 @@ class _PantryState extends State<Pantry> {
                 itemList: _selectedPantry,
                 name: _selectedPantryName,
                 usedByView: "Pantry"))));
-    print("RETURNED TO EDITPANTRY()");
 
     /*String normalizedPantryName = "";
     if (_selectedPantryName.endsWith("*")) {
@@ -141,7 +140,8 @@ class _PantryState extends State<Pantry> {
     }
   }
 
-  Future<dynamic> updatePantries(String newName, bool primaryChanged, bool isPrimary) async {
+  Future<dynamic> updatePantries(
+      String newName, bool primaryChanged, bool isPrimary) async {
     print("PANTRY MAP BEFORE CLEAR: $_pantryMap");
     print("USER PANTRIES BEFORE MAP CLEAR: ${user.pantries}");
     DocumentReference primaryPantry;
@@ -166,16 +166,17 @@ class _PantryState extends State<Pantry> {
 
     if (mounted) {
       setState(() {
-       if (isPrimary) { // covers both primary --> primary and non-primary --> primary cases
+        if (isPrimary) {
+          // covers both primary --> primary and non-primary --> primary cases
           _selectedPantry = primaryPantry;
           _selectedPantryName = primaryPantryName;
-        }
-        else if (!isPrimary && primaryChanged) { // primary --> non-primary
+        } else if (!isPrimary && primaryChanged) {
+          // primary --> non-primary
           // quietly stops the user from not having a primary pantry
           _selectedPantry = _pantryMap[newName + "*"];
           _selectedPantryName = newName + "*";
-        }
-        else { // non-primary --> non-primary
+        } else {
+          // non-primary --> non-primary
           _selectedPantry = _pantryMap[newName];
           _selectedPantryName = newName;
         }
@@ -183,11 +184,7 @@ class _PantryState extends State<Pantry> {
     }
   }
 
-  void removePantry() {
-    showDeleteDialog(context, _selectedPantryName, _selectedPantry);
-  }
-
-  Future<void> deletePantry(DocumentReference doc) async {
+   Future<void> deletePantry(DocumentReference doc) async {
     // delete pantry from list of pantries
     await doc
         .delete()
@@ -215,6 +212,17 @@ class _PantryState extends State<Pantry> {
               print("SUCCESS: $doc has been deleted from user pantries"))
           .catchError((error) => print(
               "FAILURE: couldn't delete $doc from user pantries: $error"));
+      if (_pantryMap.isNotEmpty) {
+        var entryList = _pantryMap.entries.toList();
+        FirebaseFirestore.instance
+            .collection("users")
+            .doc(user.uid)
+            .update({
+          'PPID': entryList[0].value,
+        }).catchError((error) =>
+            print("Failed to set new primary pantry: $error"));
+          updatePantries(entryList[0].key, true, true);
+      }
     }
   }
 
@@ -332,14 +340,14 @@ class _PantryState extends State<Pantry> {
                   createPantry(false);
                 }
                 break;
-              case 'Edit selected pantry':
+              case 'Edit this pantry':
                 {
                   editPantry();
                 }
                 break;
-              case 'Remove selected pantry':
+              case 'Remove this pantry':
                 {
-                  removePantry();
+                  showDeleteDialog(context, _selectedPantryName, _selectedPantry);
                 }
                 break;
             }
@@ -347,8 +355,8 @@ class _PantryState extends State<Pantry> {
           itemBuilder: (BuildContext context) {
             return {
               'Create a new pantry',
-              'Edit selected pantry',
-              'Remove selected pantry'
+              'Edit this pantry',
+              'Remove this pantry'
             }.map((String choice) {
               return PopupMenuItem<String>(
                 value: choice,
