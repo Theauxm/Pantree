@@ -115,6 +115,17 @@ class _PantryState extends State<Pantry> {
                 ))));
   }
 
+  void addCollaborator() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => (AddNewCollaborator(
+              user: user,
+              usedByView: "Pantry",
+              itemList: _selectedPantry,
+            ))));
+  }
+
   Future<void> editPantry() async {
     var result = await Navigator.push(
         context,
@@ -124,6 +135,7 @@ class _PantryState extends State<Pantry> {
                 itemList: _selectedPantry,
                 name: _selectedPantryName,
                 usedByView: "Pantry"))));
+
 
     /*String normalizedPantryName = "";
     if (_selectedPantryName.endsWith("*")) {
@@ -350,13 +362,18 @@ class _PantryState extends State<Pantry> {
                   showDeleteDialog(context, _selectedPantryName, _selectedPantry);
                 }
                 break;
+              case 'Add Collaborator to this pantry':
+                {
+                  addCollaborator();
+                }
             }
           },
           itemBuilder: (BuildContext context) {
             return {
               'Create a new pantry',
               'Edit this pantry',
-              'Remove this pantry'
+              'Remove this pantry',
+              'Add Collaborator to this pantry'
             }.map((String choice) {
               return PopupMenuItem<String>(
                 value: choice,

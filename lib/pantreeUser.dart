@@ -99,31 +99,53 @@ getUserProfile() async {
 }
 
 Future<bool> updateFriends (String id, PantreeUser user) async{
-  Map friendsList = Map<DocumentReference, DocumentReference>();
-  Map pending =  Map<DocumentReference, DocumentReference>();;
-  Map requested =  Map<DocumentReference, DocumentReference>();;
+  List friendsListTemp = [];
+  List pendingTemp = [];
+  List requestedTemp = [];
   DocumentReference ref = FirebaseFirestore.instance.doc('/users/'+id);
   var friends = await FirebaseFirestore.instance
       .collection('friendships')
       .where('users',  arrayContains: ref).get();
-  friends.docs.forEach((element) {
+  friends.docs.forEach((element){
     if(element.data()['accepted']){
       if(element.data()['users'][0] == ref) {
-        friendsList[element.data()['users'][1]] = element.reference;
+          friendsListTemp.add([element.reference, element.data()['users'][1]]);
       } else{
-        friendsList[element.data()['users'][0]] = element.reference;;
+        friendsListTemp.add([element.reference, element.data()['users'][0]]);
       }
     } else{
       if(element.data()['users'][0] == ref) {
-        pending[element.data()['users'][1]] = element.reference;
+        pendingTemp.add([element.reference, element.data()['users'][1]]);
       } else{
-        requested[element.data()['users'][0]] = element.reference;
+        requestedTemp.add([element.reference, element.data()['users'][0]]);
       }
     }
   }
   );
-  user.friendRequests = requested;
-  user.friends = friendsList;
-  user.pendingFriends = pending;
+  //Get names
+  for(var i = 0; i < friendsListTemp.length; i++){
+    var t = await getName(friendsListTemp[i][1]);
+    friendsListTemp[i].add(t);
+  }
+  for(var i = 0; i < pendingTemp.length; i++){
+    var t = await getName(pendingTemp[i][1]);
+    pendingTemp[i].add(t);
+  }
+  for(var i = 0; i < requestedTemp.length; i++){
+    var t = await getName(requestedTemp[i][1]);
+    requestedTemp[i].add(t);
+  }
+  user.friendRequests = requestedTemp;
+  user.friends = friendsListTemp;
+  user.pendingFriends = pendingTemp;
   return true;
+}
+
+Future<String>getName(DocumentReference ref) async{
+  String friendUsername;
+  await ref.get().then((DocumentSnapshot snapshot) {
+    friendUsername =
+    snapshot.data()['Username']; // get the pantry name as a string
+  });
+  return friendUsername;
 }

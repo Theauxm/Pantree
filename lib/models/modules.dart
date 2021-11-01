@@ -577,6 +577,8 @@ class _EditState extends State<Edit> {
   }
 }
 
+
+
 ///Create the Landing pages for ShoppingList/Pantry
 Widget createLandingPage(user, usedByView, context) {
   return Scaffold(
@@ -613,4 +615,48 @@ Widget createLandingPage(user, usedByView, context) {
       ),
     ),
   );
+
+
+
 }
+///Add a user to a pantry
+class AddNewCollaborator extends StatefulWidget {
+  final PantreeUser user;
+  final String usedByView;
+  final DocumentReference itemList;
+
+  const AddNewCollaborator({Key key, this.user, this.usedByView, this.itemList})
+      : super(key: key);
+
+  @override
+  AddNewCollaboratorState createState() => AddNewCollaboratorState();
+}
+class AddNewCollaboratorState extends State<AddNewCollaborator> {
+  Map<String, DocumentReference>
+  friendsMap;
+
+  Future<dynamic> getFriends() async {
+    friendsMap = Map<String, DocumentReference>();
+    //await user.updateData(); // important: refreshes the user's data// instantiate the map
+    for (DocumentReference ref in widget.user.friends.keys) {
+      // go through each doc ref and add to list of pantry names + map
+      String friendUsername = "";
+      await ref.get().then((DocumentSnapshot snapshot) {
+        friendUsername =
+        snapshot.data()['Username']; // get the pantry name as a string
+      });
+      friendsMap[friendUsername] = ref;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getFriends();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+  return Text("hey");
+  }
+  }
