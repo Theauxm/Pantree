@@ -1,34 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pantree/models/modules.dart';
+import 'package:pantree/models/drawer.dart';
 import '../pantreeUser.dart';
-import '../models/drawer.dart';
-import '../models/newShoppingList.dart';
 import '../models/exportList.dart';
-import '../models/new_list_item.dart';
-
-extension StringExtension on String {
-  String get inCaps =>
-      this.length > 0 ? '${this[0].toUpperCase()}${this.substring(1)}' : '';
-  String get allInCaps => this.toUpperCase();
-  String get capitalizeFirstOfEach => this
-      .replaceAll(RegExp(' +'), ' ')
-      .split(" ")
-      .map((str) => str.inCaps)
-      .join(" ");
-  String get capitalizeFirstLetter => (this?.isNotEmpty ?? false)
-      ? '${this[0].toUpperCase()}${this.substring(1)}'
-      : this;
-  String capitalize() {
-    if (this == null || this == "") {
-      return "";
-    }
-    return "${this[0].toUpperCase()}${this.substring(1)}";
-  }
-}
 
 class ShoppingList extends StatefulWidget {
   final PantreeUser user;
-  ShoppingList({this.user});
+  const ShoppingList({Key key, this.user}) : super(key: key);
 
   @override
   _ListState createState() => _ListState(user: user);
@@ -40,283 +19,70 @@ class _ListState extends State<ShoppingList> {
 
   final firestoreInstance = FirebaseFirestore.instance;
   DocumentReference _selectedList; // private
-  String _selectedListName;
-  int listsLength;// private
+  String _selectedListName; // private
+  int listsLength;
   Map<String, DocumentReference>
-      _pantryMap; // private NOTE: bad design - it will fuck with users collaborating on multiple pantries with the same name
-  // DocumentSnapshot cache;
+      _listMap; // private NOTE: bad design - it will fuck with users collaborating on multiple lists with the same name
+  bool loading = true;
+
+  @override
+  void initState() {
+    super.initState(); // start initState() with this
+    getData().then((val) => {setInitList()});
+    setListener();
+  }
 
   Future<dynamic> getData() async {
     DocumentReference tempPantry;
     String tempName;
 
-    //await user.updateData(); // important: refreshes the user's data
-    _pantryMap = Map<String, DocumentReference>(); // instantiate the map
+    _listMap = Map<String, DocumentReference>(); // instantiate the map
     for (DocumentReference ref in user.shoppingLists) {
-      // go through each doc ref and add to list of pantry names + map
-      String pantryName = "";
+      // go through each doc ref and add to list of list names + map
+      String listName = "";
       await ref.get().then((DocumentSnapshot snapshot) {
-        pantryName = snapshot.data()['Name']; // get the pantry name as a string
+        if (ref == user.PSID) {
+          listName = snapshot.data()['Name'] + "*";
+        } else {
+          listName = snapshot.data()['Name']; // get the list name as a string
+        }
       });
-      // todo: check for [upcoming] 'primary' boolean val and set _selectedPantry/Name vals to that
       tempPantry = ref; // this will have to do for now
-      tempName = pantryName;
-      _pantryMap[pantryName] = ref; // map the doc ref to its name
+      tempName = listName;
+      _listMap[listName] = ref; // map the doc ref to its name
     }
 
-    // very important: se setState() to force a call to build()
-    setState(() {
-      _selectedList = tempPantry;
-      _selectedListName = tempName;
-    });
+    // make sure widget hasn't been disposed before rebuild
+    if (mounted) {
+      setState(() {
+        // setState() forces a call to build()
+        if (loading) loading = false;
+        _selectedList = tempPantry;
+        _selectedListName = tempName;
+      });
+    }
   }
 
-  //Listener for when a user changes! Re-Reads all the pantry Data!
+  // Listener for when a user adds a list
   setListener() {
     FirebaseFirestore.instance
         .collection("users")
         .doc(user.uid)
         .snapshots()
-        .listen((DocumentSnapshot event) {
-          if(event.data()['ShoppingIDs'].length != user.shoppingLists.length){
-            user.shoppingLists = event.data()['ShoppingIDs'];
-            getData();
-          }
+        .listen((event) {
+          bool update = false;
+      if (event.data()['ShoppingIDs'].length != user.shoppingLists.length) {
+        user.shoppingLists = event.data()['ShoppingIDs'];
+        update = true;
+      }
+      if (event.data()['PSID'].toString() != user.PSID.toString()) {
+        user.PSID = event.data()['PSID'];
+        //update = true;
+      }
+      if (update) {
+        getData();
+      }
     });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getData();
-    setListener();
-  }
-
-  void addNewItem() {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => NewListItem(list: _selectedList)));
-  }
-
-  void createNewList() {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => (NewShoppingList(
-                  user: user,
-                ))));
-  }
-
-  void exportList() {
-    if (user.pantries.length > 0) {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-              (ExportList(user: user, list: _selectedList, exportList: user.pantries))));
-    } else{
-      showError(context);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (user.shoppingLists.length == 0) {
-      return createLandingPage();
-    }
-    if(_selectedList == null){
-      return Center(child: CircularProgressIndicator());
-    }
-
-    // User pantry dropdown selector that listens for changes in users
-    final makeDropDown = Container(
-        padding: EdgeInsets.only(left: 17.0),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-            value: _selectedListName,
-            style: TextStyle(
-                color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
-            icon: Icon(
-              Icons.arrow_drop_down,
-              color: Colors.white,
-              size: 30.0,
-            ),
-            items: _pantryMap.keys.map<DropdownMenuItem<String>>((val) {
-              return DropdownMenuItem<String>(
-                value: val,
-                child: Text(val),
-              );
-            }).toList(),
-            onChanged: (String newVal) {
-              setState(() {
-                _selectedList = _pantryMap[newVal];
-                _selectedListName = newVal;
-              });
-            },
-            hint: Text("Select List"),
-            elevation: 0,
-            dropdownColor: Colors.lightBlue,
-          ),
-        ));
-
-    final makeAppBar = AppBar(
-      title: makeDropDown,
-      actions: <Widget>[
-        Padding(
-          padding: EdgeInsets.only(right: 20.0),
-          //  child: GestureDetector(
-          //    onTap: () {},
-          // //   child: Icon(Icons.search, size: 26.0),
-          //  ),
-        ),
-        PopupMenuButton<String>(
-          onSelected: (selected) {
-            createNewList();
-          },
-          itemBuilder: (BuildContext context) {
-            return {'Create New List'}.map((String choice) {
-              return PopupMenuItem<String>(
-                value: choice,
-                child: Text(choice),
-              );
-            }).toList();
-          },
-        ),
-      ],
-    );
-
-    final makeBody = Column(children: [
-      // Sets up a stream builder to listen for changes inside the database.
-      StreamBuilder(
-          stream: _selectedList.collection('ingredients').snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) return const Text('Loading....');
-            return Expanded(
-                child: ListView(
-                    children: snapshot.data.docs.map<Widget>((doc) {
-              return Container(
-                child: Card(
-                  elevation: 7.0,
-                  margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 3.0),
-                  child: ListTile(
-                    leading: Icon(Icons.fastfood_rounded),
-                    title: Text(
-                      doc['Item'].id.toString().capitalizeFirstOfEach,
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w600),
-                    ),
-                    subtitle: Text(
-                      "Quantity: " +
-                          doc['Quantity'].toString() +
-                          " " +
-                          doc['Unit'].toString().capitalizeFirstOfEach,
-                      style: const TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.w600),
-                    ),
-                    trailing: IconButton(
-                      icon: Icon(Icons.delete, size: 20.0),
-                      onPressed: (() {
-                        showDeleteDialog(
-                            context,
-                            doc['Item'].id.toString().capitalizeFirstOfEach,
-                            doc);
-                      }),
-                    ),
-                  ),
-                ),
-              );
-            }).toList()));
-          }),
-    ]);
-
-    return Scaffold(
-        appBar: makeAppBar,
-        body: makeBody,
-        drawer: PantreeDrawer(user: this.user),
-        floatingActionButton: Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              FloatingActionButton(
-                backgroundColor: Colors.lightBlue,
-                child: const Icon(Icons.shopping_cart),
-                onPressed: exportList,
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              FloatingActionButton(
-                backgroundColor: Colors.lightBlue,
-                child: const Icon(Icons.add),
-                onPressed: addNewItem,
-              ),
-            ]));
-  }
-
-  Widget createLandingPage() {
-    return Scaffold(
-      appBar: AppBar(title: Text('Shopping Lists')),
-      drawer: PantreeDrawer(user: user),
-      body: Container(
-        alignment: Alignment.center,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              child: Text(
-                'Create a Shopping List!',
-                style: TextStyle(color: Colors.black, fontSize: 20),
-              ),
-              margin: EdgeInsets.all(16),
-            ),
-            TextButton(
-              onPressed: () {
-                createNewList();
-              },
-              child: Text('Create Shopping List'),
-              style: TextButton.styleFrom(
-                  primary: Colors.white,
-                  backgroundColor: Colors.lightBlueAccent),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  showDeleteDialog(BuildContext context, String item, DocumentSnapshot ds) {
-    Widget cancelButton = TextButton(
-        style: TextButton.styleFrom(
-            backgroundColor: Colors.lightBlue, primary: Colors.white),
-        child: Text("NO"),
-        onPressed: () {
-          Navigator.of(context, rootNavigator: true).pop();
-        });
-
-    Widget okButton = TextButton(
-      style: TextButton.styleFrom(primary: Colors.lightBlue),
-      child: Text("YES"),
-      onPressed: () {
-        deleteItem(ds);
-        Navigator.of(context, rootNavigator: true).pop();
-      },
-    );
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Are you sure?"),
-          content:
-              Text("Do you really want to delete \"$item\" from your pantry?"),
-          actions: [
-            cancelButton,
-            okButton,
-          ],
-        );
-      },
-    );
   }
 
   showError(BuildContext context) {
@@ -342,11 +108,309 @@ class _ListState extends State<ShoppingList> {
     );
   }
 
-  Future<void> deleteItem(DocumentSnapshot ds) async {
-    DocumentReference doc = ds.reference;
+  void exportList() {
+    if (user.pantries.length > 0) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => (ExportList(
+                  user: user,
+                  list: _selectedList,
+                  exportList: user.pantries))));
+    } else {
+      showError(context);
+    }
+  }
+
+  setInitList() {
+    DocumentReference primary = user.PSID;
+    if (primary != null) {
+      _listMap.forEach((k, v) => print('${k}: ${v}\n'));
+      for (MapEntry e in _listMap.entries) {
+        if (e.value == primary) {
+          setState(() {
+            _selectedList = e.value;
+            _selectedListName = e.key;
+          });
+        }
+      }
+    }
+  }
+
+  void createNewList(bool makePrimary) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => (NewItemList(
+                  user: user,
+                  usedByView: "Shopping List",
+                  makePrimary: makePrimary,
+                ))));
+  }
+
+  Future<void> editList() async {
+    var result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => (Edit(
+                  user: user,
+                  itemList: _selectedList,
+                  name: _selectedListName,
+                  usedByView: "Shopping List",
+                ))));
+    if (result is List) {
+      updateLists(result[0], result[1], result[2]);
+    }
+  }
+
+  Future<dynamic> updateLists(
+      String newName, bool primaryChanged, bool isPrimary) async {
+    DocumentReference primaryList;
+    String primaryListName;
+
+    _listMap.clear();
+    for (DocumentReference ref in user.shoppingLists) {
+      // repopulate list map
+      String listName = "";
+      await ref.get().then((DocumentSnapshot snapshot) {
+        if (ref == user.PSID) {
+          listName = snapshot.data()['Name'] + "*";
+          primaryList = ref;
+          primaryListName = listName;
+        } else {
+          listName = snapshot.data()['Name'];
+        }
+      });
+      _listMap[listName] = ref; // map the doc ref to its name
+    }
+
+    if (mounted) {
+      setState(() {
+        if (isPrimary) {
+          // covers both primary --> primary and non-primary --> primary cases
+          _selectedList = primaryList;
+          _selectedListName = primaryListName;
+        } else if (!isPrimary && primaryChanged) {
+          // primary --> non-primary
+          // quietly stops the user from not having a primary list
+          _selectedList = _listMap[newName + "*"];
+          _selectedListName = newName + "*";
+        } else {
+          // non-primary --> non-primary
+          _selectedList = _listMap[newName];
+          _selectedListName = newName;
+        }
+      });
+    }
+  }
+
+  Future<void> deleteList(DocumentReference doc) async {
+    // delete list from list of shopping lists
     await doc
         .delete()
-        .then((value) => print("SUCCESS: $doc has been deleted"))
-        .catchError((error) => print("FAILURE: couldn't delete $doc: $error"));
+        .then((value) =>
+            print("SUCCESS: $doc has been deleted from shopping lists"))
+        .catchError((error) =>
+            print("FAILURE: couldn't delete $doc from shopping lists: $error"));
+    // delete list from user shopping lists
+    await firestoreInstance
+        .collection('users')
+        .doc(user.uid)
+        .update({
+          'ShoppingIDs': FieldValue.arrayRemove([_selectedList])
+        })
+        .then((value) =>
+            print("SUCCESS: $doc has been deleted from user shopping lists"))
+        .catchError((error) => print(
+            "FAILURE: couldn't delete $doc from user shopping lists: $error"));
+    // if list is primary, remove it from PSID
+    if (doc == user.PSID) {
+      await firestoreInstance
+          .collection('users')
+          .doc(user.uid)
+          .update({'PSID': FieldValue.delete()})
+          .then((value) =>
+              print("SUCCESS: $doc has been deleted from user shopping lists"))
+          .catchError((error) => print(
+              "FAILURE: couldn't delete $doc from user shopping lists: $error"));
+      if (_listMap.isNotEmpty) {
+        var entryList = _listMap.entries.toList();
+        FirebaseFirestore.instance.collection("users").doc(user.uid).update({
+          'PSID': entryList[0].value,
+        }).catchError(
+            (error) => print("Failed to set new primary list: $error"));
+        updateLists(entryList[0].key, true, true);
+      }
+    }
+  }
+
+  showDeleteDialog(
+      BuildContext context, String listName, DocumentReference doc) {
+    Widget cancelButton = TextButton(
+        style: TextButton.styleFrom(
+            backgroundColor: Colors.lightBlue, primary: Colors.white),
+        child: Text("NO"),
+        onPressed: () {
+          Navigator.of(context, rootNavigator: true).pop();
+        });
+
+    Widget okButton = TextButton(
+      style: TextButton.styleFrom(primary: Colors.lightBlue),
+      child: Text("YES"),
+      onPressed: () {
+        deleteList(doc);
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Are you sure?"),
+          content: Text(
+              "Do you really want to remove \"$listName\"? This cannot be undone."),
+          actions: [
+            cancelButton,
+            okButton,
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return listMain();
+  }
+
+  Widget listMain() {
+    if (loading) {
+      return Center(child: CircularProgressIndicator());
+    }
+    if (_selectedList == null) {
+      // handle user with no lists case - send to create a list screen
+      return createLandingPage(user, "Shopping List", context);
+    }
+
+    // User pantry dropdown selector that listens for changes in users
+    final makeDropDown = Container(
+      padding: EdgeInsets.only(left: 17.0),
+      child: DropdownButton<String>(
+        value: _selectedListName,
+        style: TextStyle(
+            color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
+        icon: Icon(
+          Icons.arrow_drop_down,
+          color: Colors.white,
+          size: 30.0,
+        ),
+        items: _listMap.keys.map<DropdownMenuItem<String>>((val) {
+          return DropdownMenuItem<String>(
+            value: val,
+            child: Text(val),
+          );
+        }).toList(),
+        onChanged: (String newVal) {
+          setState(() {
+            _selectedList = _listMap[newVal];
+            _selectedListName = newVal;
+          });
+        },
+        hint: Text("Select List"),
+        elevation: 0,
+        underline: DropdownButtonHideUnderline(child: Container()),
+        dropdownColor: Colors.lightBlue,
+      ),
+    );
+
+    final makeAppBar = AppBar(
+      title: makeDropDown,
+      actions: <Widget>[
+        Padding(
+          padding: EdgeInsets.only(right: 20.0),
+          //  child: GestureDetector(
+          //    onTap: () {},
+          // //   child: Icon(Icons.search, size: 26.0),
+          //  ),
+        ),
+        PopupMenuButton<String>(
+          onSelected: (selected) {
+            switch (selected) {
+              case 'Create a new list':
+                {
+                  createNewList(false);
+                }
+                break;
+              case 'Edit this list':
+                {
+                  editList();
+                }
+                break;
+              case 'Remove this list':
+                {
+                  showDeleteDialog(context, _selectedListName, _selectedList);
+                }
+                break;
+            }
+          },
+          itemBuilder: (BuildContext context) {
+            return {'Create a new list', 'Edit this list', 'Remove this list'}
+                .map((String choice) {
+              return PopupMenuItem<String>(
+                value: choice,
+                child: Text(choice),
+              );
+            }).toList();
+          },
+        ),
+      ],
+    );
+
+    final makeBody = Column(children: [
+      // Sets up a stream builder to listen for changes inside the database.
+      StreamBuilder(
+          stream: _selectedList.collection('ingredients').snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData || snapshot.data == null)
+              return Center(child: CircularProgressIndicator());
+            return Expanded(
+                child: ListView(
+                    children: snapshot.data.docs.map<Widget>((doc) {
+              return Container(child: itemCard(doc, context));
+            }).toList()));
+          }),
+    ]);
+
+    return Scaffold(
+        appBar: makeAppBar,
+        body: makeBody,
+        drawer: PantreeDrawer(user: user),
+        floatingActionButton: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              FloatingActionButton(
+                backgroundColor: Colors.lightBlue,
+                child: const Icon(Icons.shopping_cart),
+                onPressed: exportList,
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              FloatingActionButton(
+                backgroundColor: Colors.lightBlue,
+                child: const Icon(Icons.add),
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => NewFoodItem(
+                                itemList: _selectedList,
+                                usedByView: "Shopping List",
+                              )));
+                },
+              ),
+            ]));
   }
 }

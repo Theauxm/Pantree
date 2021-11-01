@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pantree/pantreeUser.dart';
@@ -23,46 +25,20 @@ class FriendsListState extends State<FriendsList> {
   pendingFriends;
   Map<String, DocumentReference>
   friendRequests;
+  StreamSubscription friendListener;
+  bool loading = true;
   Future<dynamic> getFriends() async {
-    if(await updateFriends(user.uid,user)) {
-      friendsMap = Map<String, DocumentReference>();
-      pendingFriends = Map<String, DocumentReference>();
-      friendRequests = Map<String, DocumentReference>();
-      //await user.updateData(); // important: refreshes the user's data// instantiate the map
-      for (DocumentReference ref in user.friends.keys) {
-        // go through each doc ref and add to list of pantry names + map
-        String friendUsername = "";
-        await ref.get().then((DocumentSnapshot snapshot) {
-          friendUsername =
-          snapshot.data()['Username']; // get the pantry name as a string
-        });
-        friendsMap[friendUsername] = ref;
-      }
-      for (DocumentReference ref in user.pendingFriends.keys) {
-        // go through each doc ref and add to list of pantry names + map
-        String friendUsername = "";
-        await ref.get().then((DocumentSnapshot snapshot) {
-          friendUsername =
-          snapshot.data()['Username']; // get the pantry name as a string
-        });
-        pendingFriends[friendUsername] = ref;
-      }
-      for (DocumentReference ref in user.friendRequests.keys) {
-        // go through each doc ref and add to list of pantry names + map
-        String friendUsername = "";
-        await ref.get().then((DocumentSnapshot snapshot) {
-          friendUsername =
-          snapshot.data()['Username']; // get the pantry name as a string
-        });
-        friendRequests[friendUsername] = ref;
-      }
+    bool done = await updateFriends(user.uid,user);
+    if(done) {
       // very important: se setState() to force a call to build()
-      if(mounted) {setState(() {});}
+      if(mounted) {setState(() {
+        loading = false;
+      });}
     }
   }
 
   setListener() {
-    FirebaseFirestore.instance
+    friendListener = FirebaseFirestore.instance
         .collection("users")
         .doc(user.uid)
         .snapshots()
@@ -81,8 +57,14 @@ class FriendsListState extends State<FriendsList> {
   }
 
   @override
+  void dispose(){
+    friendListener.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if(friendRequests == null){
+    if(loading){
       return Center(child: CircularProgressIndicator());
     }
     return Scaffold(
@@ -90,11 +72,11 @@ class FriendsListState extends State<FriendsList> {
           title: Text("Your Friends"),
         ),
         body: Column(children: <Widget>[
-          buildFriends(friendsMap, true,user.friends),
+          buildFriends( true,user.friends),
           Text("Pending:"),
-          buildFriends(pendingFriends,true,user.pendingFriends),
+          buildFriends(true,user.pendingFriends),
           Text("Requests:"),
-          buildFriends(friendRequests, false,user.friendRequests)
+          buildFriends( false,user.friendRequests)
         ]),
       floatingActionButton: FloatingActionButton(
       backgroundColor: Colors.green,
@@ -103,8 +85,8 @@ class FriendsListState extends State<FriendsList> {
     ),);
   }
 
-  Widget buildFriends(Map map, bool remove, Map col){
-    List keys = map.keys.toList();
+  Widget buildFriends( bool remove, List fl){
+    //List keys = map.keys.toList();
     return
     Expanded(child:
     ListView.builder(
@@ -120,22 +102,22 @@ class FriendsListState extends State<FriendsList> {
                     size: 30,
                   ),
                     onPressed:(){
-                    profileClicked(map, keys, index);
+                    profileClicked(fl, index);
                     },
                 )),
             title: Text(
-              keys[index].toString(),
+              fl[index][2].toString(),
               style: const TextStyle(
                   fontSize: 16, fontWeight: FontWeight.w600),
             ),
-            trailing: makeIcon(remove, index, col, map, keys),
+            trailing: makeIcon(remove, index, fl),
           ),
         );
       },
-      itemCount: keys.length,
+      itemCount: fl.length,
     ));
   }
-  Widget makeIcon(b, index, col, map, keys){
+  Widget makeIcon(b, index, fl){
     if (b) {
       return IconButton(
         icon: Icon(
@@ -144,9 +126,9 @@ class FriendsListState extends State<FriendsList> {
           color: Colors.red,),
         onPressed: () {
           removeFriend(
-              col[map[keys[index]]],
+              fl[index][0],
               FirebaseFirestore.instance.doc('/users/'+user.uid),
-              map[keys[index]]);
+              fl[index][1]);
         },
       );
     } else{
@@ -157,21 +139,21 @@ class FriendsListState extends State<FriendsList> {
           color: Colors.green,),
         onPressed: (){
           acceptRequest(
-              col[map[keys[index]]],
+              fl[index][0],
               FirebaseFirestore.instance.doc('/users/'+user.uid),
-              map[keys[index]]);
+              fl[index][1]);
         }
       );
     }
   }
 
-  void profileClicked(map, keys, index){
+  void profileClicked(fl, index){
     print('clicked');
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) =>
-            (user_profile(profileRef: map[keys[index]], status: 'pending'))));
+            (user_profile(profileRef: fl[index][1], status: 'pending'))));
     //TODO route the user to the clicked profile
   }
   void removeFriend(DocumentReference d,DocumentReference u, DocumentReference f){
@@ -193,9 +175,16 @@ class FriendsListState extends State<FriendsList> {
     d.update({'accepted': true});
   }
   void addFriend() {
-    List allFriends = friendsMap.keys.toList();
-    allFriends.addAll(pendingFriends.keys.toList());
-    allFriends.addAll(friendRequests.keys.toList());
+    List allFriends = [];
+    for(var i = 0; i < widget.user.friends.length; i++){
+      allFriends.add(widget.user.friends[i][2]);
+    }
+    for(var i = 0; i < widget.user.pendingFriends.length; i++){
+      allFriends.add(widget.user.pendingFriends[i][2]);
+    }
+    for(var i = 0; i < widget.user.friendRequests.length; i++){
+      allFriends.add(widget.user.friendRequests[i][2]);
+    }
     Navigator.push(
         context,
         MaterialPageRoute(

@@ -6,13 +6,15 @@ class ExportList extends StatefulWidget {
   final PantreeUser user;
   final DocumentReference list;
   final List exportList;
-  ExportList({this.user, this.list, this.exportList});
+  final bool removeItems;
+  ExportList({this.user, this.list, this.exportList, this.removeItems = true});
   @override
-  _ExportListState createState() => _ExportListState(user: user, list: list, exportList: exportList);
+  _ExportListState createState() => _ExportListState(user: user, list: list, exportList: exportList, removeItems: removeItems);
 }
 
 class _ExportListState extends State<ExportList> {
   PantreeUser user;
+  final bool removeItems;
   var items;
   String img =
       "https://i2.wp.com/ceklog.kindel.com/wp-content/uploads/2013/02/firefox_2018-07-10_07-50-11.png";
@@ -20,7 +22,7 @@ class _ExportListState extends State<ExportList> {
   DocumentReference _selectedPantry;
   List exportList;
   final DocumentReference list;
-  _ExportListState({this.user, this.list, this.exportList});
+  _ExportListState({this.user, this.list, this.exportList, this.removeItems});
   Map<String, DocumentReference> _pantryMap;
 
   Future<dynamic> getData() async {
@@ -53,7 +55,7 @@ class _ExportListState extends State<ExportList> {
                 img: img,
                 title: e.data()['Item'].id.toString(),
                 isCheck: false,
-                ref: e);
+                ref: e,);
           }).toList();
         });
       });
@@ -167,14 +169,20 @@ class _ExportListState extends State<ExportList> {
   }
 
   bool exportChart() {
+    DateTime now = new DateTime.now();
+    DateTime date = new DateTime(now.year, now.month, now.day);
     try {
       items.forEach((element) {
         if (element.isCheck) {
           _selectedPantry.collection("ingredients").add({
             "Item": element.ref.data()['Item'],
             "Quantity": element.ref.data()['Quantity'],
+            'Unit': element.ref.data()['Unit'],
+            'DateAdded': date
           }).then((value) {
-            element.ref.reference.delete();
+            if(removeItems) {
+              element.ref.reference.delete();
+            }
           });
         }
       });
