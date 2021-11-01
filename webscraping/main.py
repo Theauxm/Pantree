@@ -155,6 +155,8 @@ def add_recipe(recipe, db, filter = ""):
         if ingredient == "":
             continue
 
+        ingredient = ingredient[:-1]
+
         # Gets Keywords set for each ingredient, adds to 'master set'
         ingred_keywords = get_keywords(ingredient)
         ingredients_keywords |= ingred_keywords
