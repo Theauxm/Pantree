@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pantree/pantreeUser.dart';
@@ -23,6 +25,7 @@ class FriendsListState extends State<FriendsList> {
   pendingFriends;
   Map<String, DocumentReference>
   friendRequests;
+  StreamSubscription friendListener;
   Future<dynamic> getFriends() async {
     if(await updateFriends(user.uid,user)) {
       friendsMap = Map<String, DocumentReference>();
@@ -62,7 +65,7 @@ class FriendsListState extends State<FriendsList> {
   }
 
   setListener() {
-    FirebaseFirestore.instance
+    friendListener = FirebaseFirestore.instance
         .collection("users")
         .doc(user.uid)
         .snapshots()
@@ -78,6 +81,12 @@ class FriendsListState extends State<FriendsList> {
     super.initState();
     getFriends();
     setListener();
+  }
+
+  @override
+  void dispose(){
+    friendListener.cancel();
+    super.dispose();
   }
 
   @override
