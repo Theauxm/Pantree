@@ -42,7 +42,7 @@ class _recipeState extends State<recipes> {
         .collection(this.user.PPID[0].path + "/ingredients").get()
         .then((QuerySnapshot ingredients) {
       for(int i = 0; i < ingredients.docs.length; i++)
-        pantryIngredients.add(ingredients.docs[i]["Item"].path + " ");
+        pantryIngredients.add(ingredients.docs[i]["Item"].path.toString().trim());
     });
 
     setState(() {});
@@ -200,6 +200,7 @@ class _recipeState extends State<recipes> {
                 });
               },
               onSubmitted: (query) {
+                getData();
                 setState(() {
                   addSearchTerm(query);
                   selectedTerm = query;
@@ -296,19 +297,19 @@ class SearchResultsListView extends StatelessWidget {
     @required this.user,
   }) : super(key: key);
 
+
+
   int getMissingIngredients(QuerySnapshot ingredients) {
     int numIngredients = 0;
 
     for (int i = 0; i < ingredients.docs.length; i++) {
-      if (!this.pantryIngredients.contains(ingredients.docs[i])) {
+      if (!this.pantryIngredients.contains(ingredients.docs[i]["Item"].path.toString().trim())) {
         numIngredients++;
       }
     }
     print(numIngredients);
     return numIngredients;
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -331,8 +332,6 @@ class SearchResultsListView extends StatelessWidget {
         ),
       );
     }
-
-
 
     Stream<QuerySnapshot> query;
     if (filters.length > 0) {
