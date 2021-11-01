@@ -287,15 +287,24 @@ class SearchResultsListView extends StatelessWidget {
   final String searchTerm;
   final List<dynamic> filters;
   final PantreeUser user;
-  final Set<String> pantryIngredients;
+  Set<String> pantryIngredients;
 
-  const SearchResultsListView({
+  SearchResultsListView({
     Key key,
     @required this.pantryIngredients,
     @required this.searchTerm,
     @required this.filters,
     @required this.user,
   }) : super(key: key);
+
+  Future<dynamic> getData() async {
+    await FirebaseFirestore.instance
+        .collection(this.user.PPID[0].path + "/ingredients").get()
+        .then((QuerySnapshot ingredients) {
+      for(int i = 0; i < ingredients.docs.length; i++)
+        pantryIngredients.add(ingredients.docs[i]["Item"].path.toString().trim());
+    });
+  }
 
 
 
@@ -313,6 +322,7 @@ class SearchResultsListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    getData();
     print("Current Pantry Ingredients: " + this.pantryIngredients.toString());
     if (searchTerm == null) {
       return Center(
