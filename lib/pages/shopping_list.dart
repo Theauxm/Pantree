@@ -28,7 +28,7 @@ class _ListState extends State<ShoppingList> {
   @override
   void initState() {
     super.initState(); // start initState() with this
-    getData();
+    getData().then((val) => {setInitList()});
     setListener();
   }
 
@@ -56,7 +56,7 @@ class _ListState extends State<ShoppingList> {
     if (mounted) {
       setState(() {
         // setState() forces a call to build()
-        loading = false;
+        if (loading) loading = false;
         _selectedList = tempPantry;
         _selectedListName = tempName;
       });
@@ -70,8 +70,16 @@ class _ListState extends State<ShoppingList> {
         .doc(user.uid)
         .snapshots()
         .listen((event) {
+          bool update = false;
       if (event.data()['ShoppingIDs'].length != user.shoppingLists.length) {
         user.shoppingLists = event.data()['ShoppingIDs'];
+        update = true;
+      }
+      if (event.data()['PSID'].toString() != user.PSID.toString()) {
+        user.PSID = event.data()['PSID'];
+        //update = true;
+      }
+      if (update) {
         getData();
       }
     });
@@ -114,6 +122,21 @@ class _ListState extends State<ShoppingList> {
     }
   }
 
+  setInitList() {
+    DocumentReference primary = user.PSID;
+    if (primary != null) {
+      _listMap.forEach((k, v) => print('${k}: ${v}\n'));
+      for (MapEntry e in _listMap.entries) {
+        if (e.value == primary) {
+          setState(() {
+            _selectedList = e.value;
+            _selectedListName = e.key;
+          });
+        }
+      }
+    }
+  }
+
   void createNewList(bool makePrimary) {
     Navigator.push(
         context,
@@ -135,14 +158,125 @@ class _ListState extends State<ShoppingList> {
                   name: _selectedListName,
                   usedByView: "Shopping List",
                 ))));
-    if (mounted && result != _selectedListName && result is String) {
+    if (result is List) {
+      updateLists(result[0], result[1], result[2]);
+    }
+  }
+
+  Future<dynamic> updateLists(
+      String newName, bool primaryChanged, bool isPrimary) async {
+    DocumentReference primaryList;
+    String primaryListName;
+
+    _listMap.clear();
+    for (DocumentReference ref in user.shoppingLists) {
+      // repopulate list map
+      String listName = "";
+      await ref.get().then((DocumentSnapshot snapshot) {
+        if (ref == user.PSID) {
+          listName = snapshot.data()['Name'] + "*";
+          primaryList = ref;
+          primaryListName = listName;
+        } else {
+          listName = snapshot.data()['Name'];
+        }
+      });
+      _listMap[listName] = ref; // map the doc ref to its name
+    }
+
+    if (mounted) {
       setState(() {
-        DocumentReference tempRef = _listMap[_selectedListName];
-        _listMap.remove(_selectedListName);
-        _listMap[result] = tempRef;
-        _selectedListName = result;
+        if (isPrimary) {
+          // covers both primary --> primary and non-primary --> primary cases
+          _selectedList = primaryList;
+          _selectedListName = primaryListName;
+        } else if (!isPrimary && primaryChanged) {
+          // primary --> non-primary
+          // quietly stops the user from not having a primary list
+          _selectedList = _listMap[newName + "*"];
+          _selectedListName = newName + "*";
+        } else {
+          // non-primary --> non-primary
+          _selectedList = _listMap[newName];
+          _selectedListName = newName;
+        }
       });
     }
+  }
+
+  Future<void> deleteList(DocumentReference doc) async {
+    // delete list from list of shopping lists
+    await doc
+        .delete()
+        .then((value) =>
+            print("SUCCESS: $doc has been deleted from shopping lists"))
+        .catchError((error) =>
+            print("FAILURE: couldn't delete $doc from shopping lists: $error"));
+    // delete list from user shopping lists
+    await firestoreInstance
+        .collection('users')
+        .doc(user.uid)
+        .update({
+          'ShoppingIDs': FieldValue.arrayRemove([_selectedList])
+        })
+        .then((value) =>
+            print("SUCCESS: $doc has been deleted from user shopping lists"))
+        .catchError((error) => print(
+            "FAILURE: couldn't delete $doc from user shopping lists: $error"));
+    // if list is primary, remove it from PSID
+    if (doc == user.PSID) {
+      await firestoreInstance
+          .collection('users')
+          .doc(user.uid)
+          .update({'PSID': FieldValue.delete()})
+          .then((value) =>
+              print("SUCCESS: $doc has been deleted from user shopping lists"))
+          .catchError((error) => print(
+              "FAILURE: couldn't delete $doc from user shopping lists: $error"));
+      if (_listMap.isNotEmpty) {
+        var entryList = _listMap.entries.toList();
+        FirebaseFirestore.instance.collection("users").doc(user.uid).update({
+          'PSID': entryList[0].value,
+        }).catchError(
+            (error) => print("Failed to set new primary list: $error"));
+        updateLists(entryList[0].key, true, true);
+      }
+    }
+  }
+
+  showDeleteDialog(
+      BuildContext context, String listName, DocumentReference doc) {
+    Widget cancelButton = TextButton(
+        style: TextButton.styleFrom(
+            backgroundColor: Colors.lightBlue, primary: Colors.white),
+        child: Text("NO"),
+        onPressed: () {
+          Navigator.of(context, rootNavigator: true).pop();
+        });
+
+    Widget okButton = TextButton(
+      style: TextButton.styleFrom(primary: Colors.lightBlue),
+      child: Text("YES"),
+      onPressed: () {
+        deleteList(doc);
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Are you sure?"),
+          content: Text(
+              "Do you really want to remove \"$listName\"? This cannot be undone."),
+          actions: [
+            cancelButton,
+            okButton,
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -208,15 +342,20 @@ class _ListState extends State<ShoppingList> {
                   createNewList(false);
                 }
                 break;
-              case 'Edit selected list':
+              case 'Edit this list':
                 {
                   editList();
+                }
+                break;
+              case 'Remove this list':
+                {
+                  showDeleteDialog(context, _selectedListName, _selectedList);
                 }
                 break;
             }
           },
           itemBuilder: (BuildContext context) {
-            return {'Create a new list', 'Edit selected list'}
+            return {'Create a new list', 'Edit this list', 'Remove this list'}
                 .map((String choice) {
               return PopupMenuItem<String>(
                 value: choice,

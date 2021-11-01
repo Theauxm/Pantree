@@ -32,7 +32,7 @@ class _PantryState extends State<Pantry> {
   }
 
   Future<dynamic> getData() async {
-    print('GETDATA() CALLED');
+    // print('GETDATA() CALLED');
     DocumentReference tempPantry;
     String tempName;
 
@@ -142,8 +142,8 @@ class _PantryState extends State<Pantry> {
 
   Future<dynamic> updatePantries(
       String newName, bool primaryChanged, bool isPrimary) async {
-    print("PANTRY MAP BEFORE CLEAR: $_pantryMap");
-    print("USER PANTRIES BEFORE MAP CLEAR: ${user.pantries}");
+    // print("PANTRY MAP BEFORE CLEAR: $_pantryMap");
+    // print("USER PANTRIES BEFORE MAP CLEAR: ${user.pantries}");
     DocumentReference primaryPantry;
     String primaryPantryName;
 
