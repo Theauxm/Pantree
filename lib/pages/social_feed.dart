@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/ImageFromGalleryEx.dart';
+import '../models/friends_list.dart';
 import '../models/drawer.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
@@ -96,9 +97,18 @@ class _socialState extends State<social_feed> {
         MaterialPageRoute(builder: (context) => ImageFromGalleryEx(type, user)));
   }
 
+  void _handleFriendsPress(BuildContext context){
+    print("value of your text");
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => FriendsList(user: user)));
+  }
+
 
   @override
   Widget build(BuildContext context) {
+    if(user.name == null){
+      return Center(child: CircularProgressIndicator());
+    }
 
     return Scaffold(
         drawer: PantreeDrawer(user: this.user),
@@ -155,7 +165,13 @@ class _socialState extends State<social_feed> {
                   Column(
                       children:[
                         Text(user.friends.length.toString()),
-                        Text('Friends')
+                        InkWell(
+                          child: Text('Friends'),
+                          onTap: () {
+                            _handleFriendsPress(context);
+                          }
+
+                        )
                       ]
                   ),
                   Column(

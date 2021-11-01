@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pantree/pantreeUser.dart';
 import "package:pantree/models/add_friend.dart";
+import "package:pantree/models/user_profile.dart";
 
 class FriendsList extends StatefulWidget {
   final PantreeUser user;
@@ -113,9 +114,14 @@ class FriendsListState extends State<FriendsList> {
           margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 3.0),
           child: ListTile(
             leading: Container(
-                child: Icon(
-                  Icons.account_box,
-                  size: 50,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.account_box,
+                    size: 30,
+                  ),
+                    onPressed:(){
+                    profileClicked(map, keys, index);
+                    },
                 )),
             title: Text(
               keys[index].toString(),
@@ -157,6 +163,16 @@ class FriendsListState extends State<FriendsList> {
         }
       );
     }
+  }
+
+  void profileClicked(map, keys, index){
+    print('clicked');
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+            (user_profile(profileRef: map[keys[index]], status: 'pending'))));
+    //TODO route the user to the clicked profile
   }
   void removeFriend(DocumentReference d,DocumentReference u, DocumentReference f){
     u.update({'Friends': FieldValue.increment(-1)});
