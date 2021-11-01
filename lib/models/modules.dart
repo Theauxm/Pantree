@@ -623,40 +623,140 @@ Widget createLandingPage(user, usedByView, context) {
 class AddNewCollaborator extends StatefulWidget {
   final PantreeUser user;
   final String usedByView;
-  final DocumentReference itemList;
+  final DocumentReference docRef;
 
-  const AddNewCollaborator({Key key, this.user, this.usedByView, this.itemList})
+  const AddNewCollaborator({Key key, this.user, this.usedByView, this.docRef})
       : super(key: key);
 
   @override
   AddNewCollaboratorState createState() => AddNewCollaboratorState();
 }
-class AddNewCollaboratorState extends State<AddNewCollaborator> {
-  Map<String, DocumentReference>
-  friendsMap;
 
-  Future<dynamic> getFriends() async {
-    friendsMap = Map<String, DocumentReference>();
-    //await user.updateData(); // important: refreshes the user's data// instantiate the map
-    for (DocumentReference ref in widget.user.friends.keys) {
-      // go through each doc ref and add to list of pantry names + map
-      String friendUsername = "";
-      await ref.get().then((DocumentSnapshot snapshot) {
-        friendUsername =
-        snapshot.data()['Username']; // get the pantry name as a string
-      });
-      friendsMap[friendUsername] = ref;
+class AddNewCollaboratorState extends State<AddNewCollaborator> {
+
+  var items;
+
+  void createList() {
+    items = [];
+    for(var i = 0; i < widget.user.friends.length; i++){
+      items.add(
+          new CheckBoxListTileModel(
+              title: widget.user.friends[i][2],
+              isCheck: false,
+              ref: widget.user.friends[i][1]));
     }
+    setState(() {
+
+    });
   }
+
 
   @override
   void initState() {
     super.initState();
-    getFriends();
+    createList();
+  }
+
+  selectAll() {
+    items.forEach((element) {
+      element.isCheck = true;
+    });
+    setState(() {
+
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-  return Text("hey");
+  return
+      Scaffold(
+        appBar: AppBar(
+            title: Text("Select Friends to add!"),
+            actions: <Widget>[
+              Padding(
+                  padding: EdgeInsets.only(right: 20.0),
+                  child: TextButton(
+                    child: Text("Select All"),
+                    style: TextButton.styleFrom(primary: Colors.white, textStyle: TextStyle(fontSize: 18)),
+                    onPressed: selectAll,)
+              ),
+            ]
+        ),
+        body: Column(children: [Expanded(
+          child: ListView.builder(
+              itemCount: items.length,
+              itemBuilder: (BuildContext context, int index) {
+                return new Card(
+                  child: new Container(
+                    padding: new EdgeInsets.all(10.0),
+                    child: Column(
+                      children: <Widget>[
+                        new CheckboxListTile(
+                            activeColor: Colors.pink[300],
+                            dense: true,
+                            //font change
+                            title: new Text(
+                              items[index].title,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            value: items[index].isCheck,
+                            secondary: Container(
+                                child: Icon(
+                                  Icons.account_box,
+                                  size: 50,
+                                )),
+                            onChanged: (bool val) {
+                              setState(() {
+                                items[index].isCheck = val;
+                              });
+                            })
+                      ],
+                    ),
+                  ),
+                );
+              }),
+        ),]),
+          floatingActionButton: FloatingActionButton.extended(
+      onPressed: () {
+        addPeople();
+        //TODO: Show dialog somthing
+
+  },
+    label: Text("Add users to ${widget.usedByView}"),
+    backgroundColor: Colors.lightBlue,
+    icon: const Icon(Icons.add_shopping_cart_outlined),
+    //onPressed: (),
+    ),
+      );
+  }
+
+  bool addPeople() {
+    try {
+      items.forEach((element) {
+        if (element.isCheck) {
+        element.ref.update(
+        {
+        'PantryIds': FieldValue.arrayUnion([widget.docRef]),
+        });
+        
+        widget.docRef.update({
+          'AltUsers': FieldValue.arrayUnion([element.ref]),});
+        }
+      });
+    } catch (e) {
+      return false;
+    }
+    return true;
   }
   }
+
+class CheckBoxListTileModel {
+  String title;
+  bool isCheck;
+  DocumentReference ref;
+  CheckBoxListTileModel({this.title, this.isCheck, this.ref});
+}

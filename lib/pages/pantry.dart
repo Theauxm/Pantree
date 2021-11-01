@@ -116,14 +116,19 @@ class _PantryState extends State<Pantry> {
   }
 
   void addCollaborator() {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => (AddNewCollaborator(
-              user: user,
-              usedByView: "Pantry",
-              itemList: _selectedPantry,
-            ))));
+    if(user.friends.length > 0) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+              (AddNewCollaborator(
+                user: user,
+                usedByView: "Pantry",
+                docRef: _selectedPantry,
+              ))));
+    } else{
+      //TODO: Add popup telling them to get friends
+    }
   }
 
   Future<void> editPantry() async {
