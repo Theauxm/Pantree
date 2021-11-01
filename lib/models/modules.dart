@@ -740,7 +740,7 @@ class AddNewCollaboratorState extends State<AddNewCollaborator> {
         if (element.isCheck) {
         element.ref.update(
         {
-        'PantryIds': FieldValue.arrayUnion([widget.docRef]),
+        'PantryIDs': FieldValue.arrayUnion([widget.docRef]),
         });
         
         widget.docRef.update({

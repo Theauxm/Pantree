@@ -102,7 +102,7 @@ class FriendsListState extends State<FriendsList> {
                     size: 30,
                   ),
                     onPressed:(){
-                    profileClicked(map, keys, index);
+                    profileClicked(fl, index);
                     },
                 )),
             title: Text(
@@ -147,13 +147,13 @@ class FriendsListState extends State<FriendsList> {
     }
   }
 
-  void profileClicked(map, keys, index){
+  void profileClicked(fl, index){
     print('clicked');
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) =>
-            (user_profile(profileRef: map[keys[index]], status: 'pending'))));
+            (user_profile(profileRef: fl[index][1], status: 'pending'))));
     //TODO route the user to the clicked profile
   }
   void removeFriend(DocumentReference d,DocumentReference u, DocumentReference f){
