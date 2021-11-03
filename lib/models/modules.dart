@@ -427,6 +427,7 @@ class NewItemList extends StatelessWidget {
       await FirebaseFirestore.instance.collection(collectionName).add({
         "Name": name,
         "Owner": FirebaseFirestore.instance.collection("users").doc(user.uid),
+        "AltUsers": []
       }).then((value) {
         if (makePrimary) {
           FirebaseFirestore.instance.collection("users").doc(user.uid).update({
