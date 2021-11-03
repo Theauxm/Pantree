@@ -6,49 +6,45 @@ class ExportList extends StatefulWidget {
   final PantreeUser user;
   final DocumentReference list;
   final List exportList;
+  final String exportingToName;
   final bool removeItems;
-  ExportList({this.user, this.list, this.exportList, this.removeItems = true});
+  ExportList({Key key, this.user, this.list, this.exportList, this.removeItems = true, this.exportingToName})
+      : super(key: key);
   @override
-  _ExportListState createState() => _ExportListState(user: user, list: list, exportList: exportList, removeItems: removeItems);
+  _ExportListState createState() => _ExportListState();
 }
 
 class _ExportListState extends State<ExportList> {
-  PantreeUser user;
-  final bool removeItems;
   var items;
   String img =
       "https://i2.wp.com/ceklog.kindel.com/wp-content/uploads/2013/02/firefox_2018-07-10_07-50-11.png";
-  String _selectedPantryName;
-  DocumentReference _selectedPantry;
-  List exportList;
-  final DocumentReference list;
-  _ExportListState({this.user, this.list, this.exportList, this.removeItems});
-  Map<String, DocumentReference> _pantryMap;
+  String _selectedListName;
+  DocumentReference _selectedList;
+  Map<String, DocumentReference> _listMap;
 
   Future<dynamic> getData() async {
-    DocumentReference tempPantry;
+    DocumentReference tempList;
     String tempName;
 
-    await user.updateData(); // important: refreshes the user's data
-    _pantryMap = Map<String, DocumentReference>(); // instantiate the map
+    await widget.user.updateData(); // important: refreshes the user's data
+    _listMap = Map<String, DocumentReference>(); // instantiate the map
 
-    for (DocumentReference ref in exportList) {
+    for (DocumentReference ref in widget.exportList) {
       // go through each doc ref and add to list of pantry names + map
-      String pantryName = "";
+      String tempName = "";
       await ref.get().then((DocumentSnapshot snapshot) {
-        pantryName = snapshot.data()['Name']; // get the pantry name as a string
+        tempName = snapshot.data()['Name']; // get the pantry name as a string
       });
-      // todo: check for [upcoming] 'primary' boolean val and set _selectedPantry/Name vals to that
-      tempPantry = ref; // this will have to do for now
-      tempName = pantryName;
-      _pantryMap[pantryName] = ref; // map the doc ref to its name
+      tempList = ref; // this will have to do for now
+      tempName = tempName;
+      _listMap[tempName] = ref; // map the doc ref to its name
     }
 
     // very important: se setState() to force a call to build()
     setState(() {
-      _selectedPantry = tempPantry;
-      _selectedPantryName = tempName;
-      list.collection("ingredients").get().then((value) {
+      _selectedList = tempList;
+      _selectedListName = tempName;
+      widget.list.collection("ingredients").get().then((value) {
         setState(() {
           items = value.docs.map<CheckBoxListTileModel>((e) {
             return new CheckBoxListTileModel(
@@ -73,7 +69,7 @@ class _ExportListState extends State<ExportList> {
     if (items == null) return const Text('Loading....');
     return Scaffold(
         appBar: AppBar(
-          title: Text("Export Items to Pantry!"),
+          title: Text('Export Items to ${widget.exportingToName}!'),
             actions: <Widget>[
               Padding(
                 padding: EdgeInsets.only(right: 20.0),
@@ -86,10 +82,10 @@ class _ExportListState extends State<ExportList> {
         ),
         body: Column(children: [
           DropdownButtonFormField<String>(
-            value: _selectedPantryName,
+            value: _selectedListName,
             decoration: InputDecoration(
               filled: true,
-              labelText: 'Pick a Pantry',
+              labelText: 'Pick a ${widget.exportingToName}',
             ),
             style: TextStyle(
                 color: Colors.black, fontSize: 20, fontWeight: FontWeight.w600),
@@ -98,7 +94,7 @@ class _ExportListState extends State<ExportList> {
               color: Colors.black,
               size: 30.0,
             ),
-            items: _pantryMap.keys.map<DropdownMenuItem<String>>((val) {
+            items: _listMap.keys.map<DropdownMenuItem<String>>((val) {
               return DropdownMenuItem<String>(
                 value: val,
                 child: Text(val),
@@ -106,11 +102,11 @@ class _ExportListState extends State<ExportList> {
             }).toList(),
             onChanged: (String newVal) {
               setState(() {
-                _selectedPantry = _pantryMap[newVal];
-                _selectedPantryName = newVal;
+                _selectedList = _listMap[newVal];
+                _selectedListName = newVal;
               });
             },
-            hint: Text("Select Pantry"),
+            hint: Text("Select ${widget.exportingToName}"),
             elevation: 0,
             dropdownColor: Colors.lightBlue,
           ),
@@ -161,7 +157,7 @@ class _ExportListState extends State<ExportList> {
           onPressed: () {
             showExportDialog(context);
           },
-          label: Text("Export To Pantry!"),
+          label: Text("Export To ${widget.exportingToName}!"),
           backgroundColor: Colors.lightBlue,
           icon: const Icon(Icons.add_shopping_cart_outlined),
           //onPressed: (),
@@ -174,13 +170,13 @@ class _ExportListState extends State<ExportList> {
     try {
       items.forEach((element) {
         if (element.isCheck) {
-          _selectedPantry.collection("ingredients").add({
+          _selectedList.collection("ingredients").add({
             "Item": element.ref.data()['Item'],
             "Quantity": element.ref.data()['Quantity'],
             'Unit': element.ref.data()['Unit'],
             'DateAdded': date
           }).then((value) {
-            if(removeItems) {
+            if(widget.removeItems) {
               element.ref.reference.delete();
             }
           });
@@ -245,7 +241,7 @@ class _ExportListState extends State<ExportList> {
     String m = "There was a problem exporting your Items. Try again later.";
     if (bool) {
       t = "Success!";
-      m = "Items added to pantry!";
+      m = "Items added to ${widget.exportingToName}!";
     }
     showDialog(
       context: context,

@@ -116,7 +116,8 @@ class _ListState extends State<ShoppingList> {
               builder: (context) => (ExportList(
                   user: user,
                   list: _selectedList,
-                  exportList: user.pantries))));
+                  exportList: user.pantries,
+                  exportingToName: "Pantry"))));
     } else {
       showError(context);
     }
