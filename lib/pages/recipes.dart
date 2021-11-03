@@ -24,6 +24,8 @@ class _recipeState extends State<recipes> {
 
   _recipeState({this.user});
 
+  DocumentReference currentPPID;
+
   static const historyLength = 5;
 
   List<String> _searchHistory = [];
@@ -79,7 +81,9 @@ class _recipeState extends State<recipes> {
     super.initState();
     controller = FloatingSearchBarController();
     filteredSearchHistory = filterSearchTerms(filter: null);
+    currentPPID = this.user.PPID;
     setListener();
+    getData();
   }
 
   @override
@@ -88,7 +92,17 @@ class _recipeState extends State<recipes> {
     super.dispose();
   }
 
+  Future<dynamic> getData() async {
+    this.pantryIngredients = {};
+    await FirebaseFirestore.instance
+        .collection(this.user.PPID.path + "/ingredients").get()
+        .then((QuerySnapshot ingredients) {
+      for(int i = 0; i < ingredients.docs.length; i++)
+        pantryIngredients.add(ingredients.docs[i]["Item"].path.toString().trim());
+    });
 
+    setState(() {});
+  }
 
   setListener() {
     FirebaseFirestore.instance
@@ -96,12 +110,19 @@ class _recipeState extends State<recipes> {
         .doc(user.uid)
         .snapshots()
         .listen((event) {
-      if (event.data()['PPID'].toString() != user.PPID.toString()) {
-        print("INSIDE LISTENER --> PPID");
+      if (event.data()['PPID'].toString() != this.currentPPID.toString()) {
+        print("INSIDE LISTENER --> PPID peach emoji");
         user.PPID = event.data()['PPID'];
-
+        this.currentPPID = event.data()['PPID'];
+        getData();
         setState(() {});
       }
+    });
+
+    FirebaseFirestore.instance
+        .collection(this.user.PPID.path + "/ingredients")
+        .snapshots().listen((event) {
+          getData();
     });
   }
 
@@ -297,16 +318,6 @@ class SearchResultsListView extends StatelessWidget {
     @required this.user,
   }) : super(key: key);
 
-  Future<dynamic> getData() async {
-    this.pantryIngredients = {};
-    await FirebaseFirestore.instance
-        .collection(this.user.PPID.path + "/ingredients").get()
-        .then((QuerySnapshot ingredients) {
-      for(int i = 0; i < ingredients.docs.length; i++)
-        pantryIngredients.add(ingredients.docs[i]["Item"].path.toString().trim());
-    });
-  }
-
   int getMissingIngredients(QuerySnapshot ingredients) {
     int numIngredients = 0;
 
@@ -320,7 +331,6 @@ class SearchResultsListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    getData();
     if (this.pantryIngredients == null) {
       return CircularProgressIndicator();
     }
@@ -379,7 +389,7 @@ class SearchResultsListView extends StatelessWidget {
                       builder: (BuildContext context,
                       AsyncSnapshot<QuerySnapshot> ingredientsSnapshot) {
                        if (ingredientsSnapshot.connectionState == ConnectionState.waiting) {
-                         return Center(child: CircularProgressIndicator());
+                         return Container();
                        }
 
                         int missingIngred = getMissingIngredients(ingredientsSnapshot.data);
