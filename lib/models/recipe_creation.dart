@@ -198,54 +198,6 @@ class _InputForm extends State<RecipeCreator> {
     super.dispose();
   }
 
-  Widget _createDropdownMenu(String _selectedUnit) {
-    return Container(
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(
-              color: Color.fromRGBO(255, 190, 50, 1.0),
-              width: 1,
-              style: BorderStyle.solid)),
-      child: DropdownButton<String>(
-          isDense: false,
-          itemHeight: 58.0,
-          value: _selectedUnit,
-          style: TextStyle(color: Colors.white),
-          icon: Icon(Icons.arrow_drop_down,
-              color: Colors.black),
-          items: units.map<DropdownMenuItem<String>>((val) {
-            return DropdownMenuItem<String>(
-              value: val,
-              child: Text(val),
-            );
-          }).toList(),
-          onChanged: (String newVal) {
-            setState(() {
-              _selectedUnit = newVal;
-            });
-          },
-          hint: Text("Select unit"),
-          underline:
-          DropdownButtonHideUnderline(child: Container()),
-          elevation: 0,
-          dropdownColor: Color.fromRGBO(255, 190, 50, 1.0),
-          selectedItemBuilder: (BuildContext context) {
-            return units.map((String val) {
-              return Container(
-                  alignment: Alignment.centerRight,
-                  width: 50,
-                  child: Text(
-                    _selectedUnit,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: Colors.black54,
-                        fontSize: 16.0),
-                  ));
-            }).toList();
-          }),
-    );
-  }
-
   Widget _addTile(String text) {
     String _selectedUnit = units[0];
     return ListTile(
@@ -434,7 +386,9 @@ class _InputForm extends State<RecipeCreator> {
     DocumentReference newRecipe = firestoreInstance.collection('recipes').doc();
     CollectionReference ingredientCollection =
         newRecipe.collection('ingredients');
-    print(newRecipe.id);
+
+    DocumentReference currentUser = firestoreInstance.collection('users').doc(this.user.uid);
+    currentUser.update({"RecipeIDs" : FieldValue.arrayUnion([newRecipe.id])});
 
     Set<String> allKeywords = {};
     for (int i = 0; i < _ingredientControllers.length; i++) {
