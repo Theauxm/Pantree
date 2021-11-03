@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:flutter/material.dart';
 import 'package:pantree/pages/social_feed.dart';
-import 'package:pantree/pantreeUser.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
@@ -38,8 +37,8 @@ class ImageFromGalleryExState extends State<ImageFromGalleryEx> {
   Future uploadImageToFirebase(BuildContext context) async {
     String fileName = basename(_image.path);
     //print('user' + user);
-    Reference firebaseStorageRef =
-        FirebaseStorage.instance.ref().child('uploads/$fileName');
+    /*Reference firebaseStorageRef =
+        FirebaseStorage.instance.ref().child('uploads/$fileName');*/
     try {
       await FirebaseStorage.instance.ref('uploads/$fileName').putFile(_image);
       print('filename ' + fileName);
@@ -61,7 +60,6 @@ class ImageFromGalleryExState extends State<ImageFromGalleryEx> {
      return true;
     } catch (e) {
       return false;
-      print('error in upload of image');
     }
   }
 
@@ -71,11 +69,11 @@ class ImageFromGalleryExState extends State<ImageFromGalleryEx> {
       bool b = await  uploadImageToFirebase(context);
       Navigator.of(_keyLoader.currentContext,rootNavigator: true).pop();
       if (b) {
-        Dialogs.showDialogCreatePL(context, "Success",
-            "Image Upload Successful.","Return to Profile");
+        Dialogs.showOKDialog(context, "Success",
+            "Image Upload Successful.");
       } else{
-        Dialogs.showDialogCreatePL(context, "Failed",
-            "Something went wrong! Try again later!","Return to Profile");
+        Dialogs.showOKDialog(context, "Failed",
+            "Something went wrong! Try again later!");
       }
       //Navigator.pushReplacementNamed(context, "/home");
     } catch (error) {

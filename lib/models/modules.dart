@@ -285,7 +285,7 @@ class NewItemList extends StatelessWidget {
                   style: TextButton.styleFrom(backgroundColor: Colors.blue),
                   onPressed: () {
                     if (_form.currentState.validate()) {
-                      _handleSubmit(context, _listNameTextController.text);
+                      handleSubmit(context, _listNameTextController.text);
                     }
                   },
                   child: Text(
@@ -297,23 +297,21 @@ class NewItemList extends StatelessWidget {
     );
   }
 
-  Future<void> _handleSubmit(BuildContext context, name) async {
+  Future<void> handleSubmit(BuildContext context, name) async {
     try {
       Dialogs.showLoadingDialog(context, _keyLoader);
       bool b = await createItemList(name);
       Navigator.of(_keyLoader.currentContext, rootNavigator: true).pop();
       if (b) {
-        Dialogs.showDialogCreatePL(
+        Dialogs.showOKDialog(
             context,
-            "Success",
-            usedByView + "Creation was Successful Return to your $usedByView!",
-            "Return to $usedByView");
+            "Great success!",
+            "Your new ${usedByView.toLowerCase()} has been successfully created! Press OK to return to your ${usedByView.toLowerCase()}.");
       } else {
-        Dialogs.showDialogCreatePL(
+        Dialogs.showOKDialog(
             context,
             "Failed",
-            "Something went wrong! Try again later!",
-            "Return to " + usedByView);
+            "Something went wrong trying to created your ${usedByView.toLowerCase()}! Please check your input or try again later.");
       }
       //Navigator.pushReplacementNamed(context, "/home");
     } catch (error) {

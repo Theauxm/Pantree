@@ -39,7 +39,7 @@ class _recipeState extends State<recipes> {
   Future<dynamic> getData() async {
     pantryIngredients = {};
     await FirebaseFirestore.instance
-        .collection(this.user.PPID[0].path + "/ingredients").get()
+        .collection(this.user.PPID.path + "/ingredients").get()
         .then((QuerySnapshot ingredients) {
       for(int i = 0; i < ingredients.docs.length; i++)
         pantryIngredients.add(ingredients.docs[i]["Item"].path.toString().trim());

@@ -26,31 +26,21 @@ class Dialogs {
         });
   }
 
-  static Future<void> showDialogCreatePL(BuildContext context, String t, String m, String b) async {
+  static Future<void> showOKDialog(BuildContext context, String title, String message) async {
     // set up the button
-    Widget signButton = TextButton(
-      child: Text(b),
+    Widget okButton = TextButton(
+      child: Text("OK"),
       onPressed: () {
         Navigator.of(context, rootNavigator: true).pop();
         Navigator.of(context).pop();
       },
     );
 
-    Widget okButton = TextButton(
-      child: Text("Stay"),
-      onPressed: () {
-        Navigator.of(context, rootNavigator: true).pop();
-      },
-    );
-    var a = [signButton, okButton];
-    AlertDialog alert =
-    AlertDialog(title: Text(t), content: Text(m), actions: a);
-
     // show the dialog
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return alert;
+        return AlertDialog(title: Text(title), content: Text(message), actions: [okButton]);
       },
     );
   }
