@@ -120,18 +120,22 @@ class _PantryState extends State<Pantry> {
   }
 
   void addCollaborator() {
-    if(user.friends.length > 0) {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-              (AddNewCollaborator(
-                user: user,
-                usedByView: "Pantry",
-                docRef: _selectedPantry,
-              ))));
+    if(isOwner) {
+      if (user.friends.length > 0) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                (AddNewCollaborator(
+                  user: user,
+                  usedByView: "Pantry",
+                  docRef: _selectedPantry,
+                ))));
+      } else {
+        //TODO: Add popup telling them to get friends
+      }
     } else{
-      //TODO: Add popup telling them to get friends
+      //TODO: You are not the owner Dialog
     }
   }
 

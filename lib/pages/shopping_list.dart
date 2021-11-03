@@ -24,6 +24,7 @@ class _ListState extends State<ShoppingList> {
   Map<String, DocumentReference>
       _listMap; // private NOTE: bad design - it will fuck with users collaborating on multiple lists with the same name
   bool loading = true;
+  bool isOwner = false;
 
   @override
   void initState() {
@@ -42,6 +43,9 @@ class _ListState extends State<ShoppingList> {
       // go through each doc ref and add to list of list names + map
       String listName = "";
       await ref.get().then((DocumentSnapshot snapshot) {
+        if(snapshot.data()['Owner'].id == widget.user.uid){
+          isOwner = true;
+        }
         if (ref == user.PSID) {
           listName = snapshot.data()['Name'] + "*";
         } else {
