@@ -208,7 +208,6 @@ def get_amount(words):
     Args:
         words : list of split strings containing an ingredient's information
     """
-    print(words)
 
     number = 0
     for x in words:

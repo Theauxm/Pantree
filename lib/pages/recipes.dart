@@ -32,21 +32,9 @@ class _recipeState extends State<recipes> {
 
   List<dynamic> filteredRecipes = [];
 
-  String selectedTerm = "";
-
   Set<String> pantryIngredients;
 
-  Future<dynamic> getData() async {
-    pantryIngredients = {};
-    await FirebaseFirestore.instance
-        .collection(this.user.PPID[0].path + "/ingredients").get()
-        .then((QuerySnapshot ingredients) {
-      for(int i = 0; i < ingredients.docs.length; i++)
-        pantryIngredients.add(ingredients.docs[i]["Item"].path.toString().trim());
-    });
-
-    setState(() {});
-  }
+  String selectedTerm = "";
 
   List<String> filterSearchTerms({
     @required String filter,
@@ -91,7 +79,7 @@ class _recipeState extends State<recipes> {
     super.initState();
     controller = FloatingSearchBarController();
     filteredSearchHistory = filterSearchTerms(filter: null);
-    getData();
+    setListener();
   }
 
   @override
@@ -100,12 +88,25 @@ class _recipeState extends State<recipes> {
     super.dispose();
   }
 
+
+
+  setListener() {
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(user.uid)
+        .snapshots()
+        .listen((event) {
+      if (event.data()['PPID'].toString() != user.PPID.toString()) {
+        print("INSIDE LISTENER --> PPID");
+        user.PPID = event.data()['PPID'];
+
+        setState(() {});
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (pantryIngredients == null) {
-      return CircularProgressIndicator();
-    }
-
     return Scaffold(
         drawer: PantreeDrawer(user: this.user),
         floatingActionButton: CustomFAB(
@@ -200,7 +201,6 @@ class _recipeState extends State<recipes> {
                 });
               },
               onSubmitted: (query) {
-                getData();
                 setState(() {
                   addSearchTerm(query);
                   selectedTerm = query;
@@ -298,15 +298,14 @@ class SearchResultsListView extends StatelessWidget {
   }) : super(key: key);
 
   Future<dynamic> getData() async {
+    this.pantryIngredients = {};
     await FirebaseFirestore.instance
-        .collection(this.user.PPID[0].path + "/ingredients").get()
+        .collection(this.user.PPID.path + "/ingredients").get()
         .then((QuerySnapshot ingredients) {
       for(int i = 0; i < ingredients.docs.length; i++)
         pantryIngredients.add(ingredients.docs[i]["Item"].path.toString().trim());
     });
   }
-
-
 
   int getMissingIngredients(QuerySnapshot ingredients) {
     int numIngredients = 0;
@@ -316,14 +315,16 @@ class SearchResultsListView extends StatelessWidget {
         numIngredients++;
       }
     }
-    print(numIngredients);
     return numIngredients;
   }
 
   @override
   Widget build(BuildContext context) {
     getData();
-    print("Current Pantry Ingredients: " + this.pantryIngredients.toString());
+    if (this.pantryIngredients == null) {
+      return CircularProgressIndicator();
+    }
+
     if (searchTerm == null) {
       return Center(
         child: Column(
@@ -380,6 +381,9 @@ class SearchResultsListView extends StatelessWidget {
                        if (ingredientsSnapshot.connectionState == ConnectionState.waiting) {
                          return Center(child: CircularProgressIndicator());
                        }
+
+                        int missingIngred = getMissingIngredients(ingredientsSnapshot.data);
+                        Color cardColor = missingIngred < 3 ? Colors.green : missingIngred >= 3 && missingIngred <= 5 ? Colors.yellow[700] : Colors.red[400];
                         return Card(
                             margin: const EdgeInsets.only(
                                 top: 12.0, right: 8.0, left: 8.0),
@@ -397,7 +401,7 @@ class SearchResultsListView extends StatelessWidget {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Card(
-                                            color: Colors.red[400],
+                                            color: cardColor,
                                             shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                 BorderRadius.circular(5.0)),
@@ -415,7 +419,7 @@ class SearchResultsListView extends StatelessWidget {
                                                       color: Colors.white,
                                                     )))),
                                         Card(
-                                            color: Colors.red[400],
+                                            color: cardColor,
                                             shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                 BorderRadius.circular(5.0)),
@@ -431,7 +435,7 @@ class SearchResultsListView extends StatelessWidget {
                                                       color: Colors.white,
                                                     )))),
                                         Card(
-                                            color: Colors.red[400],
+                                            color: cardColor,
                                             shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                 BorderRadius.circular(5.0)),
@@ -441,7 +445,7 @@ class SearchResultsListView extends StatelessWidget {
                                                     right: 5.0,
                                                     left: 5.0,
                                                     bottom: 5.0),
-                                                child: Text("Missing Ingredients: " + getMissingIngredients(ingredientsSnapshot.data).toString(),
+                                                child: Text("Missing Ingredients: " + missingIngred.toString(),
                                                     style: TextStyle(
                                                       fontSize: 18.0,
                                                       color: Colors.white,
