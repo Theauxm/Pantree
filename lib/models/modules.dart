@@ -253,12 +253,22 @@ class _NewFoodItemState extends State<NewFoodItem> {
 }
 
 /// Create Card for Pantry/shopping list
-/// [doc] - Document Reference to either the current Pantry/Shopping list
+/// [ingredientDS] - Document Reference to either the current Pantry/Shopping list
 /// [context] - Name of the view using this widget
-Widget itemCard(DocumentSnapshot doc, BuildContext context) {
-  int qty = doc['Quantity'];
+Widget itemCard(DocumentSnapshot ingredientDS, BuildContext context, DocumentReference itemList) {
+  int qty = ingredientDS['Quantity'];
 
-  int updateQuantity(int newQuantity) {
+  Future<int> updateQuantity(int newQuantity) {
+    try {
+      print("UPDATING QUANTITY");
+      ingredientDS.reference.update({
+        "Quantity": newQuantity
+      }).catchError((error) =>
+          print("Failed to update Pantry/Shopping list name: $error"));
+    }
+    catch (e)  {
+      print(e);
+    }
     return null;
   }
 
@@ -268,21 +278,21 @@ Widget itemCard(DocumentSnapshot doc, BuildContext context) {
     child: ExpansionTile(
       leading: Icon(Icons.fastfood_rounded),
       title: Text(
-        doc['Item'].id.toString().capitalizeFirstOfEach,
+        ingredientDS['Item'].id.toString().capitalizeFirstOfEach,
         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
       ),
       subtitle: Text(
         "Quantity: " +
             qty.toString() +
             " " +
-            doc['Unit'].toString().capitalizeFirstOfEach,
+            ingredientDS['Unit'].toString().capitalizeFirstOfEach,
         style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
       ),
       trailing: IconButton(
         icon: Icon(Icons.delete, size: 20.0),
         onPressed: (() {
           showDeleteDialog(
-              context, doc['Item'].id.toString().capitalizeFirstOfEach, doc);
+              context, ingredientDS['Item'].id.toString().capitalizeFirstOfEach, ingredientDS);
         }),
       ),
       children: <Widget>[
@@ -302,7 +312,7 @@ Widget itemCard(DocumentSnapshot doc, BuildContext context) {
                 ),
               ]),
               Text(
-                "Date Added: " + formatDate(doc['DateAdded']),
+                "Date Added: " + formatDate(ingredientDS['DateAdded']),
                 style:
                     const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                 textAlign: TextAlign.left,
@@ -424,6 +434,7 @@ class NewItemList extends StatelessWidget {
         }
       });
     } catch (e) {
+      print(e);
       return false;
     }
     return true;
@@ -843,7 +854,7 @@ class CheckBoxListTileModel {
 
 class QuantityButton extends StatefulWidget {
   final int initialQuantity;
-  final int Function(int) onQuantityChange;
+  final Future<int> Function(int) onQuantityChange;
   const QuantityButton({Key key, this.initialQuantity, this.onQuantityChange})
       : super(key: key);
 
@@ -857,11 +868,11 @@ class _QuantityButtonState extends State<QuantityButton> {
   bool isSaving = false;
   _QuantityButtonState({this.quantity});
 
-  void changeQuantity(int newQuantity) {
+  void changeQuantity(int newQuantity) async {
     setState(() {
       isSaving = true;
     });
-    newQuantity = widget.onQuantityChange(newQuantity) ?? newQuantity;
+    newQuantity = await widget.onQuantityChange(newQuantity) ?? newQuantity;
     setState(() {
       quantity = newQuantity;
       isSaving = false;

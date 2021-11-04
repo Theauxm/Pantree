@@ -402,7 +402,7 @@ class _PantryState extends State<Pantry> {
             return Expanded(
                 child: ListView(
                     children: snapshot.data.docs.map<Widget>((doc) {
-              return Container(child: itemCard(doc, context));
+              return Container(child: itemCard(doc, context, _selectedPantry));
             }).toList()));
           }),
     ]);
