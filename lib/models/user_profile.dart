@@ -164,9 +164,10 @@ class _profileState extends State<user_profile> {
     ],
     ),
     Padding(
-    padding: const EdgeInsets.all(8.0),
+    padding: const EdgeInsets.all(6.0),
     //child: Text("text"),
     ),
+      Text("Recipes created by " + username),
     Row(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
@@ -216,7 +217,7 @@ class _profileState extends State<user_profile> {
     ),
     Container(
     child: IconButton(
-    icon: const Icon(Icons.arrow_drop_down),
+    icon: const Icon(Icons.arrow_forward_rounded),
 
     onPressed: () {
     _handleFeaturedRecipePress(context);
