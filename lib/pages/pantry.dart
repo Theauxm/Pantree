@@ -32,7 +32,7 @@ class _PantryState extends State<Pantry> {
   }
 
   Future<dynamic> getData() async {
-    // print('GETDATA() CALLED');
+    print('PANTRY GETDATA() CALLED');
     DocumentReference tempPantry;
     String tempName;
 
@@ -151,7 +151,7 @@ class _PantryState extends State<Pantry> {
     }
     print("RAW PANTRY NAME: $_selectedPantryName");
     print("NORMALIZED PANTRY NAME: $normalizedPantryName");*/
-    print("RESULT: $result");
+    //print("RESULT: $result");
     if (result is List) {
       updatePantries(result[0], result[1], result[2]);
     }

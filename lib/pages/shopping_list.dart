@@ -33,6 +33,7 @@ class _ListState extends State<ShoppingList> {
   }
 
   Future<dynamic> getData() async {
+    print('SL GETDATA() CALLED');
     DocumentReference tempPantry;
     String tempName;
 

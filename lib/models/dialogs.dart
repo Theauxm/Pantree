@@ -12,13 +12,12 @@ class Dialogs {
               onWillPop: () async => false,
               child: SimpleDialog(
                   key: key,
-                  backgroundColor: Colors.black54,
                   children: <Widget>[
                     Center(
                       child: Column(children: [
                         CircularProgressIndicator(),
                         SizedBox(height: 10,),
-                        Text("Please Wait....",
+                        Text("Please wait....",
                           style: TextStyle(color: Colors.blueAccent),)
                       ]),
                     )

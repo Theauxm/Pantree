@@ -24,6 +24,7 @@ class MyApp extends StatelessWidget {
       title: 'Pantree',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        //scaffoldBackgroundColor: Colors.white12
       ),
       //home: Home(title: 'Pantree Home'), // alt title: myPantree
       home: Home(),

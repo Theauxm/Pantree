@@ -30,7 +30,7 @@ class _PantreeDrawerState extends State<PantreeDrawer> {
                   children: [
                     Padding(
                         padding: const EdgeInsets.only(right: 10.0),
-                        child: Icon(Icons.account_circle, size: 75)),
+                        child: Icon(Icons.account_circle, size: 75, color: Colors.white)),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
@@ -38,12 +38,15 @@ class _PantreeDrawerState extends State<PantreeDrawer> {
                         FittedBox(
                           fit: BoxFit.fitWidth,
                           child: Text(user.name,
-                              style: Theme.of(context).textTheme.headline5),
+                              style: TextStyle(
+                                  fontSize: 24.0, fontWeight: FontWeight.w400, color: Colors.white)),
                         ),
                         FittedBox(
                           fit: BoxFit.fitWidth,
                           child: Text(
                             user.email,
+                            style: TextStyle(
+                                fontSize: 16.0, fontWeight: FontWeight.w400, color: Colors.white)
                           ),
                         )
                       ],
@@ -52,28 +55,28 @@ class _PantreeDrawerState extends State<PantreeDrawer> {
                 ),
               ),
               ListTile(
-                leading: Icon(Icons.account_circle),
+                leading: const Icon(Icons.account_circle),
                 title: Text('Profile'),
               ),
               ListTile(
-                leading: Icon(Icons.account_circle),
+                leading: const Icon(Icons.people),
                 title: Text('Friends'),
                 onTap: friendsList,
               ),
               ListTile(
-                leading: Icon(Icons.settings),
+                leading: const Icon(Icons.settings),
                 title: Text('Settings'),
               ),
               ListTile(
-                leading: Icon(Icons.bug_report),
+                leading: const Icon(Icons.bug_report),
                 title: Text('Report a bug'),
               ),
               ListTile(
-                leading: Icon(Icons.help),
+                leading: const Icon(Icons.help),
                 title: Text('Help'),
               ),
               ListTile(
-                leading: Icon(Icons.logout),
+                leading: const Icon(Icons.logout),
                 title: Text('Sign out'),
                 onTap: _signOut,
               ),

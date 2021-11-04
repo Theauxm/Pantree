@@ -316,14 +316,14 @@ class SearchResultsListView extends StatelessWidget {
         numIngredients++;
       }
     }
-    print(numIngredients);
+    //print(numIngredients);
     return numIngredients;
   }
 
   @override
   Widget build(BuildContext context) {
     getData();
-    print("Current Pantry Ingredients: " + this.pantryIngredients.toString());
+    //print("Current Pantry Ingredients: " + this.pantryIngredients.toString());
     if (searchTerm == null) {
       return Center(
         child: Column(

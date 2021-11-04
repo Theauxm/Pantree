@@ -66,16 +66,15 @@ class ImageFromGalleryExState extends State<ImageFromGalleryEx> {
   Future<void> _handleSubmit(BuildContext context) async {
     try {
       Dialogs.showLoadingDialog(context, _keyLoader);
-      bool b = await  uploadImageToFirebase(context);
+      bool b = await uploadImageToFirebase(context);
       Navigator.of(_keyLoader.currentContext,rootNavigator: true).pop();
       if (b) {
-        Dialogs.showOKDialog(context, "Success",
-            "Image Upload Successful.");
+        Dialogs.showOKDialog(context, "Great Success!",
+            "Your image has been successfully uploaded.");
       } else{
-        Dialogs.showOKDialog(context, "Failed",
-            "Something went wrong! Try again later!");
+        Dialogs.showOKDialog(context, "Oh no!",
+            "Something went wrong trying to upload your image! Please try again later.");
       }
-      //Navigator.pushReplacementNamed(context, "/home");
     } catch (error) {
       print(error);
     }
