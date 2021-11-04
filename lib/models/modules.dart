@@ -619,7 +619,7 @@ class _EditState extends State<Edit> {
               context,
               MaterialPageRoute(
                   builder: (context) =>
-                  (ManageUsers(listRef: widget.itemList,))));
+                  (ManageUsers(listRef: widget.itemList, usedByView: widget.usedByView,))));
         },
         child: Text(
           'Manage Users',
@@ -864,16 +864,20 @@ class AddNewCollaboratorState extends State<AddNewCollaborator> {
   }
 
   bool addPeople() {
+    String fieldName = "PantryIDs";
+    if (widget.usedByView != "Pantry"){
+      fieldName = "ShoppingIDs";
+    }
     try {
       items.forEach((element) {
         if (element.isCheck) {
-          element.ref.update({
-            'PantryIDs': FieldValue.arrayUnion([widget.docRef]),
-          });
-
-          widget.docRef.update({
-            'AltUsers': FieldValue.arrayUnion([element.ref]),
-          });
+        element.ref.update(
+        {
+        fieldName: FieldValue.arrayUnion([widget.docRef]),
+        });
+        
+        widget.docRef.update({
+          'AltUsers': FieldValue.arrayUnion([element.ref]),});
         }
       });
     } catch (e) {
@@ -894,7 +898,8 @@ class CheckBoxListTileModel {
 //Remove a user from a pantry
 class ManageUsers extends StatefulWidget {
   final DocumentReference listRef;
-  ManageUsers({Key key, this.listRef})
+  final String usedByView;
+  ManageUsers({Key key, this.listRef, this.usedByView})
       : super(key: key);
 
   @override
@@ -1035,9 +1040,12 @@ class _QuantityButtonState extends State<QuantityButton> {
     await widget.listRef.update({
       'AltUsers': FieldValue.arrayRemove([userRef]),}
     );
-
+    String fieldName = 'PantryIDs';
+    if(widget.usedByView != "Pantry"){
+      fieldName = "ShoppingIDs";
+    }
     await userRef.update({
-      'PantryIDs': FieldValue.arrayRemove([widget.listRef]),}
+      fieldName: FieldValue.arrayRemove([widget.listRef]),}
     );
 
     setState(() {

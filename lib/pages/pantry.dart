@@ -397,7 +397,7 @@ class _PantryState extends State<Pantry> {
                   showDeleteDialog(context, _selectedPantryName, _selectedPantry);
                 }
                 break;
-              case 'Add collaborator to this pantry':
+              case 'Add Collaborator':
                 {
                   addCollaborator();
                 }
@@ -408,7 +408,7 @@ class _PantryState extends State<Pantry> {
               'Create a new pantry',
               'Edit this pantry',
               'Remove this pantry',
-              'Add collaborator to this pantry'
+              'Add Collaborator'
             }.map((String choice) {
               return PopupMenuItem<String>(
                 value: choice,
