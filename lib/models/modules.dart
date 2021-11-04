@@ -255,8 +255,13 @@ class _NewFoodItemState extends State<NewFoodItem> {
 /// Create Card for Pantry/shopping list
 /// [doc] - Document Reference to either the current Pantry/Shopping list
 /// [context] - Name of the view using this widget
-Widget itemCard(doc, context) {
+Widget itemCard(DocumentSnapshot doc, BuildContext context) {
   int qty = doc['Quantity'];
+
+  int updateQuantity(int newQuantity) {
+    return null;
+  }
+
   return Card(
     elevation: 7.0,
     margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 3.0),
@@ -271,7 +276,7 @@ Widget itemCard(doc, context) {
             qty.toString() +
             " " +
             doc['Unit'].toString().capitalizeFirstOfEach,
-        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
       ),
       trailing: IconButton(
         icon: Icon(Icons.delete, size: 20.0),
@@ -282,13 +287,28 @@ Widget itemCard(doc, context) {
       ),
       children: <Widget>[
         ListTile(
-            leading: Icon(Icons.visibility_off, color: Colors.transparent),
-            title: Text(
-              "Date Added: " + formatDate(doc['DateAdded']),
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-              textAlign: TextAlign.left,
-            ),
-            //subtitle: Container(child:  ),
+          leading: Icon(Icons.visibility_off, color: Colors.transparent),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                Text("Quantity: ",
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w600),
+                    textAlign: TextAlign.left),
+                QuantityButton(
+                  initialQuantity: qty,
+                  onQuantityChange: updateQuantity,
+                ),
+              ]),
+              Text(
+                "Date Added: " + formatDate(doc['DateAdded']),
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                textAlign: TextAlign.left,
+              ),
+            ],
+          ),
         ),
       ],
     ),
@@ -819,4 +839,49 @@ class CheckBoxListTileModel {
   bool isCheck;
   DocumentReference ref;
   CheckBoxListTileModel({this.title, this.isCheck, this.ref});
+}
+
+class QuantityButton extends StatefulWidget {
+  final int initialQuantity;
+  final int Function(int) onQuantityChange;
+  const QuantityButton({Key key, this.initialQuantity, this.onQuantityChange})
+      : super(key: key);
+
+  @override
+  _QuantityButtonState createState() =>
+      _QuantityButtonState(quantity: initialQuantity);
+}
+
+class _QuantityButtonState extends State<QuantityButton> {
+  int quantity;
+  bool isSaving = false;
+  _QuantityButtonState({this.quantity});
+
+  void changeQuantity(int newQuantity) {
+    setState(() {
+      isSaving = true;
+    });
+    newQuantity = widget.onQuantityChange(newQuantity) ?? newQuantity;
+    setState(() {
+      quantity = newQuantity;
+      isSaving = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(children: [
+      IconButton(
+          color: Colors.black,
+          onPressed: (isSaving || quantity < 1)
+              ? null
+              : () => changeQuantity(quantity - 1),
+          icon: Icon(Icons.remove_circle_outline, size: 16.0)),
+      Text(quantity.toString()),
+      IconButton(
+          color: Colors.black,
+          onPressed: (isSaving) ? null : () => changeQuantity(quantity + 1),
+          icon: Icon(Icons.add_circle_outline, size: 14.0)),
+    ]);
+  }
 }
