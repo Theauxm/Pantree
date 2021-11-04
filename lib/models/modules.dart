@@ -460,7 +460,8 @@ class Edit extends StatefulWidget {
   final DocumentReference itemList;
   final String usedByView; // Will be either "Shopping list" or "Pantry"
   final String name;
-  const Edit({Key key, this.user, this.itemList, this.name, this.usedByView})
+  final bool isOwner;
+  const Edit({Key key, this.user, this.itemList, this.name, this.usedByView, this.isOwner})
       : super(key: key);
 
   @override
@@ -540,80 +541,92 @@ class _EditState extends State<Edit> {
         false; // return false in case it's null (due to async)
   }
 
+  List<Widget> buildBody() {
+    List<Widget> body = [];
+    body.add(SizedBox(height: 10));
+    if(widget.isOwner) {
+      body.add(TextFormField(
+          controller: _pantryNameTextController,
+          focusNode: _focusNode,
+          validator: (value) {
+            if (value.isEmpty || value == null) {
+              return 'Please enter a name for your ' +
+                  widget.usedByView.toLowerCase();
+            } else if (!RegExp(r"^[a-zA-Z0-9\s\']+$")
+                .hasMatch(value)) {
+              return "Name must be alphanumeric";
+            }
+            return null;
+          },
+          inputFormatters: [
+            LengthLimitingTextInputFormatter(18),
+          ],
+          decoration: InputDecoration(
+            labelText: "New ${widget.usedByView} Name",
+            border: OutlineInputBorder(),
+          )));
+      body.add(SizedBox(height: 10));
+    }
+
+      body.add(CheckboxListTile(
+        title: Text("Make Primary ${widget.usedByView}"),
+        checkColor: Colors.white,
+        selectedTileColor: Color.fromRGBO(255, 190, 50, 1.0),
+        value: makePrimary,
+        onChanged: (bool value) {
+          setState(() {
+            makePrimary = value;
+          });
+        },
+      ));
+
+    body.add(SizedBox(height: 10));
+    body.add(
+      TextButton(
+        style: TextButton.styleFrom(backgroundColor: Colors.blue),
+        onPressed: () {
+          String title = "Failed!";
+          String message =
+              "${widget.usedByView} edit failed, please try again.";
+          if (_form.currentState.validate()) {
+            if (editList(
+                _pantryNameTextController.text, makePrimary)) {
+              title = "Success!";
+              message =
+              "Your ${widget
+                  .usedByView} has been edited. \nPress OK to return to your ${widget
+                  .usedByView}!";
+              showAlertDialog(context, title, message, true);
+            } else {
+              showAlertDialog(context, title, message, false);
+            }
+          }
+        },
+        child: Text(
+          'Save Changes',
+          style: TextStyle(color: Colors.white),
+        ),
+      ));
+
+    //TODO: add mangage users for owner ;)
+
+    return body;
+  }
   @override
   Widget build(BuildContext context) {
     globalContext = context;
     return WillPopScope(
         onWillPop: _onWillPop,
         child: Scaffold(
-            appBar: AppBar(
-              title: Text("Edit " + widget.usedByView),
-            ),
-            body: Container(
-              margin: EdgeInsets.all(30.0),
-              child: Form(
-                  key: _form,
-                  child: Column(children: <Widget>[
-                    TextFormField(
-                        controller: _pantryNameTextController,
-                        focusNode: _focusNode,
-                        validator: (value) {
-                          if (value.isEmpty || value == null) {
-                            return 'Please enter a name for your ' +
-                                widget.usedByView.toLowerCase();
-                          } else if (!RegExp(r"^[a-zA-Z0-9\s\']+$")
-                              .hasMatch(value)) {
-                            return "Name must be alphanumeric";
-                          }
-                          return null;
-                        },
-                        inputFormatters: [
-                          LengthLimitingTextInputFormatter(18),
-                        ],
-                        decoration: InputDecoration(
-                          labelText: "New ${widget.usedByView} Name",
-                          border: OutlineInputBorder(),
-                        )),
-                    SizedBox(height: 10),
-                    CheckboxListTile(
-                      title: Text("Make Primary ${widget.usedByView}"),
-                      checkColor: Colors.white,
-                      selectedTileColor: Color.fromRGBO(255, 190, 50, 1.0),
-                      value: makePrimary,
-                      onChanged: (bool value) {
-                        setState(() {
-                          makePrimary = value;
-                        });
-                      },
-                    ),
-                    SizedBox(height: 42),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          primary: Colors.lightBlue,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 25, vertical: 10),
-                          textStyle: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold)),
-                      onPressed: () {
-                        String title = "Oh no!";
-                        String message =
-                            "Something went wrong trying to edit your ${widget.usedByView.toLowerCase()}! Please try again later.";
-                        if (_form.currentState.validate()) {
-                          if (editList(
-                              _pantryNameTextController.text, makePrimary)) {
-                            title = "Great Success!";
-                            message =
-                                "Your ${widget.usedByView.toLowerCase()} has been edited.";
-                            showAlertDialog(context, title, message, true);
-                          } else {
-                            showAlertDialog(context, title, message, false);
-                          }
-                        }
-                      },
-                      child: const Text("Save Changes"),
-                    ),
-                  ])),
-            )));
+          appBar: AppBar(
+            title: Text("Edit " + widget.usedByView),
+          ),
+          body: Form(
+              key: _form,
+              child: Column(children:
+                buildBody(),
+              )),
+        ));
   }
 
   bool editList(String name, bool makePrimary) {
