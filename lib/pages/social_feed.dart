@@ -140,13 +140,13 @@ class _socialState extends State<social_feed> {
     print('recipe pressed ' + dropdownValue);
     //getData();
     //print(user.recipes.length.toString());
-    var selectedRecipe = recipeDocument[dropdownValue];
-    print(selectedRecipe);
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => ViewRecipe(recipe: selectedRecipe)));
-
-
-
+    if(dropdownValue != "None") {
+      var selectedRecipe = recipeDocument[dropdownValue];
+      print(selectedRecipe);
+      Navigator.push(context,
+          MaterialPageRoute(
+              builder: (context) => ViewRecipe(user: user, recipe: selectedRecipe)));
+    }
   }
 
 
@@ -244,9 +244,10 @@ class _socialState extends State<social_feed> {
                 ],
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(6.0),
                 //child: Text("text"),
               ),
+              Text("Recipes created by " + this.user.name),
               Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -300,7 +301,7 @@ class _socialState extends State<social_feed> {
                   ),
                   Container(
                     child: IconButton(
-                      icon: const Icon(Icons.arrow_drop_down),
+                      icon: const Icon(Icons.arrow_forward_rounded),
 
                       onPressed: () {
                         _handleFeaturedRecipePress(context);
