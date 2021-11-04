@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -608,7 +610,23 @@ class _EditState extends State<Edit> {
         ),
       ));
 
-    //TODO: add mangage users for owner ;)
+    if(widget.isOwner){
+      body.add(SizedBox(height: 10));
+      body.add (TextButton(
+        style: TextButton.styleFrom(backgroundColor: Colors.red),
+        onPressed: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                  (ManageUsers(listRef: widget.itemList,))));
+        },
+        child: Text(
+          'Manage Users',
+          style: TextStyle(color: Colors.white),
+        ),
+      ));
+    }
 
     return body;
   }
@@ -865,6 +883,7 @@ class AddNewCollaboratorState extends State<AddNewCollaborator> {
   }
 }
 
+
 class CheckBoxListTileModel {
   String title;
   bool isCheck;
@@ -872,6 +891,48 @@ class CheckBoxListTileModel {
   CheckBoxListTileModel({this.title, this.isCheck, this.ref});
 }
 
+//Remove a user from a pantry
+class ManageUsers extends StatefulWidget {
+  final DocumentReference listRef;
+  ManageUsers({Key key, this.listRef})
+      : super(key: key);
+
+  @override
+  ManageUsersState createState() => ManageUsersState();
+}
+
+// https://stackoverflow.com/questions/51607440/horizontally-scrollable-cards-with-snap-effect-in-flutter
+class ManageUsersState extends State<ManageUsers> {
+
+  List altUsers; // Friends Map, With their names and Doc Ref!
+  StreamSubscription<DocumentSnapshot> friendListener;
+  Future<dynamic> getUsers() async {
+    print("IN GETUSERS");
+    altUsers = [];
+    var listDoc = await widget.listRef.get();
+    List altUsersRef = listDoc.data()['AltUsers'];
+
+    for (int i =0; i < altUsersRef.length; i++){
+      var tempUser = await altUsersRef[i].get();
+      String tempName = tempUser.data()['Username'];
+      altUsers.add([tempName,altUsersRef[i]]);
+    }
+
+      // very important: se setState() to force a call to build()
+      if(mounted) {setState(() {
+      });}
+  }
+
+  setListener() {
+    friendListener =
+        widget.listRef
+        .snapshots()
+        .listen((event) {
+          print(altUsers.length);
+
+      if(event.data()['AltUsers'].length != altUsers.length){
+        getUsers();
+      }
 class QuantityButton extends StatefulWidget {
   final double initialQuantity;
   final Future<double> Function(double) onQuantityChange;
@@ -900,6 +961,90 @@ class _QuantityButtonState extends State<QuantityButton> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    getUsers().then((val) => {setListener()});
+  }
+
+  @override
+  void dispose(){
+    friendListener.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Remove Users"),
+      ),
+      body: Column(children: <Widget>[
+        buildListUsers(),
+      ]),
+      );
+  }
+
+  Widget buildListUsers(){
+    //List keys = map.keys.toList()
+      if(altUsers == null){
+        return Center(child: CircularProgressIndicator());
+      }
+
+      return Expanded(child:
+      ListView.builder(
+        itemBuilder: (context, index) {
+          return Card(
+            elevation: 7.0,
+            margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 3.0),
+            child: ListTile(
+              leading: Container(
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.account_box,
+                      size: 30,
+                    ),
+                    onPressed:(){
+                      //profileClicked(fl, index);
+                    },
+                  )),
+              title: Text(
+                altUsers[index][0].toString(),
+                style: const TextStyle(
+                    fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              trailing: TextButton(
+                style: TextButton.styleFrom(backgroundColor: Colors.red),
+                onPressed: () {
+                  //TODO: Are you sure dialog
+                    removeUser(altUsers[index][1], altUsers[index][0]);
+                },
+                child: Text(
+                  'REMOVE',
+                  style: TextStyle(color: Colors.white),
+                ),
+              )
+            ),
+          );
+        },
+        itemCount: altUsers.length,
+      ));
+  }
+
+  removeUser(userRef, key) async{
+
+    await widget.listRef.update({
+      'AltUsers': FieldValue.arrayRemove([userRef]),}
+    );
+
+    await userRef.update({
+      'PantryIDs': FieldValue.arrayRemove([widget.listRef]),}
+    );
+
+    setState(() {
+    });
+  }
+}
+}
   Widget build(BuildContext context) {
     return Row(children: [
       IconButton(
