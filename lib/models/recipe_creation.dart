@@ -388,7 +388,7 @@ class _InputForm extends State<RecipeCreator> {
         newRecipe.collection('ingredients');
 
     DocumentReference currentUser = firestoreInstance.collection('users').doc(this.user.uid);
-    currentUser.update({"RecipeIDs" : FieldValue.arrayUnion([newRecipe.id])});
+    currentUser.update({"RecipeIDs" : FieldValue.arrayUnion([newRecipe])});
 
     Set<String> allKeywords = {};
     for (int i = 0; i < _ingredientControllers.length; i++) {
