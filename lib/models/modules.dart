@@ -129,14 +129,14 @@ class _NewFoodItemState extends State<NewFoodItem> {
                         ),
                       ),
                       Container(
-                          width: 100,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(
-                                  color: Color.fromRGBO(255, 190, 50, 1.0),
-                                  width: 1,
-                                  style: BorderStyle.solid)),
-                          child: /*DropdownButtonHideUnderline(
+                        width: 100,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(
+                                color: Color.fromRGBO(255, 190, 50, 1.0),
+                                width: 1,
+                                style: BorderStyle.solid)),
+                        child: /*DropdownButtonHideUnderline(
                               child: CustomDropdownButton(
                                 value: _selectedUnit,
                                 hint: SizedBox(
@@ -158,45 +158,46 @@ class _NewFoodItemState extends State<NewFoodItem> {
                                   });
                                 },
                           ))*/
-                              DropdownButton<String>(
-                            isDense: false,
-                            itemHeight: 58.0,
-                            value: _selectedUnit,
-                            style: TextStyle(color: Colors.white),
-                            icon: Icon(Icons.arrow_drop_down,
-                                color: Colors.black),
-                            items: units.map<DropdownMenuItem<String>>((val) {
-                              return DropdownMenuItem<String>(
-                                value: val,
-                                child: Text(val),
-                              );
-                            }).toList(),
-                            onChanged: (String newVal) {
-                              setState(() {
-                                _selectedUnit = newVal;
-                              });
-                            },
-                            hint: Text("Select unit"),
-                            underline:
-                                DropdownButtonHideUnderline(child: Container()),
-                            elevation: 0,
-                            dropdownColor: Color.fromRGBO(255, 190, 50, 1.0),
-                            selectedItemBuilder: (BuildContext context) {
-                              return units.map((String val) {
-                                return Container(
-                                    alignment: Alignment.centerRight,
-                                    width: 50,
-                                    child: Text(
-                                      _selectedUnit,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          color: Colors.black54,
-                                          fontSize: 16.0),
-                                    ));
-                              }).toList();
-                            }
-                            ),
-                              /*DropdownBelow(
+                            DropdownButton<String>(
+                                isDense: false,
+                                itemHeight: 58.0,
+                                value: _selectedUnit,
+                                style: TextStyle(color: Colors.white),
+                                icon: Icon(Icons.arrow_drop_down,
+                                    color: Colors.black),
+                                items:
+                                    units.map<DropdownMenuItem<String>>((val) {
+                                  return DropdownMenuItem<String>(
+                                    value: val,
+                                    child: Text(val),
+                                  );
+                                }).toList(),
+                                onChanged: (String newVal) {
+                                  setState(() {
+                                    _selectedUnit = newVal;
+                                  });
+                                },
+                                hint: Text("Select unit"),
+                                underline: DropdownButtonHideUnderline(
+                                    child: Container()),
+                                elevation: 0,
+                                dropdownColor:
+                                    Color.fromRGBO(255, 190, 50, 1.0),
+                                selectedItemBuilder: (BuildContext context) {
+                                  return units.map((String val) {
+                                    return Container(
+                                        alignment: Alignment.centerRight,
+                                        width: 50,
+                                        child: Text(
+                                          _selectedUnit,
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                              color: Colors.black54,
+                                              fontSize: 16.0),
+                                        ));
+                                  }).toList();
+                                }),
+                        /*DropdownBelow(
                             itemWidth: 100,
                             itemTextstyle: TextStyle(
                                 fontSize: 16.0,
@@ -230,7 +231,8 @@ class _NewFoodItemState extends State<NewFoodItem> {
                                 _selectedUnit = newVal;
                               });
                             },
-                          )*/)
+                          )*/
+                      )
                     ],
                   ),
                   SizedBox(height: 42.0),
@@ -643,11 +645,13 @@ class _EditState extends State<Edit> {
           appBar: AppBar(
             title: Text("Edit " + widget.usedByView),
           ),
-          body: Form(
-              key: _form,
-              child: Column(
-                children: buildBody(),
-              )),
+          body: Container(
+              margin: EdgeInsets.all(17.0),
+              child: Form(
+                  key: _form,
+                  child: Column(
+                    children: buildBody(),
+                  ))),
         ));
   }
 
@@ -890,10 +894,11 @@ class AddNewCollaboratorState extends State<AddNewCollaborator> {
     }
 
     if (noneSelected) {
-      Dialogs.showError(context, "No Friends Selected", "Please select at least one friend to add to your ${widget.usedByView.toLowerCase()}.");
-    }
-    else {
-      Dialogs.showOKDialog(context, "Great Success!", "Your friend(s) have been added to your ${widget.usedByView.toLowerCase()}.");
+      Dialogs.showError(context, "No Friends Selected",
+          "Please select at least one friend to add to your ${widget.usedByView.toLowerCase()}.");
+    } else {
+      Dialogs.showOKDialog(context, "Great Success!",
+          "Your friend(s) have been added to your ${widget.usedByView.toLowerCase()}.");
     }
 
     return true;
