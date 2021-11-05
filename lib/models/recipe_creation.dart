@@ -386,12 +386,14 @@ class _InputForm extends State<RecipeCreator> {
   }
 
   Future<bool> addToDatabase() async {
+    try {
     DocumentReference newRecipe = firestoreInstance.collection('recipes').doc();
     CollectionReference ingredientCollection =
-        newRecipe.collection('ingredients');
+    newRecipe.collection('ingredients');
 
-    DocumentReference currentUser = firestoreInstance.collection('users').doc(this.user.uid);
-    currentUser.update({"RecipeIDs" : FieldValue.arrayUnion([newRecipe])});
+    DocumentReference currentUser = firestoreInstance.collection('users').doc(
+        this.user.uid);
+    currentUser.update({"RecipeIDs": FieldValue.arrayUnion([newRecipe])});
 
     Set<String> allKeywords = {};
     for (int i = 0; i < _ingredientControllers.length; i++) {
@@ -405,7 +407,8 @@ class _InputForm extends State<RecipeCreator> {
       Set<String> ingredKeywords = getKeywords(ingred.text.toLowerCase());
       allKeywords.addAll(ingredKeywords);
       DocumentReference ingredInstance =
-          firestoreInstance.collection('food').doc(ingred.text.toLowerCase());
+      firestoreInstance.collection('food').doc(ingred.text.toLowerCase());
+
 
       ingredInstance.get().then((docSnapshot) {
         if (docSnapshot.exists) {
@@ -418,37 +421,16 @@ class _InputForm extends State<RecipeCreator> {
             'Image': "",
             'Keywords': ingredKeywords.toList()
           });
-          
         }
-        String unit = _selectedUnits[i];
-        TextEditingController amount = _ingredientAmountControllers[i];
+      });
 
-        Set<String> ingredKeywords = getKeywords(ingred.text.toLowerCase());
-        allKeywords.addAll(ingredKeywords);
-        DocumentReference ingredInstance =
-        firestoreInstance.collection('food').doc(ingred.text.toLowerCase());
-
-        ingredInstance.get().then((docSnapshot) {
-          if (docSnapshot.exists) {
-            ingredInstance.update({
-              'recipe_ids': [newRecipe.id]
-            });
-          } else {
-            ingredInstance.set({
-              'recipe_ids': [newRecipe.id],
-              'Image': "",
-              'Keywords': ingredKeywords.toList()
-            });
-          }
-        });
-
-        ingredientCollection
-            .add({
-          'Item': firestoreInstance.collection('food').doc(ingredInstance.id),
-          'Quantity': double.tryParse(amount.text),
-          'Unit': unit
-        });
-      }
+      ingredientCollection
+          .add({
+        'Item': firestoreInstance.collection('food').doc(ingredInstance.id),
+        'Quantity': double.tryParse(amount.text),
+        'Unit': unit
+      });
+    }
 
     List<String> directions = [];
     for (TextEditingController dir in _directionControllers) {
