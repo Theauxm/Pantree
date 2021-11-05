@@ -31,7 +31,7 @@ class _InputForm extends State<RecipeCreator> {
   List<TextFormField> _directionFields = [];
 
   TextEditingController recipeController = TextEditingController();
-  TextFormField recipeField;
+  Form recipeField;
 
   TextEditingController totalTimeController = TextEditingController();
   Form totalTimeField;
@@ -124,12 +124,25 @@ class _InputForm extends State<RecipeCreator> {
 
   Widget pageOne() {
     if (recipeField == null) {
-      recipeField = TextFormField(
+      final GlobalKey<FormState> _form = GlobalKey<FormState>();
+      recipeField = Form(key: _form, child: TextFormField(
         controller: recipeController,
         decoration: InputDecoration(
             border: OutlineInputBorder(),
             labelText: "Recipe name"),
-      );
+        validator: (value) {
+          if (value.isEmpty || value == null) {
+            return 'Please enter a name for your recipe';
+          } else if (!RegExp(r"^[a-zA-Z0-9\s\']+$")
+              .hasMatch(value)) {
+            return "Name must be alphanumeric";
+          }
+          return null;
+        },
+        onChanged: (String newVal) {
+          _form.currentState.validate();
+        },
+      ));
     }
 
     if (totalTimeField == null) {
@@ -390,6 +403,7 @@ class _InputForm extends State<RecipeCreator> {
     DocumentReference newRecipe = firestoreInstance.collection('recipes').doc();
     CollectionReference ingredientCollection =
     newRecipe.collection('ingredients');
+    print(newRecipe);
 
     DocumentReference currentUser = firestoreInstance.collection('users').doc(
         this.user.uid);
