@@ -29,6 +29,26 @@ class _WelcomePage extends State<WelcomePage> {
     }
   }
 
+  FocusNode email;
+  FocusNode password;
+  FocusNode signInButton;
+
+  @override
+  void initState() {
+    super.initState(); // start initState() with this
+    email= FocusNode();
+    password= FocusNode();
+    signInButton= FocusNode();
+  }
+
+  @override
+  void dispose(){
+    email.dispose();
+    password.dispose();
+    signInButton.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,20 +75,31 @@ class _WelcomePage extends State<WelcomePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              TextField(
+                              TextFormField(
+                                  autofocus: true,
+                                  focusNode: email,
                                   controller: textControllerEmail,
                                   decoration: InputDecoration(
                                     labelText: "Email",
                                     border: OutlineInputBorder(),
-                                  )),
+                                  ),
+                                  onFieldSubmitted: (term) {
+                                    email.unfocus();
+                                    FocusScope.of(context).requestFocus(password);
+                                  }),
                               SizedBox(height: 10),
-                              TextField(
+                              TextFormField(
+                                  focusNode: password,
                                   controller: textControllerPassword,
                                   obscureText: true,
                                   decoration: InputDecoration(
                                     labelText: "Password",
                                     border: OutlineInputBorder(),
-                                  )),
+                                  ),
+                              onFieldSubmitted: (term) {
+                                password.unfocus();
+                                FocusScope.of(context).requestFocus(signInButton);
+                              }),
                               SizedBox(height: 10),
                               Row(
                                 mainAxisSize: MainAxisSize.max,
@@ -80,6 +111,7 @@ class _WelcomePage extends State<WelcomePage> {
                                     child: Container(
                                       width: double.maxFinite,
                                       child: TextButton(
+                                        focusNode: signInButton,
                                         style: TextButton.styleFrom(
                                             backgroundColor: Colors.blue),
                                         onPressed: () {
@@ -200,7 +232,35 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
   final TextEditingController _Username = TextEditingController();
   final TextEditingController _PasswordConfirm = TextEditingController();
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
+
+  FocusNode userName;
+  FocusNode email;
+  FocusNode password;
+  FocusNode confirmPassword;
+  FocusNode submit;
+
   bool nameTaken;
+
+  @override
+  void initState() {
+    super.initState(); // start initState() with this
+    userName = FocusNode();
+    email= FocusNode();
+    password= FocusNode();
+    confirmPassword= FocusNode();
+    submit= FocusNode();
+  }
+
+  @override
+  void dispose(){
+    userName.dispose();
+    email.dispose();
+    password.dispose();
+    confirmPassword.dispose();
+    submit.dispose();
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -210,6 +270,8 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
           key: _form,
           child: Column(children: <Widget>[
             TextFormField(
+                autofocus: true,
+                focusNode: userName,
                 controller: _Username,
                 validator: (validator){
                   if (validator.isEmpty) return 'Empty';
@@ -220,9 +282,15 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                 decoration: InputDecoration(
                   labelText: "User Name",
                   border: OutlineInputBorder(),
-                )),
+                ),
+              onFieldSubmitted: (term) {
+                  userName.unfocus();
+                  FocusScope.of(context).requestFocus(email);
+              },
+            ),
             SizedBox(height: 10),
             TextFormField(
+                focusNode: email,
                 controller: _Email,
                 validator: (validator) {
                   if (validator.isEmpty) return 'Empty';
@@ -234,21 +302,32 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                 decoration: InputDecoration(
                   labelText: "Email",
                   border: OutlineInputBorder(),
-                )),
+                ),
+              onFieldSubmitted: (term) {
+                email.unfocus();
+                FocusScope.of(context).requestFocus(password);
+              },
+            ),
             SizedBox(height: 10),
             TextFormField(
+                focusNode: password,
                 controller: _Password,
                 validator: (validator) {
                   if (validator.isEmpty) return 'Empty';
                   return null;
                 },
-                obscureText: false,
+                obscureText: true,
                 decoration: InputDecoration(
                   labelText: "Password",
                   border: OutlineInputBorder(),
-                )),
+                ),
+              onFieldSubmitted: (term) {
+                password.unfocus();
+                FocusScope.of(context).requestFocus(confirmPassword);
+              },),
             SizedBox(height: 10),
             TextFormField(
+              focusNode: confirmPassword,
               controller: _PasswordConfirm,
               validator: (validator) {
                 if (validator.isEmpty) return 'Empty';
@@ -256,14 +335,19 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                   return 'The Passwords do not match!';
                 return null;
               },
-              obscureText: false,
+              obscureText: true,
               decoration: InputDecoration(
                 labelText: "Confirm Password",
                 border: OutlineInputBorder(),
               ),
+              onFieldSubmitted: (term) {
+                confirmPassword.unfocus();
+                FocusScope.of(context).requestFocus(submit);
+              },
             ),
             SizedBox(height: 10),
             ElevatedButton(
+              focusNode: submit,
               style: ElevatedButton.styleFrom(
                   primary: Colors.lightBlue,
                   padding: const EdgeInsets.symmetric(
