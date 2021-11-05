@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/extensions.dart';
 
 class Dialogs {
   static Future<void> showLoadingDialog(
@@ -104,15 +103,8 @@ class Dialogs {
     );
   }
 
-  static showError(BuildContext context, String exportTo) {
-    String text;
-    if (exportTo == "Pantry") {
-      text = "pantries";
-    }
-    else {
-      text = "shopping lists";
-    }
-    Widget okButton = TextButton(
+  static showError(BuildContext context, String title, String content) {
+        Widget okButton = TextButton(
       style: TextButton.styleFrom(primary: Colors.lightBlue),
       child: Text("Ok"),
       onPressed: () {
@@ -124,8 +116,8 @@ class Dialogs {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("No ${text.capitalizeFirstOfEach}"),
-          content: Text("You don't have any $text to export to!"),
+          title: Text(title),
+          content: Text(content),
           actions: [
             okButton,
           ],

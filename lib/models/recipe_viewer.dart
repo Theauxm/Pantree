@@ -108,7 +108,7 @@ class _HomePageState extends State<ViewRecipe> {
           //builder: (context) => AddToShoppingList(user: this.user, recipe: this.recipe)));
         }
         else {
-          Dialogs.showError(context, "Shopping List");
+          Dialogs.showError(context, "No Shopping Lists", "You don't have any shopping lists to export to!");
         }
       },
       child: Text("Add to Shopping List", style: TextStyle(fontSize: 20))
