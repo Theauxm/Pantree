@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 //import 'package:pantree/models/custom_dropdown.dart';
-import 'package:dropdown_below/dropdown_below.dart';
+//import 'package:dropdown_below/dropdown_below.dart';
 import '../models/static_functions.dart';
 import '../models/extensions.dart';
 import '../models/dialogs.dart';
@@ -158,7 +158,7 @@ class _NewFoodItemState extends State<NewFoodItem> {
                                   });
                                 },
                           ))*/
-                              /*DropdownButton<String>(
+                              DropdownButton<String>(
                             isDense: false,
                             itemHeight: 58.0,
                             value: _selectedUnit,
@@ -195,8 +195,8 @@ class _NewFoodItemState extends State<NewFoodItem> {
                                     ));
                               }).toList();
                             }
-                            ),*/
-                              DropdownBelow(
+                            ),
+                              /*DropdownBelow(
                             itemWidth: 100,
                             itemTextstyle: TextStyle(
                                 fontSize: 16.0,
@@ -230,7 +230,7 @@ class _NewFoodItemState extends State<NewFoodItem> {
                                 _selectedUnit = newVal;
                               });
                             },
-                          ))
+                          )*/)
                     ],
                   ),
                   SizedBox(height: 42.0),

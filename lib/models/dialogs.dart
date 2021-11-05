@@ -60,7 +60,7 @@ class Dialogs {
     );
     var a = [okButton];
     AlertDialog alert = AlertDialog(
-        title: Text("Friend Request:"), content: Text(friend), actions: a);
+        title: Text("Friend Request"), content: Text(friend), actions: a);
 
     // show the dialog
     showDialog(

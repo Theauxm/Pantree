@@ -143,7 +143,7 @@ class FriendSearchResultsList extends StatelessWidget {
                               color: Colors.green,),
                           onPressed: ()
                             {
-                              makeRequest(context, friend.reference);
+                              makeRequest(context, friend.reference, friend['Username']);
                             }
                         ),
                       ),
@@ -156,14 +156,14 @@ class FriendSearchResultsList extends StatelessWidget {
             }));
   }
 
-  void makeRequest(context, DocumentReference friend) async{
+  void makeRequest(context, DocumentReference friend, String friendName) async{
     try {
       DocumentReference currentUser = FirebaseFirestore.instance.doc('/users/'+user.uid);
       QuerySnapshot d = await FirebaseFirestore.instance.collection("friendships").where('users', isEqualTo: [currentUser,friend]).get();
       QuerySnapshot r = await FirebaseFirestore.instance.collection("friendships").where('users', isEqualTo: [friend,currentUser]).get();
       if(d.docs.isNotEmpty){//You already sent them a friend request
-        Dialogs.friendRequestSent(context, "You already added/sent Request to this person");
-      } else if(r.docs.isNotEmpty) {//TThey sent you a friend request and you sent them one
+        Dialogs.friendRequestSent(context, "You have already sent a request to this person.");
+      } else if(r.docs.isNotEmpty) {//They sent you a friend request and you sent them one
         Dialogs.friendRequestSent(context, "Added!");
         if(!r.docs.first.data()['accepted']) {
           {
@@ -192,7 +192,7 @@ class FriendSearchResultsList extends StatelessWidget {
           currentUser.update({'PendingFriends': FieldValue.increment(1)}),
           friend.update({'PendingFriends': FieldValue.increment(1)}),
           Dialogs.friendRequestSent(
-              context, "Friend Request sent to " + friend.toString())
+              context, "Friend request sent to " + friendName)
         });
       }
     }catch (e) {
