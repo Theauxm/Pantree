@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pantree/models/ImageTile.dart';
+import 'package:pantree/models/recipe_viewer.dart';
 import 'package:pantree/pantreeUser.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -32,7 +33,10 @@ class _socialState extends State<social_feed> {
   var images;
   var images1;
   var images2;
+  List<String> recipeNames = ["None"];
+  Map recipeDocument = new Map<String, DocumentSnapshot>();
   var _image;
+  String dropdownValue = 'None';
 
   // this.user.posts.toString() is a reference to a document that is housing this material, I will now have
   //to read the document
@@ -51,21 +55,43 @@ class _socialState extends State<social_feed> {
   Future<dynamic> getData() async {
     DocumentReference tempPost;
     String tempName;
+    recipeNames.clear();
+    recipeDocument.clear();
+    recipeNames.add("None");
 
    // await user.updateData(); // important: refreshes the user's data
     images = Map<String, DocumentReference>(); // instantiate the map
 
-    for (DocumentReference ref in user.posts) {
-      //print('hi');
-      String imageLink = "";
+    // for (DocumentReference ref in user.posts) {
+    //   print('hi');
+    //   String imageLink = "";
+    //   await ref.get().then((DocumentSnapshot snapshot) {
+    //     imageLink = snapshot.data()['image']; // get the image link as a string
+    //   });
+    //   tempPost = ref;
+    //   tempName = imageLink;
+    //   images1.add(imageLink);
+    //   images[imageLink] = ref; // map the doc ref to its name
+    //   //TODO: GIVE A BETTER MAPPING FOR THESE VALUES AS THE IMAGE LINK IS THE KEY
+    // }
+
+    print('reading recipes');
+    for(DocumentReference ref in user.recipes){
+      String recipeName = "";
+      DocumentSnapshot recipeSnapshot;
+      print(ref);
       await ref.get().then((DocumentSnapshot snapshot) {
-        imageLink = snapshot.data()['image']; // get the image link as a string
+        recipeName = snapshot.data()['RecipeName'];
+        recipeSnapshot = snapshot;
       });
-      tempPost = ref;
-      tempName = imageLink;
-      images1.add(imageLink);
-      images[imageLink] = ref; // map the doc ref to its name
-      //TODO: GIVE A BETTER MAPPING FOR THESE VALUES AS THE IMAGE LINK IS THE KEY
+
+      //recipeNames.add(recipeName);
+      print(recipeName);
+      recipeNames.add(recipeName);
+      recipeDocument[recipeName] = recipeSnapshot;
+
+
+
     }
 
     setState(() {
@@ -83,7 +109,14 @@ class _socialState extends State<social_feed> {
         user.posts = event.data()['PostIDs'];
         setState(() {
           });
-      }});
+      }
+        if(event.data()['RecipeIDs'].length != user.recipes.length){
+          user.recipes = event.data()['RecipeIDs'];
+          getData();
+          setState(() {
+          });
+        }
+        });
   }
   @override
   void initState() {
@@ -103,9 +136,26 @@ class _socialState extends State<social_feed> {
         MaterialPageRoute(builder: (context) => FriendsList(user: user)));
   }
 
+  void _handleFeaturedRecipePress(BuildContext context){
+    print('recipe pressed ' + dropdownValue);
+    //getData();
+    //print(user.recipes.length.toString());
+    if(dropdownValue != "None") {
+      var selectedRecipe = recipeDocument[dropdownValue];
+      print(selectedRecipe);
+      Navigator.push(context,
+          MaterialPageRoute(
+              builder: (context) => ViewRecipe(user: user, recipe: selectedRecipe)));
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
+
+    //TODO: set this to another value if this is found
+
+
     if(user.name == null){
       return Center(child: CircularProgressIndicator());
     }
@@ -119,6 +169,17 @@ class _socialState extends State<social_feed> {
 
         actions: <Widget>[
 
+          IconButton(
+            icon: const Icon(Icons.people),
+            color: Colors.white,
+              onPressed: () {
+                if(kIsWeb) {
+
+                }else{
+                  _handleFriendsPress(context);
+                }
+              }
+          ),
           IconButton(
             //icon: const Icon(Icons.view_headline_rounded),
             icon: const Icon(Icons.add_box_outlined),
@@ -174,18 +235,19 @@ class _socialState extends State<social_feed> {
                         )
                       ]
                   ),
-                  Column(
-                      children:[
-                        Text('1000'), //place holder for number
-                        Text('Likes')
-                      ]
-                  )
+                  // Column(
+                  //     children:[
+                  //       Text('1000'), //place holder for number
+                  //       Text('Likes')
+                  //     ]
+                  // )
                 ],
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(6.0),
                 //child: Text("text"),
               ),
+              Text("Recipes created by " + this.user.name),
               Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -201,19 +263,48 @@ class _socialState extends State<social_feed> {
                       decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey)
                       ),
-                    child:Center(
-                      child:Text('Featured Recipe: Chicken Carbonara',
-                        textAlign: TextAlign.center,)
-                    )
+                    child:
+                    // Center(
+                    //   child:Text('Featured Recipe: Chicken Carbonara',
+                    //     textAlign: TextAlign.center,)
+                    // )
 
-                  )
+                    StatefulBuilder(
+                    builder: (BuildContext context, StateSetter setState) {
+                     return DropdownButton<String>(
+                        value: dropdownValue,
+                        icon: const Icon(Icons.arrow_drop_down),
+                        iconSize: 24,
+                        //elevation: 16,
+                        style: const TextStyle(color: Colors.black),
+                        // underline: Container(
+                        //   height: 2,
+                        //   color: Colors.deepPurpleAccent,
+                        // ),
+                        onChanged: (String newValue) {
+                          print(newValue);
+                          setState(() {
+                            dropdownValue = newValue;
+                          });
+                        },
+                        items: recipeNames//<String>['None','One', 'Two', 'Free', 'Four']//recipeNames
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      );
+                    }
+                  ),
+                      )
                   ),
                   Container(
                     child: IconButton(
-                      icon: const Icon(Icons.arrow_drop_down),
+                      icon: const Icon(Icons.arrow_forward_rounded),
 
                       onPressed: () {
-                        print('recipe button pressed');
+                        _handleFeaturedRecipePress(context);
                       },
                     )
                   )
