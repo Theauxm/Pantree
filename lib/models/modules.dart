@@ -937,32 +937,7 @@ class ManageUsersState extends State<ManageUsers> {
 
       if(event.data()['AltUsers'].length != altUsers.length){
         getUsers();
-      }
-class QuantityButton extends StatefulWidget {
-  final double initialQuantity;
-  final Future<double> Function(double) onQuantityChange;
-  const QuantityButton({Key key, this.initialQuantity, this.onQuantityChange})
-      : super(key: key);
-
-  @override
-  _QuantityButtonState createState() =>
-      _QuantityButtonState(quantity: initialQuantity);
-}
-
-class _QuantityButtonState extends State<QuantityButton> {
-  double quantity;
-  bool isSaving = false;
-  _QuantityButtonState({this.quantity});
-
-  void changeQuantity(double newQuantity) async {
-    setState(() {
-      isSaving = true;
-    });
-    newQuantity = await widget.onQuantityChange(newQuantity) ?? newQuantity;
-    setState(() {
-      quantity = newQuantity;
-      isSaving = false;
-    });
+      }});
   }
 
   @override
@@ -1052,7 +1027,38 @@ class _QuantityButtonState extends State<QuantityButton> {
     });
   }
 }
-}
+
+
+
+
+  class QuantityButton extends StatefulWidget {
+  final double initialQuantity;
+  final Future<double> Function(double) onQuantityChange;
+  const QuantityButton({Key key, this.initialQuantity, this.onQuantityChange})
+      : super(key: key);
+
+  @override
+  _QuantityButtonState createState() =>
+  _QuantityButtonState(quantity: initialQuantity);
+  }
+
+class _QuantityButtonState extends State<QuantityButton> {
+  double quantity;
+  bool isSaving = false;
+
+  _QuantityButtonState({this.quantity});
+
+  void changeQuantity(double newQuantity) async {
+    setState(() {
+      isSaving = true;
+    });
+    newQuantity = await widget.onQuantityChange(newQuantity) ?? newQuantity;
+    setState(() {
+      quantity = newQuantity;
+      isSaving = false;
+    });
+  }
+  @override
   Widget build(BuildContext context) {
     return Row(children: [
       IconButton(
