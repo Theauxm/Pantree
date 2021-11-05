@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pantree/models/dialogs.dart';
 import 'package:pantree/models/modules.dart';
 import 'package:pantree/models/drawer.dart';
 import '../pantreeUser.dart';
@@ -96,29 +97,6 @@ class _ListState extends State<ShoppingList> {
     });
   }
 
-  showError(BuildContext context) {
-    Widget okButton = TextButton(
-      style: TextButton.styleFrom(primary: Colors.lightBlue),
-      child: Text("Ok"),
-      onPressed: () {
-        Navigator.of(context, rootNavigator: true).pop();
-      },
-    );
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("No Pantries"),
-          content: Text("You don't have any pantries to export to!"),
-          actions: [
-            okButton,
-          ],
-        );
-      },
-    );
-  }
-
   void exportList() {
     if (user.pantries.length > 0) {
       Navigator.push(
@@ -130,14 +108,13 @@ class _ListState extends State<ShoppingList> {
                   exportList: user.pantries,
                   exportingToName: "Pantry"))));
     } else {
-      showError(context);
+      Dialogs.showError(context, "No Pantries", "You don't have any pantries to export to! ");
     }
   }
 
   setInitList() {
     DocumentReference primary = user.PSID;
     if (primary != null) {
-      _listMap.forEach((k, v) => print('${k}: ${v}\n'));
       for (MapEntry e in _listMap.entries) {
         if (e.value == primary) {
           setState(() {
@@ -174,10 +151,10 @@ class _ListState extends State<ShoppingList> {
                   docRef: _selectedList,
                 ))));
       } else {
-        //TODO: Add popup telling them to get friends
+        Dialogs.showError(context, "No Friends", "You can't add a collaborator to this shopping list because you don't have any friends!");
       }
     } else{
-      //TODO: You are not the owner Dialog
+      Dialogs.showError(context, "Permission Denied", "You are not the owner so you can't add a collaborator to this shopping list!");
     }
   }
 

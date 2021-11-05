@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pantree/models/dialogs.dart';
 import 'package:pantree/models/modules.dart';
 import 'package:pantree/models/custom_fab.dart';
 import 'package:pantree/models/drawer.dart';
@@ -92,8 +93,6 @@ class _PantryState extends State<Pantry> {
       if (event.data()['PPID'].toString() != user.PPID.toString()) {
         print("INSIDE LISTENER --> PPID");
         user.PPID = event.data()['PPID'];
-        //update = true;
-        print("UPDATE: $update");
       }
       if (update) {
         getData();
@@ -104,7 +103,6 @@ class _PantryState extends State<Pantry> {
   setInitPantry() {
     DocumentReference primary = user.PPID;
     if (primary != null) {
-      _pantryMap.forEach((k, v) => print('${k}: ${v}\n'));
       for (MapEntry e in _pantryMap.entries) {
         if (e.value == primary) {
           setState(() {
@@ -141,10 +139,10 @@ class _PantryState extends State<Pantry> {
                   docRef: _selectedPantry,
                 ))));
       } else {
-        //TODO: Add popup telling them to get friends
+        Dialogs.showError(context, "No Friends", "You can't add a collaborator to this pantry because you don't have any friends!");
       }
     } else{
-      //TODO: You are not the owner Dialog
+      Dialogs.showError(context, "Permission Denied", "You are not the owner so you can't add a collaborator to this pantry!");
     }
   }
 
@@ -230,6 +228,7 @@ class _PantryState extends State<Pantry> {
   }
 
    Future<void> deletePantry(DocumentReference doc) async {
+    print("INSIDE DELETEPANTRY");
     // delete pantry from list of pantries
      if(isOwner) {
        var snap = await doc.get();
@@ -275,8 +274,7 @@ class _PantryState extends State<Pantry> {
   showDeleteDialog(
       BuildContext context, String pantryName, DocumentReference doc) {
     Widget cancelButton = TextButton(
-        style: TextButton.styleFrom(
-            backgroundColor: Colors.lightBlue, primary: Colors.white),
+        style: TextButton.styleFrom(primary: Colors.red),
         child: Text("NO"),
         onPressed: () {
           Navigator.of(context, rootNavigator: true).pop();

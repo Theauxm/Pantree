@@ -8,7 +8,13 @@ class ExportList extends StatefulWidget {
   final List exportList;
   final String exportingToName;
   final bool removeItems;
-  ExportList({Key key, this.user, this.list, this.exportList, this.removeItems = true, this.exportingToName})
+  ExportList(
+      {Key key,
+      this.user,
+      this.list,
+      this.exportList,
+      this.removeItems = true,
+      this.exportingToName})
       : super(key: key);
   @override
   _ExportListState createState() => _ExportListState();
@@ -16,8 +22,6 @@ class ExportList extends StatefulWidget {
 
 class _ExportListState extends State<ExportList> {
   var items;
-  String img =
-      "https://i2.wp.com/ceklog.kindel.com/wp-content/uploads/2013/02/firefox_2018-07-10_07-50-11.png";
   String _selectedListName;
   DocumentReference _selectedList;
   Map<String, DocumentReference> _listMap;
@@ -31,30 +35,29 @@ class _ExportListState extends State<ExportList> {
 
     for (DocumentReference ref in widget.exportList) {
       // go through each doc ref and add to list of pantry names + map
-      String tempName = "";
+      String listName = "";
       await ref.get().then((DocumentSnapshot snapshot) {
-        tempName = snapshot.data()['Name']; // get the pantry name as a string
+        listName = snapshot.data()['Name']; // get the pantry name as a string
       });
       tempList = ref; // this will have to do for now
-      tempName = tempName;
-      _listMap[tempName] = ref; // map the doc ref to its name
+      tempName = listName;
+      _listMap[listName] = ref; // map the doc ref to its name
     }
 
-    // very important: se setState() to force a call to build()
-    setState(() {
-      _selectedList = tempList;
-      _selectedListName = tempName;
-      widget.list.collection("ingredients").get().then((value) {
+    _selectedList = tempList;
+    _selectedListName = tempName;
+    widget.list.collection("ingredients").get().then((value) {
+      if (mounted) {
         setState(() {
           items = value.docs.map<CheckBoxListTileModel>((e) {
             return new CheckBoxListTileModel(
-                img: img,
-                title: e.data()['Item'].id.toString(),
-                isCheck: false,
-                ref: e,);
+              title: e.data()['Item'].id.toString(),
+              isCheck: false,
+              ref: e,
+            );
           }).toList();
         });
-      });
+      }
     });
   }
 
@@ -66,93 +69,92 @@ class _ExportListState extends State<ExportList> {
 
   @override
   Widget build(BuildContext context) {
-    if (items == null) return const Text('Loading....');
+    if (items == null) return Center(child: CircularProgressIndicator());
     return Scaffold(
         appBar: AppBar(
-          title: Text('Export Items to ${widget.exportingToName}!'),
+            title: Text('Export to ${widget.exportingToName}'),
             actions: <Widget>[
               Padding(
-                padding: EdgeInsets.only(right: 20.0),
-                child: TextButton(
-                  child: Text("Select All"),
-                  style: TextButton.styleFrom(primary: Colors.white, textStyle: TextStyle(fontSize: 18)),
-                  onPressed: selectAll,)
-              ),
-            ]
-        ),
-        body: Column(children: [
-          DropdownButtonFormField<String>(
-            value: _selectedListName,
-            decoration: InputDecoration(
-              filled: true,
-              labelText: 'Pick a ${widget.exportingToName}',
-            ),
-            style: TextStyle(
-                color: Colors.black, fontSize: 20, fontWeight: FontWeight.w600),
-            icon: Icon(
-              Icons.arrow_drop_down,
-              color: Colors.black,
-              size: 30.0,
-            ),
-            items: _listMap.keys.map<DropdownMenuItem<String>>((val) {
-              return DropdownMenuItem<String>(
-                value: val,
-                child: Text(val),
-              );
-            }).toList(),
-            onChanged: (String newVal) {
-              setState(() {
-                _selectedList = _listMap[newVal];
-                _selectedListName = newVal;
-              });
-            },
-            hint: Text("Select ${widget.exportingToName}"),
-            elevation: 0,
-            dropdownColor: Colors.lightBlue,
-          ),
-
-          Expanded(
-            child: ListView.builder(
-                itemCount: items.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return new Card(
-                    child: new Container(
-                      padding: new EdgeInsets.all(10.0),
-                      child: Column(
-                        children: <Widget>[
-                          new CheckboxListTile(
-                              activeColor: Colors.pink[300],
-                              dense: true,
-                              //font change
-                              title: new Text(
-                                items[index].title,
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    letterSpacing: 0.5,
-                                ),
-                              ),
-                              value: items[index].isCheck,
-                              secondary: Container(
-                                height: 50,
-                                width: 50,
-                                child: Image.network(
-                                  items[index].img,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              onChanged: (bool val) {
-                                setState(() {
-                                  items[index].isCheck = val;
-                                });
-                              })
-                        ],
-                      ),
-                    ),
+                  padding: EdgeInsets.only(right: 42.0),
+                  child: IconButton(
+                    icon: Icon(Icons.check_box),
+                    onPressed: selectAll,
+                  )),
+            ]),
+        body: Container(
+            margin: EdgeInsets.all(17.0),
+            child: Column(children: [
+              DropdownButtonFormField<String>(
+                value: _selectedListName,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.white,
+                  labelText: '${widget.exportingToName} to export to:',
+                ),
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600),
+                icon: Icon(
+                  Icons.arrow_drop_down,
+                  color: Colors.black,
+                  size: 30.0,
+                ),
+                items: _listMap.keys.map<DropdownMenuItem<String>>((val) {
+                  return DropdownMenuItem<String>(
+                    value: val,
+                    child: Text(val),
                   );
-                }),
-          ),
-        ]),
+                }).toList(),
+                onChanged: (String newVal) {
+                  setState(() {
+                    _selectedList = _listMap[newVal];
+                    _selectedListName = newVal;
+                  });
+                },
+                hint: Text("Select ${widget.exportingToName}"),
+                elevation: 0,
+                dropdownColor: Colors.lightBlue[200],
+              ),
+              Expanded(
+                child: ListView.builder(
+                    itemCount: items.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return new Card(
+                        child: new Container(
+                          padding: new EdgeInsets.all(10.0),
+                          child: Column(
+                            children: <Widget>[
+                              new CheckboxListTile(
+                                  activeColor: Colors.pink[300],
+                                  dense: true,
+                                  //font change
+                                  title: new Text(
+                                    items[index].title,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                  value: items[index].isCheck,
+                                  secondary: Container(
+                                    height: 50,
+                                    width: 50,
+                                    child: Icon(Icons.fastfood_rounded),
+                                  ),
+                                  onChanged: (bool val) {
+                                    setState(() {
+                                      items[index].isCheck = val;
+                                    });
+                                  })
+                            ],
+                          ),
+                        ),
+                      );
+                    }),
+              ),
+            ])),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
             showExportDialog(context);
@@ -176,7 +178,7 @@ class _ExportListState extends State<ExportList> {
             'Unit': element.ref.data()['Unit'],
             'DateAdded': date
           }).then((value) {
-            if(widget.removeItems) {
+            if (widget.removeItems) {
               element.ref.reference.delete();
             }
           });
@@ -187,14 +189,22 @@ class _ExportListState extends State<ExportList> {
     }
     return true;
   }
-  selectAll() {
-    items.forEach((element) {
-      element.isCheck = true;
-    });
-    setState(() {
 
+  selectAll() {
+    bool allTrue = true;
+    for (var element in items) {
+      if (!element.isCheck) {
+        allTrue = false;
+        break;
+      }
+    }
+
+    items.forEach((element) {
+      element.isCheck = !allTrue;
     });
+    setState(() {});
   }
+
   showExportDialog(BuildContext context) {
     Widget cancelButton = TextButton(
         style: TextButton.styleFrom(
@@ -259,9 +269,8 @@ class _ExportListState extends State<ExportList> {
 }
 
 class CheckBoxListTileModel {
-  String img;
   String title;
   bool isCheck;
   QueryDocumentSnapshot ref;
-  CheckBoxListTileModel({this.img, this.title, this.isCheck, this.ref});
+  CheckBoxListTileModel({this.title, this.isCheck, this.ref});
 }
