@@ -33,6 +33,7 @@ class _ListState extends State<ShoppingList> {
   }
 
   Future<dynamic> getData() async {
+    print('SL GETDATA() CALLED');
     DocumentReference tempPantry;
     String tempName;
 
@@ -378,7 +379,7 @@ class _ListState extends State<ShoppingList> {
             return Expanded(
                 child: ListView(
                     children: snapshot.data.docs.map<Widget>((doc) {
-              return Container(child: itemCard(doc, context));
+              return Container(child: itemCard(doc, context, _selectedList));
             }).toList()));
           }),
     ]);

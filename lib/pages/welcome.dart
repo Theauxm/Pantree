@@ -166,24 +166,21 @@ class _CreateAccount extends State<CreateAccount> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text('New User!')),
+        appBar: AppBar(title: Text('Sign Up')),
         body: SingleChildScrollView(
           child: Center(
             child: Column(children: [
               SizedBox(height: 20),
-              Text("Create your Pantree Account",
+              Text("Create your Pantree account",
                   style: TextStyle(fontSize: 25)),
               Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CreateAccountForm(),
-                    ],
-                  ),
-                  //Center(child: GoogleButton()),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CreateAccountForm(),
+                  ],
                 ),
               ),
             ]),
@@ -266,8 +263,13 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
               ),
             ),
             SizedBox(height: 10),
-            TextButton(
-              style: TextButton.styleFrom(backgroundColor: Colors.blue),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  primary: Colors.lightBlue,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 25, vertical: 10),
+                  textStyle: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
               onPressed: () async {
                 bool b = await _checkName(_Username.text);
                 nameTaken = b;
@@ -280,10 +282,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                   }
                 }
               },
-              child: Text(
-                'Create Account',
-                style: TextStyle(fontSize: 14, color: Colors.white),
-              ),
+              child: const Text("Create Account"),
             ),
           ])),
     );

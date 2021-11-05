@@ -32,7 +32,7 @@ class _PantryState extends State<Pantry> {
   }
 
   Future<dynamic> getData() async {
-    // print('GETDATA() CALLED');
+    print('PANTRY GETDATA() CALLED');
     DocumentReference tempPantry;
     String tempName;
 
@@ -151,7 +151,7 @@ class _PantryState extends State<Pantry> {
     }
     print("RAW PANTRY NAME: $_selectedPantryName");
     print("NORMALIZED PANTRY NAME: $normalizedPantryName");*/
-    print("RESULT: $result");
+    //print("RESULT: $result");
     if (result is List) {
       updatePantries(result[0], result[1], result[2]);
     }
@@ -253,7 +253,7 @@ class _PantryState extends State<Pantry> {
           Navigator.of(context, rootNavigator: true).pop();
         });
 
-    Widget okButton = TextButton(
+    Widget yesButton = TextButton(
       style: TextButton.styleFrom(primary: Colors.lightBlue),
       child: Text("YES"),
       onPressed: () {
@@ -271,7 +271,7 @@ class _PantryState extends State<Pantry> {
               "Do you really want to remove \"$pantryName\"? This cannot be undone."),
           actions: [
             cancelButton,
-            okButton,
+            yesButton,
           ],
         );
       },
@@ -367,7 +367,7 @@ class _PantryState extends State<Pantry> {
                   showDeleteDialog(context, _selectedPantryName, _selectedPantry);
                 }
                 break;
-              case 'Add Collaborator to this pantry':
+              case 'Add collaborator to this pantry':
                 {
                   addCollaborator();
                 }
@@ -378,7 +378,7 @@ class _PantryState extends State<Pantry> {
               'Create a new pantry',
               'Edit this pantry',
               'Remove this pantry',
-              'Add Collaborator to this pantry'
+              'Add collaborator to this pantry'
             }.map((String choice) {
               return PopupMenuItem<String>(
                 value: choice,
@@ -402,7 +402,7 @@ class _PantryState extends State<Pantry> {
             return Expanded(
                 child: ListView(
                     children: snapshot.data.docs.map<Widget>((doc) {
-              return Container(child: itemCard(doc, context));
+              return Container(child: itemCard(doc, context, _selectedPantry));
             }).toList()));
           }),
     ]);
