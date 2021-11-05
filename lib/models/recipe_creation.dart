@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../pantreeUser.dart';
+import 'package:pantree/models/dialogs.dart';
 
 // Used from https://www.technicalfeeder.com/2021/09/flutter-add-textfield-dynamically/
 class RecipeCreator extends StatefulWidget {
@@ -37,6 +38,8 @@ class _InputForm extends State<RecipeCreator> {
 
   final firestoreInstance = FirebaseFirestore.instance;
 
+  final GlobalKey<State> _keyLoader = new GlobalKey<State>();
+
   bool overviewIsVisible = true;
   bool ingredientIsVisible = false;
   bool directionIsVisible = false;
@@ -50,8 +53,8 @@ class _InputForm extends State<RecipeCreator> {
           actions: [
             IconButton(
                 onPressed: () {
-                  addToDatabase();
-                  Navigator.of(context).pop();
+                  handleSubmit(context);
+                  //Navigator.of(context).pop();
                 },
                 icon: const Icon(Icons.check_box))
           ],
@@ -382,45 +385,51 @@ class _InputForm extends State<RecipeCreator> {
     return keywords;
   }
 
-  Future<void> addToDatabase() {
-    DocumentReference newRecipe = firestoreInstance.collection('recipes').doc();
-    CollectionReference ingredientCollection =
-        newRecipe.collection('ingredients');
+  Future<bool> addToDatabase() async {
+    try {
+      DocumentReference newRecipe = firestoreInstance.collection('recipes').doc();
+      CollectionReference ingredientCollection =
+      newRecipe.collection('ingredients');
 
-    DocumentReference currentUser = firestoreInstance.collection('users').doc(this.user.uid);
-    currentUser.update({"RecipeIDs" : FieldValue.arrayUnion([newRecipe.id])});
+      DocumentReference currentUser = firestoreInstance.collection('users').doc(
+          this.user.uid);
+      currentUser.update({"RecipeIDs": FieldValue.arrayUnion([newRecipe.id])});
 
-    Set<String> allKeywords = {};
-    for (int i = 0; i < _ingredientControllers.length; i++) {
-      TextEditingController ingred = _ingredientControllers[i];
-      if (ingred.text == "") {
-        continue;
-      }
-      String unit = _selectedUnits[i];
-      TextEditingController amount = _ingredientAmountControllers[i];
-
-      Set<String> ingredKeywords = getKeywords(ingred.text.toLowerCase());
-      allKeywords.addAll(ingredKeywords);
-      DocumentReference ingredInstance =
-          firestoreInstance.collection('food').doc(ingred.text.toLowerCase());
-
-      ingredInstance.get().then((docSnapshot) {
-        if (docSnapshot.exists) {
-          ingredInstance.update({
-            'recipe_ids': [newRecipe.id]
-          });
-        } else {
-          ingredInstance.set({
-            'recipe_ids': [newRecipe.id],
-            'Image': "",
-            'Keywords': ingredKeywords.toList()
-          });
+      Set<String> allKeywords = {};
+      for (int i = 0; i < _ingredientControllers.length; i++) {
+        TextEditingController ingred = _ingredientControllers[i];
+        if (ingred.text == "") {
+          continue;
         }
-      });
+        String unit = _selectedUnits[i];
+        TextEditingController amount = _ingredientAmountControllers[i];
 
-      ingredientCollection
-          .add({'Item': firestoreInstance.collection('food').doc(ingredInstance.id), 'Quantity': double.tryParse(amount.text), 'Unit': unit});
-    }
+        Set<String> ingredKeywords = getKeywords(ingred.text.toLowerCase());
+        allKeywords.addAll(ingredKeywords);
+        DocumentReference ingredInstance =
+        firestoreInstance.collection('food').doc(ingred.text.toLowerCase());
+
+        ingredInstance.get().then((docSnapshot) {
+          if (docSnapshot.exists) {
+            ingredInstance.update({
+              'recipe_ids': [newRecipe.id]
+            });
+          } else {
+            ingredInstance.set({
+              'recipe_ids': [newRecipe.id],
+              'Image': "",
+              'Keywords': ingredKeywords.toList()
+            });
+          }
+        });
+
+        ingredientCollection
+            .add({
+          'Item': firestoreInstance.collection('food').doc(ingredInstance.id),
+          'Quantity': double.tryParse(amount.text),
+          'Unit': unit
+        });
+      }
 
     List<String> directions = [];
     for (TextEditingController dir in _directionControllers) {
@@ -428,7 +437,7 @@ class _InputForm extends State<RecipeCreator> {
     }
 
     allKeywords.addAll(getKeywords(recipeController.text.toLowerCase()));
-    newRecipe.set({
+    await newRecipe.set({
       'CreationDate': FieldValue.serverTimestamp(),
       'Creator': firestoreInstance.collection('users').doc(this.user.docID),
       'Credit': this.user.name,
@@ -438,5 +447,29 @@ class _InputForm extends State<RecipeCreator> {
       'RecipeName': recipeController.text,
       'TotalTime': int.tryParse(totalTimeController.text)
     });
+    return true;
+
+  } catch (e) {
+  print(e);
+  return false;
+  }
+
+  }
+
+  Future<void> handleSubmit(BuildContext context) async {
+    try {
+      Dialogs.showLoadingDialog(context, _keyLoader);
+      bool b = await addToDatabase();
+      Navigator.of(context, rootNavigator: true).pop();
+      if (b) {
+        Dialogs.showOKDialog(context, "Great Success!",
+            "Your new recipe has been created.");
+      } else {
+        Dialogs.showOKDialog(context, "Oh no!",
+            "Something went wrong trying to create your recipe! Please check your input or try again later.");
+      }
+    } catch (error) {
+      print(error);
+    }
   }
 }

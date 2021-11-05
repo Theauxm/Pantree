@@ -94,12 +94,15 @@ class _recipeState extends State<recipes> {
 
   Future<dynamic> getData() async {
     this.pantryIngredients = {};
-    await FirebaseFirestore.instance
-        .collection(this.user.PPID.path + "/ingredients").get()
-        .then((QuerySnapshot ingredients) {
-      for(int i = 0; i < ingredients.docs.length; i++)
-        pantryIngredients.add(ingredients.docs[i]["Item"].path.toString().trim());
-    });
+    if (this.currentPPID != null) {
+      await FirebaseFirestore.instance
+          .collection(this.currentPPID.path + "/ingredients").get()
+          .then((QuerySnapshot ingredients) {
+        for (int i = 0; i < ingredients.docs.length; i++)
+          pantryIngredients.add(
+              ingredients.docs[i]["Item"].path.toString().trim());
+      });
+    }
 
     setState(() {});
   }
@@ -119,11 +122,13 @@ class _recipeState extends State<recipes> {
       }
     });
 
-    FirebaseFirestore.instance
-        .collection(this.user.PPID.path + "/ingredients")
-        .snapshots().listen((event) {
-          getData();
-    });
+    if (this.currentPPID != null) {
+      FirebaseFirestore.instance
+          .collection(this.currentPPID.path + "/ingredients")
+          .snapshots().listen((event) {
+        getData();
+      });
+    }
   }
 
   @override
