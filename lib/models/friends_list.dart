@@ -153,7 +153,7 @@ class FriendsListState extends State<FriendsList> {
         context,
         MaterialPageRoute(
             builder: (context) =>
-            (user_profile(profileRef: fl[index][1], status: 'pending'))));
+            (user_profile(profileRef: fl[index][1], status: 'pending', currentUser: user))));
     //TODO route the user to the clicked profile
   }
   void removeFriend(DocumentReference d,DocumentReference u, DocumentReference f){

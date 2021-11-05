@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -427,6 +429,7 @@ class NewItemList extends StatelessWidget {
       await FirebaseFirestore.instance.collection(collectionName).add({
         "Name": name,
         "Owner": FirebaseFirestore.instance.collection("users").doc(user.uid),
+        "AltUsers": []
       }).then((value) {
         if (makePrimary) {
           FirebaseFirestore.instance.collection("users").doc(user.uid).update({
@@ -459,7 +462,8 @@ class Edit extends StatefulWidget {
   final DocumentReference itemList;
   final String usedByView; // Will be either "Shopping list" or "Pantry"
   final String name;
-  const Edit({Key key, this.user, this.itemList, this.name, this.usedByView})
+  final bool isOwner;
+  const Edit({Key key, this.user, this.itemList, this.name, this.usedByView, this.isOwner})
       : super(key: key);
 
   @override
@@ -539,80 +543,108 @@ class _EditState extends State<Edit> {
         false; // return false in case it's null (due to async)
   }
 
+  List<Widget> buildBody() {
+    List<Widget> body = [];
+    body.add(SizedBox(height: 10));
+    if(widget.isOwner) {
+      body.add(TextFormField(
+          controller: _pantryNameTextController,
+          focusNode: _focusNode,
+          validator: (value) {
+            if (value.isEmpty || value == null) {
+              return 'Please enter a name for your ' +
+                  widget.usedByView.toLowerCase();
+            } else if (!RegExp(r"^[a-zA-Z0-9\s\']+$")
+                .hasMatch(value)) {
+              return "Name must be alphanumeric";
+            }
+            return null;
+          },
+          inputFormatters: [
+            LengthLimitingTextInputFormatter(18),
+          ],
+          decoration: InputDecoration(
+            labelText: "New ${widget.usedByView} Name",
+            border: OutlineInputBorder(),
+          )));
+      body.add(SizedBox(height: 10));
+    }
+
+      body.add(CheckboxListTile(
+        title: Text("Make Primary ${widget.usedByView}"),
+        checkColor: Colors.white,
+        selectedTileColor: Color.fromRGBO(255, 190, 50, 1.0),
+        value: makePrimary,
+        onChanged: (bool value) {
+          setState(() {
+            makePrimary = value;
+          });
+        },
+      ));
+
+    body.add(SizedBox(height: 10));
+    body.add(
+      TextButton(
+        style: TextButton.styleFrom(backgroundColor: Colors.blue),
+        onPressed: () {
+          String title = "Failed!";
+          String message =
+              "${widget.usedByView} edit failed, please try again.";
+          if (_form.currentState.validate()) {
+            if (editList(
+                _pantryNameTextController.text, makePrimary)) {
+              title = "Success!";
+              message =
+              "Your ${widget
+                  .usedByView} has been edited. \nPress OK to return to your ${widget
+                  .usedByView}!";
+              showAlertDialog(context, title, message, true);
+            } else {
+              showAlertDialog(context, title, message, false);
+            }
+          }
+        },
+        child: Text(
+          'Save Changes',
+          style: TextStyle(color: Colors.white),
+        ),
+      ));
+
+    if(widget.isOwner){
+      body.add(SizedBox(height: 10));
+      body.add (TextButton(
+        style: TextButton.styleFrom(backgroundColor: Colors.red),
+        onPressed: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                  (ManageUsers(listRef: widget.itemList, usedByView: widget.usedByView,))));
+        },
+        child: Text(
+          'Manage Users',
+          style: TextStyle(color: Colors.white),
+        ),
+      ));
+    }
+
+    return body;
+  }
   @override
   Widget build(BuildContext context) {
     globalContext = context;
     return WillPopScope(
         onWillPop: _onWillPop,
         child: Scaffold(
-            appBar: AppBar(
-              title: Text("Edit " + widget.usedByView),
-            ),
-            body: Container(
-              margin: EdgeInsets.all(30.0),
-              child: Form(
-                  key: _form,
-                  child: Column(children: <Widget>[
-                    TextFormField(
-                        controller: _pantryNameTextController,
-                        focusNode: _focusNode,
-                        validator: (value) {
-                          if (value.isEmpty || value == null) {
-                            return 'Please enter a name for your ' +
-                                widget.usedByView.toLowerCase();
-                          } else if (!RegExp(r"^[a-zA-Z0-9\s\']+$")
-                              .hasMatch(value)) {
-                            return "Name must be alphanumeric";
-                          }
-                          return null;
-                        },
-                        inputFormatters: [
-                          LengthLimitingTextInputFormatter(18),
-                        ],
-                        decoration: InputDecoration(
-                          labelText: "New ${widget.usedByView} Name",
-                          border: OutlineInputBorder(),
-                        )),
-                    SizedBox(height: 10),
-                    CheckboxListTile(
-                      title: Text("Make Primary ${widget.usedByView}"),
-                      checkColor: Colors.white,
-                      selectedTileColor: Color.fromRGBO(255, 190, 50, 1.0),
-                      value: makePrimary,
-                      onChanged: (bool value) {
-                        setState(() {
-                          makePrimary = value;
-                        });
-                      },
-                    ),
-                    SizedBox(height: 42),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          primary: Colors.lightBlue,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 25, vertical: 10),
-                          textStyle: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold)),
-                      onPressed: () {
-                        String title = "Oh no!";
-                        String message =
-                            "Something went wrong trying to edit your ${widget.usedByView.toLowerCase()}! Please try again later.";
-                        if (_form.currentState.validate()) {
-                          if (editList(
-                              _pantryNameTextController.text, makePrimary)) {
-                            title = "Great Success!";
-                            message =
-                                "Your ${widget.usedByView.toLowerCase()} has been edited.";
-                            showAlertDialog(context, title, message, true);
-                          } else {
-                            showAlertDialog(context, title, message, false);
-                          }
-                        }
-                      },
-                      child: const Text("Save Changes"),
-                    ),
-                  ])),
-            )));
+          appBar: AppBar(
+            title: Text("Edit " + widget.usedByView),
+          ),
+          body: Form(
+              key: _form,
+              child: Column(children:
+                buildBody(),
+              )),
+        ));
   }
 
   bool editList(String name, bool makePrimary) {
@@ -832,16 +864,20 @@ class AddNewCollaboratorState extends State<AddNewCollaborator> {
   }
 
   bool addPeople() {
+    String fieldName = "PantryIDs";
+    if (widget.usedByView != "Pantry"){
+      fieldName = "ShoppingIDs";
+    }
     try {
       items.forEach((element) {
         if (element.isCheck) {
-          element.ref.update({
-            'PantryIDs': FieldValue.arrayUnion([widget.docRef]),
-          });
-
-          widget.docRef.update({
-            'AltUsers': FieldValue.arrayUnion([element.ref]),
-          });
+        element.ref.update(
+        {
+        fieldName: FieldValue.arrayUnion([widget.docRef]),
+        });
+        
+        widget.docRef.update({
+          'AltUsers': FieldValue.arrayUnion([element.ref]),});
         }
       });
     } catch (e) {
@@ -851,6 +887,7 @@ class AddNewCollaboratorState extends State<AddNewCollaborator> {
   }
 }
 
+
 class CheckBoxListTileModel {
   String title;
   bool isCheck;
@@ -858,7 +895,143 @@ class CheckBoxListTileModel {
   CheckBoxListTileModel({this.title, this.isCheck, this.ref});
 }
 
-class QuantityButton extends StatefulWidget {
+//Remove a user from a pantry
+class ManageUsers extends StatefulWidget {
+  final DocumentReference listRef;
+  final String usedByView;
+  ManageUsers({Key key, this.listRef, this.usedByView})
+      : super(key: key);
+
+  @override
+  ManageUsersState createState() => ManageUsersState();
+}
+
+// https://stackoverflow.com/questions/51607440/horizontally-scrollable-cards-with-snap-effect-in-flutter
+class ManageUsersState extends State<ManageUsers> {
+
+  List altUsers; // Friends Map, With their names and Doc Ref!
+  StreamSubscription<DocumentSnapshot> friendListener;
+  Future<dynamic> getUsers() async {
+    print("IN GETUSERS");
+    altUsers = [];
+    var listDoc = await widget.listRef.get();
+    List altUsersRef = listDoc.data()['AltUsers'];
+
+    for (int i =0; i < altUsersRef.length; i++){
+      var tempUser = await altUsersRef[i].get();
+      String tempName = tempUser.data()['Username'];
+      altUsers.add([tempName,altUsersRef[i]]);
+    }
+
+      // very important: se setState() to force a call to build()
+      if(mounted) {setState(() {
+      });}
+  }
+
+  setListener() {
+    friendListener =
+        widget.listRef
+        .snapshots()
+        .listen((event) {
+          print(altUsers.length);
+
+      if(event.data()['AltUsers'].length != altUsers.length){
+        getUsers();
+      }});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getUsers().then((val) => {setListener()});
+  }
+
+  @override
+  void dispose(){
+    friendListener.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Remove Users"),
+      ),
+      body: Column(children: <Widget>[
+        buildListUsers(),
+      ]),
+      );
+  }
+
+  Widget buildListUsers(){
+    //List keys = map.keys.toList()
+      if(altUsers == null){
+        return Center(child: CircularProgressIndicator());
+      }
+
+      return Expanded(child:
+      ListView.builder(
+        itemBuilder: (context, index) {
+          return Card(
+            elevation: 7.0,
+            margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 3.0),
+            child: ListTile(
+              leading: Container(
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.account_box,
+                      size: 30,
+                    ),
+                    onPressed:(){
+                      //profileClicked(fl, index);
+                    },
+                  )),
+              title: Text(
+                altUsers[index][0].toString(),
+                style: const TextStyle(
+                    fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              trailing: TextButton(
+                style: TextButton.styleFrom(backgroundColor: Colors.red),
+                onPressed: () {
+                  //TODO: Are you sure dialog
+                    removeUser(altUsers[index][1], altUsers[index][0]);
+                },
+                child: Text(
+                  'REMOVE',
+                  style: TextStyle(color: Colors.white),
+                ),
+              )
+            ),
+          );
+        },
+        itemCount: altUsers.length,
+      ));
+  }
+
+  removeUser(userRef, key) async{
+
+    await widget.listRef.update({
+      'AltUsers': FieldValue.arrayRemove([userRef]),}
+    );
+    String fieldName = 'PantryIDs';
+    if(widget.usedByView != "Pantry"){
+      fieldName = "ShoppingIDs";
+    }
+    await userRef.update({
+      fieldName: FieldValue.arrayRemove([widget.listRef]),}
+    );
+
+    setState(() {
+    });
+  }
+}
+
+
+
+
+  class QuantityButton extends StatefulWidget {
   final double initialQuantity;
   final Future<double> Function(double) onQuantityChange;
   const QuantityButton({Key key, this.initialQuantity, this.onQuantityChange})
@@ -866,12 +1039,13 @@ class QuantityButton extends StatefulWidget {
 
   @override
   _QuantityButtonState createState() =>
-      _QuantityButtonState(quantity: initialQuantity);
-}
+  _QuantityButtonState(quantity: initialQuantity);
+  }
 
 class _QuantityButtonState extends State<QuantityButton> {
   double quantity;
   bool isSaving = false;
+
   _QuantityButtonState({this.quantity});
 
   void changeQuantity(double newQuantity) async {
@@ -884,7 +1058,6 @@ class _QuantityButtonState extends State<QuantityButton> {
       isSaving = false;
     });
   }
-
   @override
   Widget build(BuildContext context) {
     return Row(children: [

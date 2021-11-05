@@ -4,7 +4,7 @@ import 'package:pantree/pantreeUser.dart';
 import 'package:pantree/models/exportList.dart';
 
 class ViewRecipe extends StatefulWidget {
-  final QueryDocumentSnapshot recipe;
+  final DocumentSnapshot recipe;
   final PantreeUser user;
 
   const ViewRecipe({
@@ -23,7 +23,7 @@ class ViewRecipe extends StatefulWidget {
 
 // https://stackoverflow.com/questions/51607440/horizontally-scrollable-cards-with-snap-effect-in-flutter
 class _HomePageState extends State<ViewRecipe> {
-  QueryDocumentSnapshot recipe;
+  DocumentSnapshot recipe;
   PantreeUser user;
 
   _HomePageState(this.user, this.recipe);

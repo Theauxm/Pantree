@@ -386,20 +386,39 @@ class _InputForm extends State<RecipeCreator> {
   }
 
   Future<bool> addToDatabase() async {
-    try {
-      DocumentReference newRecipe = firestoreInstance.collection('recipes').doc();
-      CollectionReference ingredientCollection =
-      newRecipe.collection('ingredients');
+    DocumentReference newRecipe = firestoreInstance.collection('recipes').doc();
+    CollectionReference ingredientCollection =
+        newRecipe.collection('ingredients');
 
-      DocumentReference currentUser = firestoreInstance.collection('users').doc(
-          this.user.uid);
-      currentUser.update({"RecipeIDs": FieldValue.arrayUnion([newRecipe.id])});
+    DocumentReference currentUser = firestoreInstance.collection('users').doc(this.user.uid);
+    currentUser.update({"RecipeIDs" : FieldValue.arrayUnion([newRecipe])});
 
-      Set<String> allKeywords = {};
-      for (int i = 0; i < _ingredientControllers.length; i++) {
-        TextEditingController ingred = _ingredientControllers[i];
-        if (ingred.text == "") {
-          continue;
+    Set<String> allKeywords = {};
+    for (int i = 0; i < _ingredientControllers.length; i++) {
+      TextEditingController ingred = _ingredientControllers[i];
+      if (ingred.text == "") {
+        continue;
+      }
+      String unit = _selectedUnits[i];
+      TextEditingController amount = _ingredientAmountControllers[i];
+
+      Set<String> ingredKeywords = getKeywords(ingred.text.toLowerCase());
+      allKeywords.addAll(ingredKeywords);
+      DocumentReference ingredInstance =
+          firestoreInstance.collection('food').doc(ingred.text.toLowerCase());
+
+      ingredInstance.get().then((docSnapshot) {
+        if (docSnapshot.exists) {
+          ingredInstance.update({
+            'recipe_ids': [newRecipe.id]
+          });
+        } else {
+          ingredInstance.set({
+            'recipe_ids': [newRecipe.id],
+            'Image': "",
+            'Keywords': ingredKeywords.toList()
+          });
+          
         }
         String unit = _selectedUnits[i];
         TextEditingController amount = _ingredientAmountControllers[i];

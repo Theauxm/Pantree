@@ -23,7 +23,9 @@ class _ListState extends State<ShoppingList> {
   int listsLength;
   Map<String, DocumentReference>
       _listMap; // private NOTE: bad design - it will fuck with users collaborating on multiple lists with the same name
+  Map<String, bool> _listMapOwner;
   bool loading = true;
+  bool isOwner = false;
 
   @override
   void initState() {
@@ -36,12 +38,17 @@ class _ListState extends State<ShoppingList> {
     print('SL GETDATA() CALLED');
     DocumentReference tempPantry;
     String tempName;
-
-    _listMap = Map<String, DocumentReference>(); // instantiate the map
+    bool tempBool;
+    _listMap = Map<String, DocumentReference>();
+    _listMapOwner = Map<String, bool>();// instantiate the map
     for (DocumentReference ref in user.shoppingLists) {
       // go through each doc ref and add to list of list names + map
       String listName = "";
+      bool tempIsOwner = false;
       await ref.get().then((DocumentSnapshot snapshot) {
+        if(snapshot.data()['Owner'].id == widget.user.uid){
+          tempIsOwner = true;
+        }
         if (ref == user.PSID) {
           listName = snapshot.data()['Name'] + "*";
         } else {
@@ -50,7 +57,9 @@ class _ListState extends State<ShoppingList> {
       });
       tempPantry = ref; // this will have to do for now
       tempName = listName;
-      _listMap[listName] = ref; // map the doc ref to its name
+      tempBool = tempIsOwner;
+      _listMap[listName] = ref;
+      _listMapOwner[listName] = tempIsOwner;// map the doc ref to its name
     }
 
     // make sure widget hasn't been disposed before rebuild
@@ -58,6 +67,7 @@ class _ListState extends State<ShoppingList> {
       setState(() {
         // setState() forces a call to build()
         if (loading) loading = false;
+        isOwner = tempBool;
         _selectedList = tempPantry;
         _selectedListName = tempName;
       });
@@ -133,6 +143,7 @@ class _ListState extends State<ShoppingList> {
           setState(() {
             _selectedList = e.value;
             _selectedListName = e.key;
+            isOwner = _listMapOwner[e.key];
           });
         }
       }
@@ -150,6 +161,26 @@ class _ListState extends State<ShoppingList> {
                 ))));
   }
 
+  void addCollaborator() {
+    if(isOwner) {
+      if (user.friends.length > 0) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                (AddNewCollaborator(
+                  user: user,
+                  usedByView: "Shopping List",
+                  docRef: _selectedList,
+                ))));
+      } else {
+        //TODO: Add popup telling them to get friends
+      }
+    } else{
+      //TODO: You are not the owner Dialog
+    }
+  }
+
   Future<void> editList() async {
     var result = await Navigator.push(
         context,
@@ -159,6 +190,7 @@ class _ListState extends State<ShoppingList> {
                   itemList: _selectedList,
                   name: _selectedListName,
                   usedByView: "Shopping List",
+                  isOwner: isOwner,
                 ))));
     if (result is List) {
       updateLists(result[0], result[1], result[2]);
@@ -169,11 +201,12 @@ class _ListState extends State<ShoppingList> {
       String newName, bool primaryChanged, bool isPrimary) async {
     DocumentReference primaryList;
     String primaryListName;
-
+    _listMapOwner.clear();
     _listMap.clear();
     for (DocumentReference ref in user.shoppingLists) {
       // repopulate list map
       String listName = "";
+      bool ownerBool = false;
       await ref.get().then((DocumentSnapshot snapshot) {
         if (ref == user.PSID) {
           listName = snapshot.data()['Name'] + "*";
@@ -182,8 +215,12 @@ class _ListState extends State<ShoppingList> {
         } else {
           listName = snapshot.data()['Name'];
         }
+        if(snapshot.data()['Owner'].id == widget.user.uid){
+          ownerBool = true;
+        }
       });
       _listMap[listName] = ref; // map the doc ref to its name
+      _listMapOwner[listName] = ownerBool;
     }
 
     if (mounted) {
@@ -192,21 +229,24 @@ class _ListState extends State<ShoppingList> {
           // covers both primary --> primary and non-primary --> primary cases
           _selectedList = primaryList;
           _selectedListName = primaryListName;
+          isOwner = _listMapOwner[primaryListName];
         } else if (!isPrimary && primaryChanged) {
           // primary --> non-primary
           // quietly stops the user from not having a primary list
           _selectedList = _listMap[newName + "*"];
           _selectedListName = newName + "*";
+          isOwner = _listMapOwner[newName + "*"];
         } else {
           // non-primary --> non-primary
           _selectedList = _listMap[newName];
           _selectedListName = newName;
+          isOwner = _listMapOwner[newName];
         }
       });
     }
   }
 
-  Future<void> deleteList(DocumentReference doc) async {
+/*  Future<void> deleteList(DocumentReference doc) async {
     // delete list from list of shopping lists
     await doc
         .delete()
@@ -244,6 +284,50 @@ class _ListState extends State<ShoppingList> {
         updateLists(entryList[0].key, true, true);
       }
     }
+  }*/
+
+  Future<void> deleteList(DocumentReference doc) async {
+    // delete pantry from list of pantries
+    if(isOwner) {
+      var snap = await doc.get();
+      List altUsers = snap.data()['AltUsers'];
+      altUsers.forEach((element) {removeListFromUser(element.id, doc);});
+      await doc
+          .delete()
+          .then((value) =>
+          print("SUCCESS: $doc has been deleted from Shopping Lists"))
+          .catchError((error) =>
+          print("FAILURE: couldn't delete $doc from Shopping Lists: $error"));
+    }
+    removeListFromUser(user.uid, doc);// delete pantry from user pantries
+  }
+
+  removeListFromUser(id, doc) async{
+
+    // if pantry is primary, remove it from PPID
+    var tempUser = await firestoreInstance
+        .collection('users')
+        .doc(id).get();
+    var tempPSID = tempUser.data()['PSID'];
+    if (doc == tempUser.data()['PSID']) {
+      tempPSID = null;
+      for(int i = 0; i< tempUser.data()['ShoppingIDs'].length; i++){
+        if(tempUser.data()['ShoppingIDs'][i] != doc){
+          tempPSID = tempUser.data()['ShoppingIDs'][i];
+          break;
+        }
+      }
+    }
+    await firestoreInstance
+        .collection('users')
+        .doc(id)
+        .update({
+      'PSID': tempPSID,
+      'ShoppingIDs': FieldValue.arrayRemove([_selectedList])
+    }).then((value) =>
+        print("SUCCESS: $doc has been deleted from user Shopping List"))
+        .catchError((error) =>
+        print("FAILURE: couldn't delete $doc from user Shopping List: $error"));
   }
 
   showDeleteDialog(
@@ -317,6 +401,7 @@ class _ListState extends State<ShoppingList> {
           setState(() {
             _selectedList = _listMap[newVal];
             _selectedListName = newVal;
+            isOwner = _listMapOwner[newVal];
           });
         },
         hint: Text("Select List"),
@@ -354,10 +439,15 @@ class _ListState extends State<ShoppingList> {
                   showDeleteDialog(context, _selectedListName, _selectedList);
                 }
                 break;
+              case 'Add Collaborator':
+                {
+                  addCollaborator();
+                }
+                break;
             }
           },
           itemBuilder: (BuildContext context) {
-            return {'Create a new list', 'Edit this list', 'Remove this list'}
+            return {'Create a new list', 'Edit this list', 'Remove this list', 'Add Collaborator'}
                 .map((String choice) {
               return PopupMenuItem<String>(
                 value: choice,
