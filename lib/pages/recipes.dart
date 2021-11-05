@@ -34,8 +34,6 @@ class _recipeState extends State<recipes> {
 
   List<dynamic> filteredRecipes = [];
 
-  Set<String> pantryIngredients;
-
   String selectedTerm = "";
 
   List<String> filterSearchTerms({
@@ -83,7 +81,6 @@ class _recipeState extends State<recipes> {
     filteredSearchHistory = filterSearchTerms(filter: null);
     currentPPID = this.user.PPID;
     setListener();
-    getData();
   }
 
   @override
@@ -92,19 +89,12 @@ class _recipeState extends State<recipes> {
     super.dispose();
   }
 
-  Future<dynamic> getData() async {
-    this.pantryIngredients = {};
-    if (this.currentPPID != null) {
-      await FirebaseFirestore.instance
-          .collection(this.currentPPID.path + "/ingredients").get()
-          .then((QuerySnapshot ingredients) {
-        for (int i = 0; i < ingredients.docs.length; i++)
-          pantryIngredients.add(
-              ingredients.docs[i]["Item"].path.toString().trim());
-      });
-    }
+  Set<String> getData(List<QueryDocumentSnapshot> shots) {
+    Set<String> pantryIngredients = {};
+        for (int i = 0; i < shots.length; i++)
+          pantryIngredients.add(shots[i]["Item"].path.toString().trim());
 
-    setState(() {});
+      return pantryIngredients;
   }
 
   setListener() {
@@ -117,195 +107,201 @@ class _recipeState extends State<recipes> {
         print("INSIDE LISTENER --> PPID peach emoji");
         user.PPID = event.data()['PPID'];
         this.currentPPID = event.data()['PPID'];
-        getData();
+
         setState(() {});
       }
     });
-
-    if (this.currentPPID != null) {
-      FirebaseFirestore.instance
-          .collection(this.currentPPID.path + "/ingredients")
-          .snapshots().listen((event) {
-        getData();
-      });
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        drawer: PantreeDrawer(user: this.user),
-        floatingActionButton: CustomFAB(
-            color: Colors.red[400],
-            icon: const Icon(Icons.add),
-            onPressed: (() => {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => RecipeCreator(user: this.user)))
-                })),
-        body: FloatingSearchBar(
-              controller: controller,
-              body: Column(children: [
-                SizedBox(height: 75),
-                Container(
-                    height: MediaQuery.of(context).size.height * 0.1,
-                    child: StreamBuilder<QuerySnapshot>(
-                        stream: FirebaseFirestore.instance
-                            .collection('filters')
-                            .snapshots(),
-                        builder: (BuildContext context,
-                            AsyncSnapshot<QuerySnapshot> querySnapshot) {
-                          if (querySnapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return Center(child: CircularProgressIndicator());
-                          } else {
-                            return Container(
-                                child: ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemBuilder: (context, index) {
-                                    QueryDocumentSnapshot filter =
-                                    querySnapshot.data.docs[index];
-                                    return Container(
-                                        width: MediaQuery.of(context).size.width * 0.4,
-                                        child: Card(
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(50)),
-                                            color: Colors.red[400],
-                                            margin: const EdgeInsets.only(
-                                                top: 12.0, right: 8.0, left: 8.0),
-                                            child: InkWell(
-                                                onTap: () {
-                                                  setState(() {
-                                                    addSearchTerm("");
-                                                    selectedTerm = "";
-                                                  });
+    if (this.currentPPID == null) {
+      return (Text("Please create a pantry to use the Recipes tab"));
+    }
 
-                                                  List<dynamic> idStrings = [];
-                                                  for (DocumentReference ref
-                                                  in filter["recipe_ids"]) {
-                                                    idStrings.add(ref.id);
-                                                    if (idStrings.length == 10) {
-                                                      break;
-                                                    }
-                                                  }
-                                                  filteredRecipes = idStrings;
-                                                },
-                                                child: Center(
-                                                  child: Text(filter.id,
-                                                      style: TextStyle(
-                                                          fontSize: 20,
-                                                          color: Colors.white)),
-                                                ))));
-                                  },
-                                  itemCount: querySnapshot.data.docs.length,
-                                ));
-                          }
-                        })),
-                FloatingSearchBarScrollNotifier(
-                  child: SearchResultsListView(
-                      pantryIngredients: this.pantryIngredients,
-                      user: this.user,
-                      searchTerm: selectedTerm.toLowerCase(),
-                      filters: filteredRecipes),
-                )
-              ]),
-              transition: CircularFloatingSearchBarTransition(),
-              physics: BouncingScrollPhysics(),
-              title: Text(
-                selectedTerm ?? 'Search for Recipes',
-                style: Theme.of(context).textTheme.headline6,
-              ),
-              hint: 'Begin by typing a recipe...',
-              actions: [
-                FloatingSearchBarAction.searchToClear(),
-              ],
-              onQueryChanged: (query) {
-                setState(() {
-                  filteredSearchHistory = filterSearchTerms(filter: query);
-                  filteredRecipes = [];
-                });
-              },
-              onSubmitted: (query) {
-                setState(() {
-                  addSearchTerm(query);
-                  selectedTerm = query;
-                  filteredRecipes = [];
-                });
-                controller.close();
-              },
-              builder: (context, transition) {
-                return ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Material(
-                    color: Colors.white,
-                    elevation: 4,
-                    child: Builder(
-                      builder: (context) {
-                        if (filteredSearchHistory.isEmpty &&
-                            controller.query.isEmpty) {
-                          return Container(
-                            height: 56,
-                            width: double.infinity,
-                            alignment: Alignment.center,
-                            child: Text(
-                              'Click Above to Start Searching Recipes',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.caption,
-                            ),
-                          );
-                        } else if (filteredSearchHistory.isEmpty) {
-                          return ListTile(
-                            title: Text(controller.query),
-                            leading: const Icon(Icons.search),
-                            onTap: () {
-                              setState(() {
-                                addSearchTerm(controller.query);
-                                selectedTerm = controller.query;
-                              });
-                              controller.close();
-                            },
-                          );
+    return StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection(this.currentPPID.path + "/ingredients").snapshots(),
+        builder: (BuildContext context,
+        AsyncSnapshot<QuerySnapshot> querySnapshot) {
+      if (querySnapshot.connectionState == ConnectionState.waiting) {
+        return Center(child: CircularProgressIndicator());
+      } else {
+
+        return Scaffold(
+          drawer: PantreeDrawer(user: this.user),
+          floatingActionButton: CustomFAB(
+              color: Colors.red[400],
+              icon: const Icon(Icons.add),
+              onPressed: (() => {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => RecipeCreator(user: this.user)))
+              })),
+          body: FloatingSearchBar(
+            controller: controller,
+            body: Column(children: [
+              SizedBox(height: 75),
+              Container(
+                  height: MediaQuery.of(context).size.height * 0.1,
+                  child: StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('filters')
+                          .snapshots(),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<QuerySnapshot> querySnapshot) {
+                        if (querySnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
                         } else {
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: filteredSearchHistory
-                                .map(
-                                  (term) => ListTile(
-                                    title: Text(
-                                      term,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    leading: const Icon(Icons.history),
-                                    trailing: IconButton(
-                                      icon: const Icon(Icons.clear),
-                                      onPressed: () {
-                                        setState(() {
-                                          deleteSearchTerm(term);
-                                        });
-                                      },
-                                    ),
-                                    onTap: () {
-                                      setState(() {
-                                        putSearchTermFirst(term);
-                                        selectedTerm = term;
-                                      });
-                                      controller.close();
-                                    },
-                                  ),
-                                )
-                                .toList(),
-                          );
+                          return Container(
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemBuilder: (context, index) {
+                                  QueryDocumentSnapshot filter =
+                                  querySnapshot.data.docs[index];
+                                  return Container(
+                                      width: MediaQuery.of(context).size.width * 0.4,
+                                      child: Card(
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(50)),
+                                          color: Colors.red[400],
+                                          margin: const EdgeInsets.only(
+                                              top: 12.0, right: 8.0, left: 8.0),
+                                          child: InkWell(
+                                              onTap: () {
+                                                setState(() {
+                                                  addSearchTerm("");
+                                                  selectedTerm = "";
+                                                });
+
+                                                List<dynamic> idStrings = [];
+                                                for (DocumentReference ref
+                                                in filter["recipe_ids"]) {
+                                                  idStrings.add(ref.id);
+                                                  if (idStrings.length == 10) {
+                                                    break;
+                                                  }
+                                                }
+                                                filteredRecipes = idStrings;
+                                              },
+                                              child: Center(
+                                                child: Text(filter.id,
+                                                    style: TextStyle(
+                                                        fontSize: 20,
+                                                        color: Colors.white)),
+                                              ))));
+                                },
+                                itemCount: querySnapshot.data.docs.length,
+                              ));
                         }
-                      },
-                    ),
-                  ),
-                );
-              },
+                      })),
+              FloatingSearchBarScrollNotifier(
+                child: SearchResultsListView(
+                    pantryIngredients: getData(querySnapshot.data.docs),
+                    user: this.user,
+                    searchTerm: selectedTerm.toLowerCase(),
+                    filters: filteredRecipes),
+              )
+            ]),
+            transition: CircularFloatingSearchBarTransition(),
+            physics: BouncingScrollPhysics(),
+            title: Text(
+              selectedTerm ?? 'Search for Recipes',
+              style: Theme.of(context).textTheme.headline6,
             ),
-          );
+            hint: 'Begin by typing a recipe...',
+            actions: [
+              FloatingSearchBarAction.searchToClear(),
+            ],
+            onQueryChanged: (query) {
+              setState(() {
+                filteredSearchHistory = filterSearchTerms(filter: query);
+                filteredRecipes = [];
+              });
+            },
+            onSubmitted: (query) {
+              setState(() {
+                addSearchTerm(query);
+                selectedTerm = query;
+                filteredRecipes = [];
+              });
+              controller.close();
+            },
+            builder: (context, transition) {
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Material(
+                  color: Colors.white,
+                  elevation: 4,
+                  child: Builder(
+                    builder: (context) {
+                      if (filteredSearchHistory.isEmpty &&
+                          controller.query.isEmpty) {
+                        return Container(
+                          height: 56,
+                          width: double.infinity,
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Click Above to Start Searching Recipes',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.caption,
+                          ),
+                        );
+                      } else if (filteredSearchHistory.isEmpty) {
+                        return ListTile(
+                          title: Text(controller.query),
+                          leading: const Icon(Icons.search),
+                          onTap: () {
+                            setState(() {
+                              addSearchTerm(controller.query);
+                              selectedTerm = controller.query;
+                            });
+                            controller.close();
+                          },
+                        );
+                      } else {
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: filteredSearchHistory
+                              .map(
+                                (term) => ListTile(
+                              title: Text(
+                                term,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              leading: const Icon(Icons.history),
+                              trailing: IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  setState(() {
+                                    deleteSearchTerm(term);
+                                  });
+                                },
+                              ),
+                              onTap: () {
+                                setState(() {
+                                  putSearchTermFirst(term);
+                                  selectedTerm = term;
+                                });
+                                controller.close();
+                              },
+                            ),
+                          )
+                              .toList(),
+                        );
+                      }
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      }
+    });
   }
 }
 
