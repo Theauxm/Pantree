@@ -230,6 +230,7 @@ class _PantryState extends State<Pantry> {
   }
 
    Future<void> deletePantry(DocumentReference doc) async {
+    print("INSIDE DELETEPANTRY");
     // delete pantry from list of pantries
      if(isOwner) {
        var snap = await doc.get();
@@ -275,8 +276,7 @@ class _PantryState extends State<Pantry> {
   showDeleteDialog(
       BuildContext context, String pantryName, DocumentReference doc) {
     Widget cancelButton = TextButton(
-        style: TextButton.styleFrom(
-            backgroundColor: Colors.lightBlue, primary: Colors.white),
+        style: TextButton.styleFrom(primary: Colors.red),
         child: Text("NO"),
         onPressed: () {
           Navigator.of(context, rootNavigator: true).pop();

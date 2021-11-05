@@ -299,7 +299,7 @@ Widget itemCard(DocumentSnapshot ingredientDS, BuildContext context, DocumentRef
       trailing: IconButton(
         icon: Icon(Icons.delete, size: 20.0),
         onPressed: (() {
-          showDeleteDialog(
+          Dialogs.showDeleteItemDialog(
               context, ingredientDS['Item'].id.toString().capitalizeFirstOfEach, ingredientDS);
         }),
       ),

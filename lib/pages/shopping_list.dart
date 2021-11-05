@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pantree/models/dialogs.dart';
 import 'package:pantree/models/modules.dart';
 import 'package:pantree/models/drawer.dart';
 import '../pantreeUser.dart';
@@ -96,29 +97,6 @@ class _ListState extends State<ShoppingList> {
     });
   }
 
-  showError(BuildContext context) {
-    Widget okButton = TextButton(
-      style: TextButton.styleFrom(primary: Colors.lightBlue),
-      child: Text("Ok"),
-      onPressed: () {
-        Navigator.of(context, rootNavigator: true).pop();
-      },
-    );
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("No Pantries"),
-          content: Text("You don't have any pantries to export to!"),
-          actions: [
-            okButton,
-          ],
-        );
-      },
-    );
-  }
-
   void exportList() {
     if (user.pantries.length > 0) {
       Navigator.push(
@@ -130,7 +108,7 @@ class _ListState extends State<ShoppingList> {
                   exportList: user.pantries,
                   exportingToName: "Pantry"))));
     } else {
-      showError(context);
+      Dialogs.showError(context, "Pantry");
     }
   }
 

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:pantree/pantreeUser.dart';
 import 'package:pantree/models/exportList.dart';
 
+import 'dialogs.dart';
+
 class ViewRecipe extends StatefulWidget {
   final DocumentSnapshot recipe;
   final PantreeUser user;
@@ -92,12 +94,22 @@ class _HomePageState extends State<ViewRecipe> {
   }
 
   Widget addIngredientsToShoppingList() {
-    print(this.recipe.reference);
+    //print(this.recipe.reference);
     return TextButton(
       onPressed: () {
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => ExportList(user: this.user, list: this.recipe.reference, exportList: user.shoppingLists, removeItems: false, exportingToName: "Shopping List",)));
-        //builder: (context) => AddToShoppingList(user: this.user, recipe: this.recipe)));
+        if (user.shoppingLists.length > 0) {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) =>
+                  ExportList(user: this.user,
+                    list: this.recipe.reference,
+                    exportList: user.shoppingLists,
+                    removeItems: false,
+                    exportingToName: "Shopping List",)));
+          //builder: (context) => AddToShoppingList(user: this.user, recipe: this.recipe)));
+        }
+        else {
+          Dialogs.showError(context, "Shopping List");
+        }
       },
       child: Text("Add to Shopping List", style: TextStyle(fontSize: 20))
     );
