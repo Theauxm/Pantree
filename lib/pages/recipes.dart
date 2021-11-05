@@ -217,12 +217,12 @@ class _recipeState extends State<recipes> {
             actions: [
               FloatingSearchBarAction.searchToClear(),
             ],
-            onQueryChanged: (query) {
-              setState(() {
-                filteredSearchHistory = filterSearchTerms(filter: query);
-                filteredRecipes = [];
-              });
-            },
+            // onQueryChanged: (query) {
+            //   setState(() {
+            //     filteredSearchHistory = filterSearchTerms(filter: query);
+            //     filteredRecipes = [];
+            //   });
+            // },
             onSubmitted: (query) {
               setState(() {
                 addSearchTerm(query);
