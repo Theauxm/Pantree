@@ -256,9 +256,15 @@ class _NewFoodItemState extends State<NewFoodItem> {
 /// [ingredientDS] - Document Reference to either the current Pantry/Shopping list
 /// [context] - Name of the view using this widget
 Widget itemCard(DocumentSnapshot ingredientDS, BuildContext context, DocumentReference itemList) {
-  int qty = ingredientDS['Quantity'];
+  double qty;
+  if (ingredientDS['Quantity'] is int) {
+    int temp = ingredientDS['Quantity'];
+    qty = temp.toDouble();
+  } else {
+    qty = ingredientDS['Quantity'];
+  }
 
-  Future<int> updateQuantity(int newQuantity) {
+  Future<double> updateQuantity(double newQuantity) {
     try {
       print("UPDATING QUANTITY");
       ingredientDS.reference.update({
@@ -283,7 +289,7 @@ Widget itemCard(DocumentSnapshot ingredientDS, BuildContext context, DocumentRef
       ),
       subtitle: Text(
         "Quantity: " +
-            qty.toString() +
+            ingredientDS['Quantity'].toString() +
             " " +
             ingredientDS['Unit'].toString().capitalizeFirstOfEach,
         style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
@@ -853,8 +859,8 @@ class CheckBoxListTileModel {
 }
 
 class QuantityButton extends StatefulWidget {
-  final int initialQuantity;
-  final Future<int> Function(int) onQuantityChange;
+  final double initialQuantity;
+  final Future<double> Function(double) onQuantityChange;
   const QuantityButton({Key key, this.initialQuantity, this.onQuantityChange})
       : super(key: key);
 
@@ -864,11 +870,11 @@ class QuantityButton extends StatefulWidget {
 }
 
 class _QuantityButtonState extends State<QuantityButton> {
-  int quantity;
+  double quantity;
   bool isSaving = false;
   _QuantityButtonState({this.quantity});
 
-  void changeQuantity(int newQuantity) async {
+  void changeQuantity(double newQuantity) async {
     setState(() {
       isSaving = true;
     });
@@ -892,7 +898,7 @@ class _QuantityButtonState extends State<QuantityButton> {
       IconButton(
           color: Colors.black,
           onPressed: (isSaving) ? null : () => changeQuantity(quantity + 1),
-          icon: Icon(Icons.add_circle_outline, size: 14.0)),
+          icon: Icon(Icons.add_circle_outline, size: 16.0)),
     ]);
   }
 }
