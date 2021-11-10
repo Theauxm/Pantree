@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.1">Jekyll</generator><link href="http://localhost:4000/Pantree/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/Pantree/" rel="alternate" type="text/html" /><updated>2021-11-09T19:47:24-07:00</updated><id>http://localhost:4000/Pantree/feed.xml</id><title type="html">Pantree</title><subtitle>Pantree official viewing site. Containing information about the team, what we have aimed to achieve with this project, along with a download link for those who want to experience what we&apos;ve created.</subtitle><entry><title type="html">What is Pantree?</title><link href="http://localhost:4000/Pantree/jekyll/update/2021/11/07/what-is-pantree.html" rel="alternate" type="text/html" title="What is Pantree?" /><published>2021-11-07T14:08:14-07:00</published><updated>2021-11-07T14:08:14-07:00</updated><id>http://localhost:4000/Pantree/jekyll/update/2021/11/07/what-is-pantree</id><content type="html" xml:base="http://localhost:4000/Pantree/jekyll/update/2021/11/07/what-is-pantree.html">&lt;h4 id=&quot;in-short-pantree-is-a-kitchen-management-app-desgined-to-help-reduce-waste-by-providing-a-platform-to-organize-what-you-have-in-your-pantry-and-refrigerator-we-aimed-to-do-this-in-a-few-different-ways&quot;&gt;In short, Pantree is a Kitchen Management App desgined to help reduce waste by providing a platform to organize what you have in your pantry and refrigerator. We aimed to do this in a few different ways.&lt;/h4&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;h2 id=&quot;pantries&quot;&gt;Pantries&lt;/h2&gt;
+&lt;p&gt;First, the app provides a way to add any type of food to a Pantry, keeping track of the date the item was added. This allows a user to see what may be about to expire, cutting down on food that may need to be thrown away. Dynamic pantries allow multiple users to be apart of the same pantry, giving those who live together a way to know exactly what is available at any time.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/Pantree/assets/images/pantry_example.PNG&quot; alt=&quot;Pantry Example&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;h2 id=&quot;recipe-search&quot;&gt;Recipe Search&lt;/h2&gt;
+&lt;p&gt;Second, there is a Recipe tab in the app that provides a way for users to filter based on what they’d like to make, or search directly for something they have in mind. The missing ingredients function allows users to see exactly what they don’t have, rather than having to do all the mental math on their own. Users can also create their own recipes as well!&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/Pantree/assets/images/recipe_example.PNG&quot; alt=&quot;Shopping List Example&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;h2 id=&quot;shopping-lists&quot;&gt;Shopping Lists&lt;/h2&gt;
+&lt;p&gt;Third, a Shopping List tab is provided as a way to organize future grocery store/market visits, allowing for easy integration into a Pantry once the items are back home. The Recipe tab allows users to export recipe items directly into a shopping list, cutting down on the amount of time it takes to figure out what is and isn’t necessary to purchase.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/Pantree/assets/images/shopping_list_example.PNG&quot; alt=&quot;Recipe Example&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;h2 id=&quot;social-view&quot;&gt;Social View&lt;/h2&gt;
+&lt;p&gt;Lastly, the Social Tab is available to show off finished products! There is functionality to add and remove friends, allowing for collaborators to be added to a pantry. Posts can also be created to show off what users have created, or upload instructions via photo on how to make a specific dish.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/Pantree/assets/images/social_example.PNG&quot; alt=&quot;Social Example&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;p&gt;You may be curious what technologies we used to develop the appliaction and the reasoning behind the choices we made. Checkout &lt;a href=&quot;https://www.youtube.com/watch?v=dQw4w9WgXcQ&quot;&gt;Technologies and Methodologies&lt;/a&gt; to read more!&lt;/p&gt;</content><author><name></name></author><category term="jekyll" /><category term="update" /><summary type="html">In short, Pantree is a Kitchen Management App desgined to help reduce waste by providing a platform to organize what you have in your pantry and refrigerator. We aimed to do this in a few different ways.</summary></entry><entry><title type="html">The timeline of Pantree</title><link href="http://localhost:4000/Pantree/jekyll/update/2021/11/07/the-problems-we-ran-into.html" rel="alternate" type="text/html" title="The timeline of Pantree" /><published>2021-11-07T14:08:14-07:00</published><updated>2021-11-07T14:08:14-07:00</updated><id>http://localhost:4000/Pantree/jekyll/update/2021/11/07/the-problems-we-ran-into</id><content type="html" xml:base="http://localhost:4000/Pantree/jekyll/update/2021/11/07/the-problems-we-ran-into.html"></content><author><name></name></author><category term="jekyll" /><category term="update" /><summary type="html"></summary></entry><entry><title type="html">Dart - The language of Widgets</title><link href="http://localhost:4000/Pantree/jekyll/update/2021/11/07/dart-the-widget-language.html" rel="alternate" type="text/html" title="Dart - The language of Widgets" /><published>2021-11-07T14:08:14-07:00</published><updated>2021-11-07T14:08:14-07:00</updated><id>http://localhost:4000/Pantree/jekyll/update/2021/11/07/dart-the-widget-language</id><content type="html" xml:base="http://localhost:4000/Pantree/jekyll/update/2021/11/07/dart-the-widget-language.html"></content><author><name></name></author><category term="jekyll" /><category term="update" /><summary type="html"></summary></entry><entry><title type="html">Meet the Team</title><link href="http://localhost:4000/Pantree/jekyll/update/2021/11/07/meet-the-team.html" rel="alternate" type="text/html" title="Meet the Team" /><published>2021-11-07T14:08:14-07:00</published><updated>2021-11-07T14:08:14-07:00</updated><id>http://localhost:4000/Pantree/jekyll/update/2021/11/07/meet-the-team</id><content type="html" xml:base="http://localhost:4000/Pantree/jekyll/update/2021/11/07/meet-the-team.html">&lt;h4 id=&quot;who-developed-pantree-how-did-the-team-form-why-do-you-work-well-together-how-did-each-person-contribute-to-the-team&quot;&gt;Who developed Pantree? How did the team form? Why do you work well together? How did each person contribute to the team?&lt;/h4&gt;
+
+&lt;p&gt;Brandon, Trey, Ben, and Theaux met during their first year at the University of Utah. After working together throughout various classes and other semester long projects, they decided to group together for their senior project. Pantree started as a simple idea over the COVID19 pandemic in an attempt to keep a living space a bit more clean and save money. By understanding the strengths and weaknesses of each other, working together has been an overall very positive experience.&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/Pantree/assets/images/team_tile.jpg&quot; alt=&quot;MeetTheTeam&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;brandon&quot;&gt;Brandon&lt;/h3&gt;
+&lt;p&gt;My main contributions to the pantree project have been located within the social view, and some of the social aspects related to it. We wanted the ability for users to easily share the amazing creations that they have made, as well as having easy access to other users of the application, and the ability to see what they were cooking. This extended to mingling with some of the other views, such as the recipe view, where users can easily see what recipes other users have made, and add them to the ingredients to their own shopping cart if they would like to try it!&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;h3 id=&quot;theaux&quot;&gt;Theaux&lt;/h3&gt;
+&lt;p&gt;I worked on a lot of the back-end for Pantree and the Recipe tab. Brandon and I collaborated on figuring out the structure of the database, and I created a web scraper to make sure users have the ability to make whatever kind of food they want! Users can add their own recipes to the database for others to create, seeing as the main goal of the app is to be able to share food with others.&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;h3 id=&quot;trey&quot;&gt;Trey&lt;/h3&gt;
+&lt;p&gt;xxx&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;h3 id=&quot;ben&quot;&gt;Ben&lt;/h3&gt;
+&lt;p&gt;xxx&lt;/p&gt;</content><author><name></name></author><category term="jekyll" /><category term="update" /><summary type="html">Who developed Pantree? How did the team form? Why do you work well together? How did each person contribute to the team?</summary></entry><entry><title type="html">NoSQL or Relational. Which database should you use?</title><link href="http://localhost:4000/Pantree/jekyll/update/2021/11/07/nosql-or-relational.html" rel="alternate" type="text/html" title="NoSQL or Relational. Which database should you use?" /><published>2021-11-07T14:08:14-07:00</published><updated>2021-11-07T14:08:14-07:00</updated><id>http://localhost:4000/Pantree/jekyll/update/2021/11/07/nosql-or-relational</id><content type="html" xml:base="http://localhost:4000/Pantree/jekyll/update/2021/11/07/nosql-or-relational.html"></content><author><name></name></author><category term="jekyll" /><category term="update" /><summary type="html"></summary></entry><entry><title type="html">What technology did we use?</title><link href="http://localhost:4000/Pantree/jekyll/update/2021/11/07/the-technology.html" rel="alternate" type="text/html" title="What technology did we use?" /><published>2021-11-07T14:00:00-07:00</published><updated>2021-11-07T14:00:00-07:00</updated><id>http://localhost:4000/Pantree/jekyll/update/2021/11/07/the-technology</id><content type="html" xml:base="http://localhost:4000/Pantree/jekyll/update/2021/11/07/the-technology.html"></content><author><name></name></author><category term="jekyll" /><category term="update" /><summary type="html"></summary></entry></feed>
