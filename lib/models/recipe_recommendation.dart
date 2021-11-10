@@ -26,11 +26,28 @@ class _RecommendRecipeState extends State<RecommendRecipe> {
 
   _RecommendRecipeState(this.user);
 
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Recipe Recommendations"), backgroundColor: Colors.red[400]),
-      body: Text("Hello"),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection(this.user.PPID.path + "/ingredients").snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> querySnapshot) {
+          if (querySnapshot.connectionState == ConnectionState.waiting)
+            return Center(child: CircularProgressIndicator());
+          else {
+           return ListView.builder(
+             itemCount: querySnapshot.data.docs.length,
+             itemBuilder: (context, index) {
+               QueryDocumentSnapshot ingredient = querySnapshot.data.docs[index];
+               return Text(ingredient.id);
+             },
+           );
+          }
+        }
+      ),
     );
   }
 
