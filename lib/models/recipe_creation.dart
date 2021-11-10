@@ -427,11 +427,11 @@ class _InputForm extends State<RecipeCreator> {
       ingredInstance.get().then((docSnapshot) {
         if (docSnapshot.exists) {
           ingredInstance.update({
-            'recipe_ids': [newRecipe.id]
+            'recipe_ids': [newRecipe]
           });
         } else {
           ingredInstance.set({
-            'recipe_ids': [newRecipe.id],
+            'recipe_ids': [newRecipe],
             'Image': "",
             'Keywords': ingredKeywords.toList()
           });
