@@ -30,6 +30,8 @@ class _RecommendRecipeState extends State<RecommendRecipe> {
 
   @override
   Widget build(BuildContext context) {
+
+    // Gets each Ingredient reference within a given user's Primary Pantry
     return Scaffold(
       appBar: AppBar(title: Text("Recipe Recommendations"), backgroundColor: Colors.red[400]),
       body: StreamBuilder<QuerySnapshot>(
@@ -38,11 +40,22 @@ class _RecommendRecipeState extends State<RecommendRecipe> {
           if (querySnapshot.connectionState == ConnectionState.waiting)
             return Center(child: CircularProgressIndicator());
           else {
+            Set<String> available_recipes = {};
+            // Creates list of each ingredient.
            return ListView.builder(
              itemCount: querySnapshot.data.docs.length,
              itemBuilder: (context, index) {
                QueryDocumentSnapshot ingredient = querySnapshot.data.docs[index];
-               return Text(ingredient.id);
+
+               // Needs another StreamBuilder to get info from reference about each ingredient.
+               return StreamBuilder<DocumentSnapshot>(
+                 stream: FirebaseFirestore.instance
+                     .doc(ingredient["Item"].path)
+                     .snapshots(),
+                 builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> querySnapshot) {
+                   return Text(querySnapshot.data["recipe_ids"].toString());
+                 },
+               );
              },
            );
           }

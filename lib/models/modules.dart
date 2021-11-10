@@ -51,7 +51,8 @@ class _NewFoodItemState extends State<NewFoodItem> {
       if (!doc.exists) {
         firestoreInstance.collection('food').doc(item).set({
           'Image': "",
-          'Keywords': getKeywords(item)
+          'Keywords': getKeywords(item),
+          'recipe_ids': []
         }); // adds doc with specified name and no fields
       }
       // now add it to the user Pantry/Shopping list
