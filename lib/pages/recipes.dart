@@ -132,15 +132,27 @@ class _recipeState extends State<recipes> {
 
         return Scaffold(
           drawer: PantreeDrawer(user: this.user),
-          floatingActionButton: CustomFAB(
-              color: Colors.red[400],
-              icon: const Icon(Icons.add),
-              onPressed: (() => {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => RecipeCreator(user: this.user)))
-              })),
+          floatingActionButton: SingleChildScrollView( child: Column(children: [
+            CustomFAB(
+                color: Colors.red[400],
+                icon: const Icon(Icons.food_bank_rounded, size: 35),
+                onPressed: (() => {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => RecipeCreator(user: this.user)))
+                })),
+            SizedBox(height: 15),
+            CustomFAB(
+                color: Colors.red[400],
+                icon: const Icon(Icons.add, size: 30),
+                onPressed: (() => {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => RecipeCreator(user: this.user)))
+                })),
+          ],)),
           body: FloatingSearchBar(
             controller: controller,
             body: Column(children: [
