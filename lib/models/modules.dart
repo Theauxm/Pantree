@@ -369,9 +369,9 @@ class NewItemList extends StatelessWidget {
                     validator: (value) {
                       if (value.isEmpty || value == null) {
                         return 'Please enter a name for your ${usedByView.toLowerCase()}';
-                      } else if (!RegExp(r"^[a-zA-Z0-9\s\']+$")
+                      } else if (!RegExp(r"^[a-zA-Z0-9\s\'\/\-]+$")
                           .hasMatch(value)) {
-                        return "Name must be alphanumeric";
+                        return "Name must be alphanumeric (except \"'\", \"/\", \"-\")";
                       }
                       return null;
                     },

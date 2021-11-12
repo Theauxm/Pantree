@@ -21,10 +21,9 @@ class _PantryState extends State<Pantry> {
   final firestoreInstance = FirebaseFirestore.instance;
   DocumentReference _selectedPantry; // private
   String _selectedPantryName; // private
-  Map<String, DocumentReference>
-      _pantryMap;// private
+  Map<String, DocumentReference> _pantryMap; // private
   Map<String, bool>
-  _pantryMapOwner;// private NOTE: bad design - it will fuck with users collaborating on multiple pantries with the same name
+      _pantryMapOwner; // private NOTE: bad design - it will fuck with users collaborating on multiple pantries with the same name
   bool loading = true;
   bool isOwner = false;
 
@@ -41,14 +40,13 @@ class _PantryState extends State<Pantry> {
     String tempName;
     bool tempBool;
     _pantryMap = Map<String, DocumentReference>();
-    _pantryMapOwner = Map<String, bool>();// instantiate the map
+    _pantryMapOwner = Map<String, bool>(); // instantiate the map
     for (DocumentReference ref in user.pantries) {
       // go through each doc ref and add to list of pantry names + map
       String pantryName = "";
       bool tempIsOwner = false;
       await ref.get().then((DocumentSnapshot snapshot) {
-
-        if(snapshot.data()['Owner'].id == widget.user.uid){
+        if (snapshot.data()['Owner'].id == widget.user.uid) {
           tempIsOwner = true;
         }
         if (ref == user.PPID) {
@@ -62,7 +60,7 @@ class _PantryState extends State<Pantry> {
       tempName = pantryName;
       tempBool = tempIsOwner;
       _pantryMap[pantryName] = ref;
-      _pantryMapOwner[pantryName] = tempIsOwner;// map the doc ref to its name
+      _pantryMapOwner[pantryName] = tempIsOwner; // map the doc ref to its name
     }
 
     // make sure widget hasn't been disposed before rebuild
@@ -127,22 +125,23 @@ class _PantryState extends State<Pantry> {
   }
 
   void addCollaborator() {
-    if(isOwner) {
+    if (isOwner) {
       if (user.friends.length > 0) {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) =>
-                (AddNewCollaborator(
-                  user: user,
-                  usedByView: "Pantry",
-                  docRef: _selectedPantry,
-                ))));
+                builder: (context) => (AddNewCollaborator(
+                      user: user,
+                      usedByView: "Pantry",
+                      docRef: _selectedPantry,
+                    ))));
       } else {
-        Dialogs.showError(context, "No Friends", "You can't add a collaborator to this pantry because you don't have any friends!");
+        Dialogs.showError(context, "No Friends",
+            "You can't add a collaborator to this pantry because you don't have any friends!");
       }
-    } else{
-      Dialogs.showError(context, "Permission Denied", "You are not the owner so you can't add a collaborator to this pantry!");
+    } else {
+      Dialogs.showError(context, "Permission Denied",
+          "You are not the owner so you can't add a collaborator to this pantry!");
     }
   }
 
@@ -156,7 +155,6 @@ class _PantryState extends State<Pantry> {
                 name: _selectedPantryName,
                 usedByView: "Pantry",
                 isOwner: isOwner))));
-
 
     /*String normalizedPantryName = "";
     if (_selectedPantryName.endsWith("*")) {
@@ -194,12 +192,12 @@ class _PantryState extends State<Pantry> {
         } else {
           pantryName = snapshot.data()['Name'];
         }
-        if(snapshot.data()['Owner'].id == widget.user.uid){
+        if (snapshot.data()['Owner'].id == widget.user.uid) {
           ownerBool = true;
         }
       });
       _pantryMap[pantryName] = ref;
-      _pantryMapOwner[pantryName] = ownerBool;// map the doc ref to its name
+      _pantryMapOwner[pantryName] = ownerBool; // map the doc ref to its name
     }
     print("REPOPULATED PANTRY MAP: $_pantryMap");
 
@@ -210,7 +208,6 @@ class _PantryState extends State<Pantry> {
           _selectedPantry = primaryPantry;
           _selectedPantryName = primaryPantryName;
           isOwner = _pantryMapOwner[primaryPantryName];
-
         } else if (!isPrimary && primaryChanged) {
           // primary --> non-primary
           // quietly stops the user from not having a primary pantry
@@ -227,50 +224,51 @@ class _PantryState extends State<Pantry> {
     }
   }
 
-   Future<void> deletePantry(DocumentReference doc) async {
+  Future<void> deletePantry(DocumentReference doc) async {
     print("INSIDE DELETEPANTRY");
     // delete pantry from list of pantries
-     if(isOwner) {
-       var snap = await doc.get();
-       List altUsers = snap.data()['AltUsers'];
-       altUsers.forEach((element) {removePantryFromUser(element.id, doc);});
-       await doc
-           .delete()
-           .then((value) =>
-           print("SUCCESS: $doc has been deleted from pantries"))
-           .catchError((error) =>
-           print("FAILURE: couldn't delete $doc from pantries: $error"));
-     }
-     removePantryFromUser(user.uid, doc);// delete pantry from user pantries
+    if (isOwner) {
+      var snap = await doc.get();
+      List altUsers = snap.data()['AltUsers'];
+      altUsers.forEach((element) {
+        removePantryFromUser(element.id, doc);
+      });
+      await doc
+          .delete()
+          .then(
+              (value) => print("SUCCESS: $doc has been deleted from pantries"))
+          .catchError((error) =>
+              print("FAILURE: couldn't delete $doc from pantries: $error"));
+    }
+    removePantryFromUser(user.uid, doc); // delete pantry from user pantries
   }
 
-  removePantryFromUser(id, doc) async{
-
+  removePantryFromUser(id, doc) async {
     // if pantry is primary, remove it from PPID
-    var tempUser = await firestoreInstance
-        .collection('users')
-        .doc(id).get();
+    var tempUser = await firestoreInstance.collection('users').doc(id).get();
     var tempPPID = tempUser.data()['PPID'];
     if (doc == tempUser.data()['PPID']) {
       tempPPID = null;
-      for(int i = 0; i< tempUser.data()['PantryIDs'].length; i++){
-        if(tempUser.data()['PantryIDs'][i] != doc){
+      for (int i = 0; i < tempUser.data()['PantryIDs'].length; i++) {
+        if (tempUser.data()['PantryIDs'][i] != doc) {
           tempPPID = tempUser.data()['PantryIDs'][i];
           break;
         }
-    }
       }
+    }
     await firestoreInstance
         .collection('users')
         .doc(id)
         .update({
-      'PPID': tempPPID,
-      'PantryIDs': FieldValue.arrayRemove([_selectedPantry])
-    }).then((value) =>
-        print("SUCCESS: $doc has been deleted from user pantries"))
+          'PPID': tempPPID,
+          'PantryIDs': FieldValue.arrayRemove([_selectedPantry])
+        })
+        .then((value) =>
+            print("SUCCESS: $doc has been deleted from user pantries"))
         .catchError((error) =>
-        print("FAILURE: couldn't delete $doc from user pantries: $error"));
-    }
+            print("FAILURE: couldn't delete $doc from user pantries: $error"));
+  }
+
   showDeleteDialog(
       BuildContext context, String pantryName, DocumentReference doc) {
     Widget cancelButton = TextButton(
@@ -392,7 +390,8 @@ class _PantryState extends State<Pantry> {
                 break;
               case 'Remove this pantry':
                 {
-                  showDeleteDialog(context, _selectedPantryName, _selectedPantry);
+                  showDeleteDialog(
+                      context, _selectedPantryName, _selectedPantry);
                 }
                 break;
               case 'Add Collaborator':
@@ -430,7 +429,8 @@ class _PantryState extends State<Pantry> {
             return Expanded(
                 child: ListView(
                     children: snapshot.data.docs.map<Widget>((doc) {
-              return Container(child: itemCard(doc, context, _selectedPantry));
+                    return Container(
+                        child: itemCard(doc, context, _selectedPantry));
             }).toList()));
           }),
     ]);
