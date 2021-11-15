@@ -41,7 +41,7 @@ By the time the semester began winding down we decided to take a break with Pant
 ### Tech Debt -- Who knew?
 During the first few weeks of our second semester we decided to refactor a few parts of the project after realizing a few better ways to go about architecting the code. This included improving the web scraper, and adding a user object that can be passed around to each view for easier access to data that is universal. It was at this point in the project that things really started to take form in terms of what the project was going to actually look like.
 
-### Code organization
+### Code Organization
 We began creating an organizational structure to our code, making sure that what each person worked on could be easily found by another. This included making standardizations to naming conventions, where files were in the code structure, and a general outline of arguments for each view's object to take along with it. This helped us cut down on the amount of time it would take to integrate a team member's code into their own. 
 
 ### Alpha Release
@@ -49,9 +49,12 @@ As the second semester went on, we were each mainly working independently on an 
 
 Alpha release ended up being a success, and we were overall happy with where the app ended up. There were incomplete features and bugs, but the amount of work put into the application during that week proved the team was able to pull something together in a short time if necessary.
 
-### Beta release
+### Beta Release
 Once Alpha was finished, we had a pretty decent idea of where we wanted the app to end up. This included things like showing Missing Ingredients for the recipe search, being able to add and remove friends, upload photos to the social view, adding collaborators to pantries, adding and removing quantities from ingredients in the pantry/shopping list, and being able to let users create their own recipes. In retrospect it waas quite a tall order for the time we had, but overall the team spread out the work a lot better this time around.
 
 Beta release also ended up being a success, and put the app in a position to be useable by industry standards. It was by no means polished and still had its fair share of bugs, but the original idea had finally began to take form.
+
+### Looking Forward
+As of writing this blog post, our full release is still yet to be published. We have a plan for what we would like to see completed by the end of the semester, and will hopefully be able to fulfill what we've set out to do. This senior project has been an interesting experience for the entire team, I believe everybody has learned a lot. It has been the first experience in which we were put in charge of making a product out of nothing, and being forced to learn a piece of technology on our own without being thrown heapfulls of information at us. I am proud of what we've accomplished, and I can genuinely see people using the app in the future.
 
 [astley]: https://www.youtube.com/watch?v=dQw4w9WgXcQ
