@@ -44,7 +44,7 @@ class _NewFoodItemState extends State<NewFoodItem> {
   Future<void> addNewItem(String item, String qty, String unit) {
     DateTime now = new DateTime.now();
     DateTime date = new DateTime(now.year, now.month, now.day);
-    item = item.toLowerCase();
+    item = item.toLowerCase().replaceAll(' ', '');
     unit = unit.toLowerCase();
     return firestoreInstance.collection('food').doc(item).get().then((doc) {
       // add item to the DB first if it doesn't exist
@@ -87,9 +87,11 @@ class _NewFoodItemState extends State<NewFoodItem> {
                     validator: (value) {
                       if (value.isEmpty || value == null) {
                         return 'Please enter a name';
+                      } else if (value.replaceAll(" ", "").isEmpty) {
+                        return 'Name cannot be all spaces';
                       } else if (!RegExp(r"^[a-zA-Z0-9\s\']+$")
                           .hasMatch(value)) {
-                        return "Name must be alphanumeric";
+                        return 'Name must be alphanumeric';
                       }
                       return null;
                     },
@@ -248,6 +250,13 @@ class _NewFoodItemState extends State<NewFoodItem> {
                         addNewItem(_addItemTextController.text,
                             _addQtyTextController.text, _selectedUnit);
                         Navigator.pop(context);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(
+                              "Error! Couldn't add your item, please try again."),
+                          duration: const Duration(seconds: 2),
+                          backgroundColor: Colors.red[300],
+                        ));
                       }
                     },
                     child: const Text("Add Item"),
@@ -369,9 +378,11 @@ class NewItemList extends StatelessWidget {
                     validator: (value) {
                       if (value.isEmpty || value == null) {
                         return 'Please enter a name for your ${usedByView.toLowerCase()}';
+                      } else if (value.replaceAll(" ", "").isEmpty) {
+                        return 'Name cannot be all spaces';
                       } else if (!RegExp(r"^[a-zA-Z0-9\s\'\/\-]+$")
                           .hasMatch(value)) {
-                        return "Name must be alphanumeric (except \"'\", \"/\", \"-\")";
+                        return "Name must be alphanumeric (except \" ' \", \"/\", \"-\")";
                       }
                       return null;
                     },
@@ -394,6 +405,13 @@ class NewItemList extends StatelessWidget {
                   onPressed: () {
                     if (_form.currentState.validate()) {
                       handleSubmit(context, _listNameTextController.text);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(
+                            "Error! Couldn't create your ${usedByView.toLowerCase()}, please try again."),
+                        duration: const Duration(seconds: 2),
+                        backgroundColor: Colors.red[300],
+                      ));
                     }
                   },
                   child: const Text("Create"),
@@ -560,11 +578,13 @@ class _EditState extends State<Edit> {
           controller: _pantryNameTextController,
           focusNode: _focusNode,
           validator: (value) {
+            String listName = widget.usedByView.toLowerCase().capitalizeFirstLetter;
             if (value.isEmpty || value == null) {
-              return 'Please enter a name for your ' +
-                  widget.usedByView.toLowerCase();
-            } else if (!RegExp(r"^[a-zA-Z0-9\s\']+$").hasMatch(value)) {
-              return "Name must be alphanumeric";
+              return '$listName name cannot be empty';
+            } else if (value.replaceAll(" ", "").isEmpty) {
+              return '$listName name cannot be all spaces';
+            } else if (!RegExp(r"^[a-zA-Z0-9\s\'\/\-]+$").hasMatch(value)) {
+              return "$listName name must be alphanumeric (except \" ' \", \"/\", \"-\")";
             }
             return null;
           },
