@@ -11,6 +11,7 @@ import '../models/extensions.dart';
 import '../models/dialogs.dart';
 import '../pantreeUser.dart';
 import '../models/drawer.dart';
+import 'package:pantree/models/recipe_viewer.dart';
 
 /// Add new Item to Pantry/Shopping list
 /// [itemList] - Document Reference to either the current Pantry/Shopping list
@@ -344,7 +345,8 @@ String formatDate(Timestamp time) {
   return formatter.format(date);
 }
 
-int getMissingIngredients(Set<DocumentReference> pantryIngredients, QuerySnapshot ingredients) {
+int getMissingIngredients(
+    Set<DocumentReference> pantryIngredients, QuerySnapshot ingredients) {
   int numIngredients = 0;
 
   for (int i = 0; i < ingredients.docs.length; i++) {
@@ -353,6 +355,82 @@ int getMissingIngredients(Set<DocumentReference> pantryIngredients, QuerySnapsho
     }
   }
   return numIngredients;
+}
+
+Widget recipeCard(
+    Set<DocumentReference> pantryIngredients,
+    PantreeUser user,
+    DocumentSnapshot recipe,
+    BuildContext context,
+    QuerySnapshot ingredientsSnapshot,
+    {bool recommendRecipe = false}) {
+  int missingIngred =
+      getMissingIngredients(pantryIngredients, ingredientsSnapshot);
+
+  if (missingIngred > 5 && recommendRecipe) return Container();
+
+  Color cardColor = missingIngred < 3
+      ? Colors.green
+      : missingIngred >= 3 && missingIngred <= 5
+          ? Colors.yellow[700]
+          : Colors.red[400];
+  return Card(
+      margin: const EdgeInsets.only(top: 12.0, right: 8.0, left: 8.0),
+      child: ListTile(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+        title: Text(
+          recipe["RecipeName"],
+          style: TextStyle(fontSize: 20.0),
+        ),
+        subtitle: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height * 0.18,
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Card(
+                  color: cardColor,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5.0)),
+                  child: Container(
+                      padding: const EdgeInsets.only(
+                          top: 5.0, right: 5.0, left: 5.0, bottom: 5.0),
+                      child: Text(recipe["TotalTime"].toString() + " minutes",
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            color: Colors.white,
+                          )))),
+              Card(
+                  color: cardColor,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5.0)),
+                  child: Container(
+                      padding: const EdgeInsets.only(
+                          top: 5.0, right: 5.0, left: 5.0, bottom: 5.0),
+                      child: Text(recipe["Credit"].toString(),
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            color: Colors.white,
+                          )))),
+              Card(
+                  color: cardColor,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5.0)),
+                  child: Container(
+                      padding: const EdgeInsets.only(
+                          top: 5.0, right: 5.0, left: 5.0, bottom: 5.0),
+                      child: Text(
+                          "Missing Ingredients: " + missingIngred.toString(),
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            color: Colors.white,
+                          ))))
+            ])),
+        onTap: () {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => ViewRecipe(user: user, recipe: recipe)));
+        },
+      ));
+//return Card(child: Text(querySnapshot.data["RecipeName"].toString()));
 }
 
 class NewItemList extends StatelessWidget {
