@@ -387,6 +387,14 @@ Widget addPantryItemDialogue(BuildContext context, PantreeUser user) {
       ]));
 }
 
+Widget noRecipeDialogue() {
+  return Text(
+    "Add some more items to a pantry to get recipe recommendations!",
+    style: TextStyle(fontSize: 20),
+    textAlign: TextAlign.center,
+  );
+}
+
 Widget recipeCard(
     Set<DocumentReference> pantryIngredients,
     PantreeUser user,

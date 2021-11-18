@@ -121,7 +121,7 @@ class AvailableRecipesListView extends StatelessWidget {
       return addPantryItemDialogue(context, this.user);
 
     if (this.availableRecipes.length == 0)
-      return Center(child: CircularProgressIndicator());
+      return noRecipeDialogue();
 
     List<DocumentReference> availableRecipesList = this.availableRecipes.toList();
     return ListView.builder(
