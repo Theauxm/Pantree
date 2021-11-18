@@ -118,7 +118,7 @@ class AvailableRecipesListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (this.pantryIngredients.length == 0)
-      return Text("Add some items to a pantry to get recipe recommendations!");
+      return addPantryItemDialogue(context, this.user);
 
     if (this.availableRecipes.length == 0)
       return Center(child: CircularProgressIndicator());
