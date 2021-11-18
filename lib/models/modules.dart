@@ -353,6 +353,17 @@ String formatDate(Timestamp time) {
   return formatter.format(date);
 }
 
+int getMissingIngredients(Set<DocumentReference> pantryIngredients, QuerySnapshot ingredients) {
+  int numIngredients = 0;
+
+  for (int i = 0; i < ingredients.docs.length; i++) {
+    if (!pantryIngredients.contains(ingredients.docs[i]["Item"])) {
+      numIngredients++;
+    }
+  }
+  return numIngredients;
+}
+
 class NewItemList extends StatelessWidget {
   PantreeUser user;
   final String usedByView;
