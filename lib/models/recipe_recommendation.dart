@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pantree/pantreeUser.dart';
-
-import 'drawer.dart';
+import 'package:pantree/models/modules.dart';
 
 class RecommendRecipe extends StatefulWidget {
   final PantreeUser user;
@@ -93,6 +92,7 @@ class _RecommendRecipeState extends State<RecommendRecipe> {
             return StatefulBuilder(
               builder: (BuildContext context, StateSetter setState) {
                 return AvailableRecipesListView(
+                    user: this.user,
                     availableRecipes : this.availableRecipes,
                     pantryIngredients: ingredients);
               }
@@ -107,14 +107,19 @@ class _RecommendRecipeState extends State<RecommendRecipe> {
 class AvailableRecipesListView extends StatelessWidget {
   Set<DocumentReference> availableRecipes;
   Set<DocumentReference> pantryIngredients;
+  PantreeUser user;
 
   AvailableRecipesListView({
+    @required this.user,
     @required this.availableRecipes,
     @required this.pantryIngredients,
   });
 
   @override
   Widget build(BuildContext context) {
+    if (this.pantryIngredients.length == 0)
+      return Text("Add some items to a pantry to get recipe recommendations!");
+
     if (this.availableRecipes.length == 0)
       return Center(child: CircularProgressIndicator());
 
@@ -122,7 +127,25 @@ class AvailableRecipesListView extends StatelessWidget {
     return ListView.builder(
       itemCount: availableRecipesList.length,
       itemBuilder: (context, index) {
-        return Text(availableRecipesList[index].toString());
+        return StreamBuilder<DocumentSnapshot>(
+          stream: FirebaseFirestore.instance.doc(availableRecipesList[index].path).snapshots(),
+          builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> querySnapshot) {
+            if (querySnapshot.connectionState == ConnectionState.waiting)
+              return Container();
+            else {
+              DocumentSnapshot recipe = querySnapshot.data;
+              return StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance.collection(recipe.reference.path + "/ingredients").snapshots(),
+                builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> ingredientsSnapshot) {
+                  if (ingredientsSnapshot.connectionState == ConnectionState.waiting)
+                    return Container();
+
+                  return recipeCard(this.pantryIngredients, this.user, recipe, context, ingredientsSnapshot.data, recommendRecipe: true);
+                },
+              );
+            }
+          },
+        );
       }
     );
   }
