@@ -366,6 +366,36 @@ int getMissingIngredients(
   return numIngredients;
 }
 
+Widget addPantryItemDialogue(BuildContext context, PantreeUser user) {
+  return Container(
+      alignment: Alignment.center,
+      child: Column(children: [
+        Text(
+          "Add some items to a pantry to get recipe recommendations!",
+          style: TextStyle(fontSize: 20),
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: 30),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+              primary: Colors.lightBlue,
+              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+              textStyle:
+                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => NewFoodItem(
+                          itemList: user.PPID,
+                          usedByView: "Pantry",
+                        )));
+          },
+          child: const Text("Add Item"),
+        ),
+      ]));
+}
+
 Widget recipeCard(
     Set<DocumentReference> pantryIngredients,
     PantreeUser user,
