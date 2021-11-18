@@ -91,10 +91,10 @@ class _recipeState extends State<recipes> {
     super.dispose();
   }
 
-  Set<String> getData(List<QueryDocumentSnapshot> shots) {
-    Set<String> pantryIngredients = {};
+  Set<DocumentReference> getData(List<QueryDocumentSnapshot> shots) {
+    Set<DocumentReference> pantryIngredients = {};
         for (int i = 0; i < shots.length; i++)
-          pantryIngredients.add(shots[i]["Item"].path.toString().trim());
+          pantryIngredients.add(shots[i]["Item"]);
 
       return pantryIngredients;
   }
@@ -325,7 +325,7 @@ class SearchResultsListView extends StatelessWidget {
   final String searchTerm;
   final List<dynamic> filters;
   final PantreeUser user;
-  Set<String> pantryIngredients;
+  Set<DocumentReference> pantryIngredients;
 
   SearchResultsListView({
     Key key,
@@ -334,17 +334,6 @@ class SearchResultsListView extends StatelessWidget {
     @required this.filters,
     @required this.user,
   }) : super(key: key);
-
-  int getMissingIngredients(QuerySnapshot ingredients) {
-    int numIngredients = 0;
-
-    for (int i = 0; i < ingredients.docs.length; i++) {
-      if (!this.pantryIngredients.contains(ingredients.docs[i]["Item"].path.toString().trim())) {
-        numIngredients++;
-      }
-    }
-    return numIngredients;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -409,7 +398,7 @@ class SearchResultsListView extends StatelessWidget {
                          return Container();
                        }
 
-                        int missingIngred = getMissingIngredients(ingredientsSnapshot.data);
+                        int missingIngred = getMissingIngredients(this.pantryIngredients, ingredientsSnapshot.data);
                         Color cardColor = missingIngred < 3 ? Colors.green : missingIngred >= 3 && missingIngred <= 5 ? Colors.yellow[700] : Colors.red[400];
                         return Card(
                             margin: const EdgeInsets.only(

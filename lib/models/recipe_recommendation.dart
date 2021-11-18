@@ -93,7 +93,8 @@ class _RecommendRecipeState extends State<RecommendRecipe> {
             return StatefulBuilder(
               builder: (BuildContext context, StateSetter setState) {
                 return AvailableRecipesListView(
-                    availableRecipes : this.availableRecipes);
+                    availableRecipes : this.availableRecipes,
+                    pantryIngredients: ingredients);
               }
             );
           }
@@ -105,7 +106,12 @@ class _RecommendRecipeState extends State<RecommendRecipe> {
 
 class AvailableRecipesListView extends StatelessWidget {
   Set<DocumentReference> availableRecipes;
-  AvailableRecipesListView({@required this.availableRecipes});
+  Set<DocumentReference> pantryIngredients;
+
+  AvailableRecipesListView({
+    @required this.availableRecipes,
+    @required this.pantryIngredients,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -121,42 +127,3 @@ class AvailableRecipesListView extends StatelessWidget {
     );
   }
 }
-
-/*
-         return ListView.builder(
-              itemCount: querySnapshot.data.docs.length,
-              itemBuilder: (context, index) {
-                QueryDocumentSnapshot ingredient = querySnapshot.data.docs[index];
-                if (querySnapshot.connectionState == ConnectionState.waiting)
-                  return Center(child: CircularProgressIndicator());
-                else {
-                  print(ingredient["Item"]);
-                  // Needs another StreamBuilder to get info from reference about each ingredient.
-                  return StreamBuilder<DocumentSnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .doc(ingredient["Item"].path)
-                        .snapshots(),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<DocumentSnapshot> querySnapshot) {
-                      if (available_recipes == null) {
-                        available_recipes = {};
-                        for (var x in querySnapshot.data["recipe_ids"]) {
-                          available_recipes.add(x);
-                          print(available_recipes);
-                        }
-                      } else {
-                        Set<dynamic> temp = {};
-                        for (var x in querySnapshot.data["recipe_ids"]) {
-                          temp.add(x);
-                        }
-                        print(temp);
-                        available_recipes = available_recipes.intersection(temp);
-                      }
-                      print("FINAL: " + available_recipes.toString());
-                      return Text(available_recipes.toString());
-                    },
-                  );
-                }
-              },
-            );
- */
