@@ -44,7 +44,7 @@ class _RecommendRecipeState extends State<RecommendRecipe> {
         print("INSIDE LISTENER --> PPID peach emoji");
         user.PPID = event.data()['PPID'];
         this.currentPPID = event.data()['PPID'];
-
+        this.availableRecipes = null;
         setState(() {});
       }
     });
@@ -69,7 +69,7 @@ class _RecommendRecipeState extends State<RecommendRecipe> {
           });
     }
 
-    setState(() {print("SETTING STATE");});
+    setState(() {});
   }
 
   @override
