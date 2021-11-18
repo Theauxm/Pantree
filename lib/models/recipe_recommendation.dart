@@ -6,10 +6,8 @@ import 'drawer.dart';
 
 class RecommendRecipe extends StatefulWidget {
   final PantreeUser user;
-
   const RecommendRecipe({
     this.user});
-
 
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,6 +22,8 @@ class RecommendRecipe extends StatefulWidget {
 class _RecommendRecipeState extends State<RecommendRecipe> {
   PantreeUser user;
   DocumentReference currentPPID;
+  Set<DocumentReference> availableRecipes;
+  int numAvailableRecipes;
 
   _RecommendRecipeState(this.user);
 
@@ -53,11 +53,23 @@ class _RecommendRecipeState extends State<RecommendRecipe> {
   Set<DocumentReference> getIngredientInstances(List<QueryDocumentSnapshot> ingredients) {
     Set<DocumentReference> availableRecipes = {};
     for (int i = 0; i < ingredients.length; i++) {
-      print("Adding: " + ingredients[i]["Item"].path);
       availableRecipes.add(ingredients[i]["Item"]);
     }
 
     return availableRecipes;
+  }
+
+  Future<void> getRecipeIds(Set<DocumentReference> pantryIngredients) async {
+    for (DocumentReference i in pantryIngredients) {
+      await FirebaseFirestore.instance.doc(i.path).get().then(
+              (foodID) {
+            for (DocumentReference recipe in foodID["recipe_ids"]) {
+              this.availableRecipes.add(recipe);
+            }
+          });
+    }
+
+    setState(() {print("SETTING STATE");});
   }
 
   @override
@@ -72,9 +84,18 @@ class _RecommendRecipeState extends State<RecommendRecipe> {
             return Center(child: CircularProgressIndicator());
           else {
             Set<DocumentReference> ingredients = getIngredientInstances(querySnapshot.data.docs);
-            print(ingredients);
-            return AvailableRecipesListView(
-                pantryIngredients: ingredients);
+
+            if (this.availableRecipes == null) {
+              this.availableRecipes = {};
+              getRecipeIds(ingredients);
+            }
+
+            return StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return AvailableRecipesListView(
+                    availableRecipes : this.availableRecipes);
+              }
+            );
           }
         }
       ),
@@ -83,46 +104,21 @@ class _RecommendRecipeState extends State<RecommendRecipe> {
 }
 
 class AvailableRecipesListView extends StatelessWidget {
-  Set<DocumentReference> pantryIngredients;
-
   Set<DocumentReference> availableRecipes;
-
-  AvailableRecipesListView({@required this.pantryIngredients});
-
-  Future<void> getRecipeIds() async {
-    for (DocumentReference i in pantryIngredients) {
-      await FirebaseFirestore.instance.doc(i.path).get().then(
-          (foodID) {
-            for (DocumentReference recipe in foodID["recipe_ids"]) {
-              availableRecipes.add(recipe);
-            }
-          });
-    }
-  }
+  AvailableRecipesListView({@required this.availableRecipes});
 
   @override
   Widget build(BuildContext context) {
-    if (this.pantryIngredients == null) {
-      print("Pantry Ingredients is null");
+    if (this.availableRecipes.length == 0)
       return Center(child: CircularProgressIndicator());
-    }
 
-    if (this.availableRecipes == null) {
-      this.availableRecipes = {};
-      getRecipeIds();
-      return Center(child: CircularProgressIndicator());
-    } else {
-      return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return ListView.builder(
-                itemCount: availableRecipes.length,
-                itemBuilder: (context, index) {
-
-                }
-            );
-          }
-      );
-    }
+    List<DocumentReference> availableRecipesList = this.availableRecipes.toList();
+    return ListView.builder(
+      itemCount: availableRecipesList.length,
+      itemBuilder: (context, index) {
+        return Text(availableRecipesList[index].toString());
+      }
+    );
   }
 }
 
