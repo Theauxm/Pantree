@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../pantreeUser.dart';
 import 'package:pantree/models/dialogs.dart';
+import 'package:pantree/models/modules.dart';
 
 // Used from https://www.technicalfeeder.com/2021/09/flutter-add-textfield-dynamically/
 class RecipeCreator extends StatefulWidget {
@@ -18,7 +19,7 @@ class RecipeCreator extends StatefulWidget {
 class _InputForm extends State<RecipeCreator> {
   PantreeUser user;
   _InputForm({this.user});
-  final List<String> units = ['Cups', 'Oz.', 'Tsp.', 'Tbsp.', 'Unit'];
+  final List<String> units = measurementUnits;
 
   List<TextEditingController> _ingredientControllers = [];
   List<TextFormField> _ingredientFields = [];
