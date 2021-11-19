@@ -13,6 +13,20 @@ import '../pantreeUser.dart';
 import '../models/drawer.dart';
 import 'package:pantree/models/recipe_viewer.dart';
 
+final List<String> measurementUnits = [
+  'Unit',
+  'Cup',
+  'fl oz',
+  'Tsp.',
+  'Tbsp.',
+  'Pint',
+  'Gallon',
+  'Dash',
+  'Quart',
+  'Pound',
+  'Gram',
+];
+
 /// Add new Item to Pantry/Shopping list
 /// [itemList] - Document Reference to either the current Pantry/Shopping list
 /// [usedByView] - Name of the view using this widget
@@ -32,7 +46,7 @@ class _NewFoodItemState extends State<NewFoodItem> {
   TextEditingController _addItemTextController = TextEditingController();
   TextEditingController _addQtyTextController = TextEditingController();
   String _selectedUnit = "Unit";
-  final List<String> units = ['Cups', 'Oz.', 'Tsp.', 'Tbsp.', 'Unit'];
+  final List<String> units = measurementUnits;
   //final _focusNode = FocusNode();
 
   @override
