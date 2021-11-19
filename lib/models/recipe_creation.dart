@@ -39,6 +39,8 @@ class _InputForm extends State<RecipeCreator> {
   final firestoreInstance = FirebaseFirestore.instance;
 
   final GlobalKey<State> _keyLoader = new GlobalKey<State>();
+  final GlobalKey<FormState> _timeForm = GlobalKey<FormState>();
+  final GlobalKey<FormState> _nameForm = GlobalKey<FormState>();
 
   bool overviewIsVisible = true;
   bool ingredientIsVisible = false;
@@ -124,8 +126,7 @@ class _InputForm extends State<RecipeCreator> {
 
   Widget pageOne() {
     if (recipeField == null) {
-      final GlobalKey<FormState> _form = GlobalKey<FormState>();
-      recipeField = Form(key: _form, child: TextFormField(
+      recipeField = Form(key: _nameForm, child: TextFormField(
         controller: recipeController,
         decoration: InputDecoration(
             border: OutlineInputBorder(),
@@ -140,14 +141,13 @@ class _InputForm extends State<RecipeCreator> {
           return null;
         },
         onChanged: (String newVal) {
-          _form.currentState.validate();
+          _nameForm.currentState.validate();
         },
       ));
     }
 
     if (totalTimeField == null) {
-      final GlobalKey<FormState> _form = GlobalKey<FormState>();
-      totalTimeField = Form(key: _form, child: TextFormField(
+      totalTimeField = Form(key: _timeForm, child: TextFormField(
         validator: (value) {
           if (value.isEmpty || value == null) {
             return "Please enter a quantity";
@@ -159,7 +159,7 @@ class _InputForm extends State<RecipeCreator> {
           return null;
         },
         onChanged: (String newVal) {
-          _form.currentState.validate();
+          _timeForm.currentState.validate();
         },
         controller: totalTimeController,
         decoration: InputDecoration(
@@ -473,6 +473,9 @@ class _InputForm extends State<RecipeCreator> {
 
   Future<void> handleSubmit(BuildContext context) async {
     try {
+      if (!_timeForm.currentState.validate() || !_nameForm.currentState.validate())
+        return;
+
       Dialogs.showLoadingDialog(context, _keyLoader);
       bool b = await addToDatabase();
       Navigator.of(context, rootNavigator: true).pop();
