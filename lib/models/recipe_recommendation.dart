@@ -184,7 +184,7 @@ class AvailableRecipesListView extends StatelessWidget {
                 stream: FirebaseFirestore.instance.collection(recipe.reference.path + "/ingredients").snapshots(),
                 builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> ingredientsSnapshot) {
                   if (ingredientsSnapshot.connectionState == ConnectionState.waiting)
-                    return Center(child: CircularProgressIndicator());
+                    return Container();
 
                   // Card showing each recipe, allowing for recipe viewing
                   return recipeCard(this.pantryIngredients, this.user, recipe, context, ingredientsSnapshot.data, recommendRecipe: true);
