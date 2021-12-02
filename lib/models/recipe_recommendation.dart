@@ -12,6 +12,9 @@ import 'package:pantree/models/modules.dart';
  *
  * Total reads = p * 2r * i
  */
+
+bool loading;
+
 class RecommendRecipe extends StatefulWidget {
   final PantreeUser user;
   const RecommendRecipe({
@@ -45,6 +48,7 @@ class _RecommendRecipeState extends State<RecommendRecipe> {
 
     // Initializes primary pantry and sets listener in the event that the user changes primary pantries
     currentPPID = this.user.PPID;
+    loading = true;
     setListener();
   }
 
@@ -96,7 +100,7 @@ class _RecommendRecipeState extends State<RecommendRecipe> {
           });
     }
 
-    setState(() {});
+    setState(() {loading = false;});
   }
 
   @override
@@ -161,7 +165,9 @@ class AvailableRecipesListView extends StatelessWidget {
       return addPantryItemDialogue(context, this.user);
 
     // If no recipes can be recommended, shows dialogue
-    if (this.availableRecipes.length == 0)
+    if (this.availableRecipes.length == 0 && loading)
+      return Center(child: CircularProgressIndicator());
+    else if (this.availableRecipes.length == 0 && !loading)
       return noRecipeDialogue();
 
     // Will be updated dynamically as Widget is rebuilt
