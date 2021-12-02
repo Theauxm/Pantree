@@ -11,6 +11,21 @@ import '../models/extensions.dart';
 import '../models/dialogs.dart';
 import '../pantreeUser.dart';
 import '../models/drawer.dart';
+import 'package:pantree/models/recipe_viewer.dart';
+
+final List<String> measurementUnits = [
+  'Unit',
+  'Cup',
+  'fl oz',
+  'Tsp.',
+  'Tbsp.',
+  'Pint',
+  'Gallon',
+  'Dash',
+  'Quart',
+  'Pound',
+  'Gram',
+];
 
 /// Add new Item to Pantry/Shopping list
 /// [itemList] - Document Reference to either the current Pantry/Shopping list
@@ -31,7 +46,7 @@ class _NewFoodItemState extends State<NewFoodItem> {
   TextEditingController _addItemTextController = TextEditingController();
   TextEditingController _addQtyTextController = TextEditingController();
   String _selectedUnit = "Unit";
-  final List<String> units = ['Cups', 'Oz.', 'Tsp.', 'Tbsp.', 'Unit'];
+  final List<String> units = measurementUnits;
   //final _focusNode = FocusNode();
 
   @override
@@ -51,7 +66,8 @@ class _NewFoodItemState extends State<NewFoodItem> {
       if (!doc.exists) {
         firestoreInstance.collection('food').doc(item).set({
           'Image': "",
-          'Keywords': getKeywords(item)
+          'Keywords': getKeywords(item),
+          'recipe_ids': []
         }); // adds doc with specified name and no fields
       }
       // now add it to the user Pantry/Shopping list
@@ -341,6 +357,132 @@ String formatDate(Timestamp time) {
   DateTime date = time.toDate();
   DateFormat formatter = DateFormat("MM/dd/yyyy");
   return formatter.format(date);
+}
+
+int getMissingIngredients(
+    Set<DocumentReference> pantryIngredients, QuerySnapshot ingredients) {
+  int numIngredients = 0;
+
+  for (int i = 0; i < ingredients.docs.length; i++) {
+    if (!pantryIngredients.contains(ingredients.docs[i]["Item"])) {
+      numIngredients++;
+    }
+  }
+  return numIngredients;
+}
+
+Widget addPantryItemDialogue(BuildContext context, PantreeUser user) {
+  return Container(
+      alignment: Alignment.center,
+      child: Column(children: [
+        Text(
+          "Add some items to a pantry to get recipe recommendations!",
+          style: TextStyle(fontSize: 20),
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: 30),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+              primary: Colors.lightBlue,
+              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+              textStyle:
+                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => NewFoodItem(
+                          itemList: user.PPID,
+                          usedByView: "Pantry",
+                        )));
+          },
+          child: const Text("Add Item"),
+        ),
+      ]));
+}
+
+Widget noRecipeDialogue() {
+  return Text(
+    "Add some more items to a pantry to get recipe recommendations!",
+    style: TextStyle(fontSize: 20),
+    textAlign: TextAlign.center,
+  );
+}
+
+Widget recipeCard(
+    Set<DocumentReference> pantryIngredients,
+    PantreeUser user,
+    DocumentSnapshot recipe,
+    BuildContext context,
+    QuerySnapshot ingredientsSnapshot,
+    {bool recommendRecipe = false}) {
+  int missingIngred =
+      getMissingIngredients(pantryIngredients, ingredientsSnapshot);
+
+  if (missingIngred > 5 && recommendRecipe) return Container();
+
+  Color cardColor = missingIngred < 3
+      ? Colors.green
+      : missingIngred >= 3 && missingIngred <= 5
+          ? Colors.yellow[700]
+          : Colors.red[400];
+  return Card(
+      margin: const EdgeInsets.only(top: 12.0, right: 8.0, left: 8.0),
+      child: ListTile(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+        title: Text(
+          recipe["RecipeName"],
+          style: TextStyle(fontSize: 20.0),
+        ),
+        subtitle: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height * 0.18,
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Card(
+                  color: cardColor,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5.0)),
+                  child: Container(
+                      padding: const EdgeInsets.only(
+                          top: 5.0, right: 5.0, left: 5.0, bottom: 5.0),
+                      child: Text(recipe["TotalTime"].toString() + " minutes",
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            color: Colors.white,
+                          )))),
+              Card(
+                  color: cardColor,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5.0)),
+                  child: Container(
+                      padding: const EdgeInsets.only(
+                          top: 5.0, right: 5.0, left: 5.0, bottom: 5.0),
+                      child: Text(recipe["Credit"].toString(),
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            color: Colors.white,
+                          )))),
+              Card(
+                  color: cardColor,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5.0)),
+                  child: Container(
+                      padding: const EdgeInsets.only(
+                          top: 5.0, right: 5.0, left: 5.0, bottom: 5.0),
+                      child: Text(
+                          "Missing Ingredients: " + missingIngred.toString(),
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            color: Colors.white,
+                          ))))
+            ])),
+        onTap: () {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => ViewRecipe(user: user, recipe: recipe)));
+        },
+      ));
+//return Card(child: Text(querySnapshot.data["RecipeName"].toString()));
 }
 
 class NewItemList extends StatelessWidget {

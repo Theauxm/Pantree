@@ -7,6 +7,7 @@ import 'package:pantree/pantreeUser.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pantree/models/recipe_viewer.dart';
 import 'package:pantree/models/drawer.dart';
+import 'package:pantree/models/recipe_recommendation.dart';
 
 // Created by ResoCoder https://resocoder.com/2021/01/23/search-bar-in-flutter-logic-material-ui/
 // Edited by Brandon Wong and Theaux Masquelier
@@ -90,10 +91,10 @@ class _recipeState extends State<recipes> {
     super.dispose();
   }
 
-  Set<String> getData(List<QueryDocumentSnapshot> shots) {
-    Set<String> pantryIngredients = {};
+  Set<DocumentReference> getData(List<QueryDocumentSnapshot> shots) {
+    Set<DocumentReference> pantryIngredients = {};
         for (int i = 0; i < shots.length; i++)
-          pantryIngredients.add(shots[i]["Item"].path.toString().trim());
+          pantryIngredients.add(shots[i]["Item"]);
 
       return pantryIngredients;
   }
@@ -132,15 +133,27 @@ class _recipeState extends State<recipes> {
 
         return Scaffold(
           drawer: PantreeDrawer(user: this.user),
-          floatingActionButton: CustomFAB(
-              color: Colors.red[400],
-              icon: const Icon(Icons.add),
-              onPressed: (() => {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => RecipeCreator(user: this.user)))
-              })),
+          floatingActionButton: SingleChildScrollView( child: Column(children: [
+            CustomFAB(
+                color: Colors.red[400],
+                icon: const Icon(Icons.food_bank_rounded, size: 35),
+                onPressed: (() => {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => RecommendRecipe(user: this.user)))
+                })),
+            SizedBox(height: 15),
+            CustomFAB(
+                color: Colors.red[400],
+                icon: const Icon(Icons.add, size: 30),
+                onPressed: (() => {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => RecipeCreator(user: this.user)))
+                })),
+          ],)),
           body: FloatingSearchBar(
             controller: controller,
             body: Column(children: [
@@ -312,7 +325,7 @@ class SearchResultsListView extends StatelessWidget {
   final String searchTerm;
   final List<dynamic> filters;
   final PantreeUser user;
-  Set<String> pantryIngredients;
+  Set<DocumentReference> pantryIngredients;
 
   SearchResultsListView({
     Key key,
@@ -321,17 +334,6 @@ class SearchResultsListView extends StatelessWidget {
     @required this.filters,
     @required this.user,
   }) : super(key: key);
-
-  int getMissingIngredients(QuerySnapshot ingredients) {
-    int numIngredients = 0;
-
-    for (int i = 0; i < ingredients.docs.length; i++) {
-      if (!this.pantryIngredients.contains(ingredients.docs[i]["Item"].path.toString().trim())) {
-        numIngredients++;
-      }
-    }
-    return numIngredients;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -396,82 +398,7 @@ class SearchResultsListView extends StatelessWidget {
                          return Container();
                        }
 
-                        int missingIngred = getMissingIngredients(ingredientsSnapshot.data);
-                        Color cardColor = missingIngred < 3 ? Colors.green : missingIngred >= 3 && missingIngred <= 5 ? Colors.yellow[700] : Colors.red[400];
-                        return Card(
-                            margin: const EdgeInsets.only(
-                                top: 12.0, right: 8.0, left: 8.0),
-                            child: ListTile(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5.0)),
-                              title: Text(
-                                recipe["RecipeName"],
-                                style: TextStyle(fontSize: 20.0),
-                              ),
-                              subtitle: SizedBox(
-                                  width: MediaQuery.of(context).size.width,
-                                  height: MediaQuery.of(context).size.height * 0.18,
-                                  child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Card(
-                                            color: cardColor,
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                BorderRadius.circular(5.0)),
-                                            child: Container(
-                                                padding: const EdgeInsets.only(
-                                                    top: 5.0,
-                                                    right: 5.0,
-                                                    left: 5.0,
-                                                    bottom: 5.0),
-                                                child: Text(
-                                                    recipe["TotalTime"].toString() +
-                                                        " minutes",
-                                                    style: TextStyle(
-                                                      fontSize: 18.0,
-                                                      color: Colors.white,
-                                                    )))),
-                                        Card(
-                                            color: cardColor,
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                BorderRadius.circular(5.0)),
-                                            child: Container(
-                                                padding: const EdgeInsets.only(
-                                                    top: 5.0,
-                                                    right: 5.0,
-                                                    left: 5.0,
-                                                    bottom: 5.0),
-                                                child: Text(recipe["Credit"].toString(),
-                                                    style: TextStyle(
-                                                      fontSize: 18.0,
-                                                      color: Colors.white,
-                                                    )))),
-                                        Card(
-                                            color: cardColor,
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                BorderRadius.circular(5.0)),
-                                            child: Container(
-                                                padding: const EdgeInsets.only(
-                                                    top: 5.0,
-                                                    right: 5.0,
-                                                    left: 5.0,
-                                                    bottom: 5.0),
-                                                child: Text("Missing Ingredients: " + missingIngred.toString(),
-                                                    style: TextStyle(
-                                                      fontSize: 18.0,
-                                                      color: Colors.white,
-                                                    ))))
-                                      ])),
-                              onTap: () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => ViewRecipe(
-                                        user: this.user,
-                                        recipe: querySnapshot.data.docs[index])));
-                              },
-                            ));
+                       return recipeCard(this.pantryIngredients, this.user, recipe, context, ingredientsSnapshot.data);
                       });
 
 

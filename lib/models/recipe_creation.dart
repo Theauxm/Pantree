@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../pantreeUser.dart';
 import 'package:pantree/models/dialogs.dart';
+import 'package:pantree/models/modules.dart';
 
 // Used from https://www.technicalfeeder.com/2021/09/flutter-add-textfield-dynamically/
 class RecipeCreator extends StatefulWidget {
@@ -18,7 +19,7 @@ class RecipeCreator extends StatefulWidget {
 class _InputForm extends State<RecipeCreator> {
   PantreeUser user;
   _InputForm({this.user});
-  final List<String> units = ['Cups', 'Oz.', 'Tsp.', 'Tbsp.', 'Unit'];
+  final List<String> units = measurementUnits;
 
   List<TextEditingController> _ingredientControllers = [];
   List<TextFormField> _ingredientFields = [];
@@ -39,6 +40,8 @@ class _InputForm extends State<RecipeCreator> {
   final firestoreInstance = FirebaseFirestore.instance;
 
   final GlobalKey<State> _keyLoader = new GlobalKey<State>();
+  final GlobalKey<FormState> _timeForm = GlobalKey<FormState>();
+  final GlobalKey<FormState> _nameForm = GlobalKey<FormState>();
 
   bool overviewIsVisible = true;
   bool ingredientIsVisible = false;
@@ -124,8 +127,7 @@ class _InputForm extends State<RecipeCreator> {
 
   Widget pageOne() {
     if (recipeField == null) {
-      final GlobalKey<FormState> _form = GlobalKey<FormState>();
-      recipeField = Form(key: _form, child: TextFormField(
+      recipeField = Form(key: _nameForm, child: TextFormField(
         controller: recipeController,
         decoration: InputDecoration(
             border: OutlineInputBorder(),
@@ -140,14 +142,13 @@ class _InputForm extends State<RecipeCreator> {
           return null;
         },
         onChanged: (String newVal) {
-          _form.currentState.validate();
+          _nameForm.currentState.validate();
         },
       ));
     }
 
     if (totalTimeField == null) {
-      final GlobalKey<FormState> _form = GlobalKey<FormState>();
-      totalTimeField = Form(key: _form, child: TextFormField(
+      totalTimeField = Form(key: _timeForm, child: TextFormField(
         validator: (value) {
           if (value.isEmpty || value == null) {
             return "Please enter a quantity";
@@ -159,7 +160,7 @@ class _InputForm extends State<RecipeCreator> {
           return null;
         },
         onChanged: (String newVal) {
-          _form.currentState.validate();
+          _timeForm.currentState.validate();
         },
         controller: totalTimeController,
         decoration: InputDecoration(
@@ -427,11 +428,11 @@ class _InputForm extends State<RecipeCreator> {
       ingredInstance.get().then((docSnapshot) {
         if (docSnapshot.exists) {
           ingredInstance.update({
-            'recipe_ids': [newRecipe.id]
+            'recipe_ids': [newRecipe]
           });
         } else {
           ingredInstance.set({
-            'recipe_ids': [newRecipe.id],
+            'recipe_ids': [newRecipe],
             'Image': "",
             'Keywords': ingredKeywords.toList()
           });
@@ -473,6 +474,9 @@ class _InputForm extends State<RecipeCreator> {
 
   Future<void> handleSubmit(BuildContext context) async {
     try {
+      if (!_timeForm.currentState.validate() || !_nameForm.currentState.validate())
+        return;
+
       Dialogs.showLoadingDialog(context, _keyLoader);
       bool b = await addToDatabase();
       Navigator.of(context, rootNavigator: true).pop();
