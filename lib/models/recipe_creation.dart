@@ -127,47 +127,49 @@ class _InputForm extends State<RecipeCreator> {
 
   Widget pageOne() {
     if (recipeField == null) {
-      recipeField = Form(key: _nameForm, child: TextFormField(
-        controller: recipeController,
-        decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: "Recipe name"),
-        validator: (value) {
-          if (value.isEmpty || value == null) {
-            return 'Please enter a name for your recipe';
-          } else if (!RegExp(r"^[a-zA-Z0-9\s\']+$")
-              .hasMatch(value)) {
-            return "Name must be alphanumeric";
-          }
-          return null;
-        },
-        onChanged: (String newVal) {
-          _nameForm.currentState.validate();
-        },
-      ));
+      recipeField = Form(
+          key: _nameForm,
+          child: TextFormField(
+            controller: recipeController,
+            decoration: InputDecoration(
+                border: OutlineInputBorder(), labelText: "Recipe name"),
+            validator: (value) {
+              if (value.isEmpty || value == null) {
+                return 'Please enter a name for your recipe';
+              } else if (!RegExp(r"^[a-zA-Z0-9\s\']+$").hasMatch(value)) {
+                return "Name must be alphanumeric";
+              }
+              return null;
+            },
+            onChanged: (String newVal) {
+              _nameForm.currentState.validate();
+            },
+          ));
     }
 
     if (totalTimeField == null) {
-      totalTimeField = Form(key: _timeForm, child: TextFormField(
-        validator: (value) {
-          if (value.isEmpty || value == null) {
-            return "Please enter a quantity";
-          } else if (value == "0") {
-            return "Cannot be 0";
-          } else if (!RegExp(r"^[0-9]*$").hasMatch(value)) {
-            return "Must be a number";
-          }
-          return null;
-        },
-        onChanged: (String newVal) {
-          _timeForm.currentState.validate();
-        },
-        controller: totalTimeController,
-        decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: "Total time to cook (minutes)",
-        ),
-      ));
+      totalTimeField = Form(
+          key: _timeForm,
+          child: TextFormField(
+            validator: (value) {
+              if (value.isEmpty || value == null) {
+                return "Please enter a quantity";
+              } else if (value == "0") {
+                return "Cannot be 0";
+              } else if (!RegExp(r"^[0-9]*$").hasMatch(value)) {
+                return "Must be a number";
+              }
+              return null;
+            },
+            onChanged: (String newVal) {
+              _timeForm.currentState.validate();
+            },
+            controller: totalTimeController,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: "Total time to cook (minutes)",
+            ),
+          ));
     }
 
     return Column(children: [
@@ -247,21 +249,20 @@ class _InputForm extends State<RecipeCreator> {
         if (text == "Ingredient") {
           amountController = TextEditingController();
           unitField = Container(
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
-                border: Border.all(
-                    color: Colors.red[400],
-                    width: 1,
-                    style: BorderStyle.solid)),
-            child: StatefulBuilder(
-              builder: (BuildContext context, StateSetter setState) {
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(
+                      color: Colors.red[400],
+                      width: 1,
+                      style: BorderStyle.solid)),
+              child: StatefulBuilder(
+                  builder: (BuildContext context, StateSetter setState) {
                 return DropdownButton<String>(
                     isDense: false,
                     itemHeight: 58.0,
                     value: _selectedUnit,
                     style: TextStyle(color: Colors.white),
-                    icon: Icon(Icons.arrow_drop_down,
-                        color: Colors.black),
+                    icon: Icon(Icons.arrow_drop_down, color: Colors.black),
                     items: units.map<DropdownMenuItem<String>>((val) {
                       return DropdownMenuItem<String>(
                         value: val,
@@ -286,37 +287,34 @@ class _InputForm extends State<RecipeCreator> {
                               _selectedUnit,
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                  color: Colors.black54,
-                                  fontSize: 16.0),
+                                  color: Colors.black54, fontSize: 16.0),
                             ));
                       }).toList();
                     });
-              }
-            )
-          );
-          amountField = Form(key: _form, child: TextFormField(
-              validator: (value) {
-                if (value.isEmpty || value == null) {
-                  return "Please enter a quantity";
-                } else if (value == "0") {
-                  return "Cannot be 0";
-                } else if (!RegExp(r"^[0-9]*$").hasMatch(value)) {
-                  return "Must be a number";
-                }
-                return null;
-              },
-              onChanged: (String newVal) {
-              _form.currentState.validate();
-              },
-            controller: amountController,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              label: Text("Amount",
-                style: TextStyle(fontSize: 15),
-              )
-            )
-          )
-          );
+              }));
+          amountField = Form(
+              key: _form,
+              child: TextFormField(
+                  validator: (value) {
+                    if (value.isEmpty || value == null) {
+                      return "Please enter a quantity";
+                    } else if (value == "0") {
+                      return "Cannot be 0";
+                    } else if (!RegExp(r"^[0-9]*$").hasMatch(value)) {
+                      return "Must be a number";
+                    }
+                    return null;
+                  },
+                  onChanged: (String newVal) {
+                    _form.currentState.validate();
+                  },
+                  controller: amountController,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      label: Text(
+                        "Amount",
+                        style: TextStyle(fontSize: 15),
+                      ))));
         }
 
         setState(() {
@@ -343,33 +341,29 @@ class _InputForm extends State<RecipeCreator> {
         return Container(
             margin: EdgeInsets.all(6),
             child: Card(
-              elevation: 8,
+                elevation: 8,
                 child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(7.0),
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  child: _ingredientFields[index],
-                ),
-                Container(
-                    padding: const EdgeInsets.all(7.0),
-                    width: MediaQuery.of(context).size.width * 0.9,
-                    child: Row(
-                      children: [
-                        Container(
-                            width: MediaQuery.of(context).size.width * 0.4,
-                            child: _ingredientAmountFields[index]
-                        ),
-                        SizedBox(width: MediaQuery.of(context).size.width * 0.04),
-                        Container(
-                            width: MediaQuery.of(context).size.width * 0.4,
-                            child: _unitFields[index]
-                        ),
-                      ]
-                    )
-                )
-              ],
-            )));
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(7.0),
+                      width: MediaQuery.of(context).size.width * 0.9,
+                      child: _ingredientFields[index],
+                    ),
+                    Container(
+                        padding: const EdgeInsets.all(7.0),
+                        width: MediaQuery.of(context).size.width * 0.9,
+                        child: Row(children: [
+                          Container(
+                              width: MediaQuery.of(context).size.width * 0.4,
+                              child: _ingredientAmountFields[index]),
+                          SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.04),
+                          Container(
+                              width: MediaQuery.of(context).size.width * 0.4,
+                              child: _unitFields[index]),
+                        ]))
+                  ],
+                )));
       },
     );
   }
@@ -401,91 +395,96 @@ class _InputForm extends State<RecipeCreator> {
 
   Future<bool> addToDatabase() async {
     try {
-    DocumentReference newRecipe = firestoreInstance.collection('recipes').doc();
-    CollectionReference ingredientCollection =
-    newRecipe.collection('ingredients');
-    print(newRecipe);
-
-    DocumentReference currentUser = firestoreInstance.collection('users').doc(
-        this.user.uid);
-    currentUser.update({"RecipeIDs": FieldValue.arrayUnion([newRecipe])});
-
-    Set<String> allKeywords = {};
-    for (int i = 0; i < _ingredientControllers.length; i++) {
-      TextEditingController ingred = _ingredientControllers[i];
-      if (ingred.text == "") {
-        continue;
+      if (recipeController.text.length < 1 ||
+          int.tryParse(totalTimeController.text) == null ||
+          _directionControllers.length == 0 ||
+          _ingredientControllers.length == 0) {
+        return false;
       }
-      String unit = _selectedUnits[i];
-      TextEditingController amount = _ingredientAmountControllers[i];
+      DocumentReference newRecipe =
+          firestoreInstance.collection('recipes').doc();
+      CollectionReference ingredientCollection =
+          newRecipe.collection('ingredients');
+      print(newRecipe);
 
-      Set<String> ingredKeywords = getKeywords(ingred.text.toLowerCase());
-      allKeywords.addAll(ingredKeywords);
-      DocumentReference ingredInstance =
-      firestoreInstance.collection('food').doc(ingred.text.toLowerCase());
+      DocumentReference currentUser =
+          firestoreInstance.collection('users').doc(this.user.uid);
+      currentUser.update({
+        "RecipeIDs": FieldValue.arrayUnion([newRecipe])
+      });
 
-
-      ingredInstance.get().then((docSnapshot) {
-        if (docSnapshot.exists) {
-          ingredInstance.update({
-            'recipe_ids': [newRecipe]
-          });
-        } else {
-          ingredInstance.set({
-            'recipe_ids': [newRecipe],
-            'Image': "",
-            'Keywords': ingredKeywords.toList()
-          });
+      Set<String> allKeywords = {};
+      for (int i = 0; i < _ingredientControllers.length; i++) {
+        TextEditingController ingred = _ingredientControllers[i];
+        if (ingred.text == "") {
+          continue;
         }
+        if (int.tryParse(_ingredientAmountControllers[i].text) == null) {
+          return false;
+        }
+        String unit = _selectedUnits[i];
+        TextEditingController amount = _ingredientAmountControllers[i];
+
+        Set<String> ingredKeywords = getKeywords(ingred.text.toLowerCase());
+        allKeywords.addAll(ingredKeywords);
+        DocumentReference ingredInstance =
+            firestoreInstance.collection('food').doc(ingred.text.toLowerCase());
+
+        ingredInstance.get().then((docSnapshot) {
+          if (docSnapshot.exists) {
+            ingredInstance.update({
+              'recipe_ids': [newRecipe]
+            });
+          } else {
+            ingredInstance.set({
+              'recipe_ids': [newRecipe],
+              'Image': "",
+              'Keywords': ingredKeywords.toList()
+            });
+          }
+        });
+
+        ingredientCollection.add({
+          'Item': firestoreInstance.collection('food').doc(ingredInstance.id),
+          'Quantity': double.tryParse(amount.text),
+          'Unit': unit
+        });
+      }
+
+      List<String> directions = [];
+      for (TextEditingController dir in _directionControllers) {
+        directions.add(dir.text);
+      }
+
+      allKeywords.addAll(getKeywords(recipeController.text.toLowerCase()));
+      await newRecipe.set({
+        'CreationDate': FieldValue.serverTimestamp(),
+        'Creator': firestoreInstance.collection('users').doc(this.user.docID),
+        'Credit': this.user.name,
+        'Directions': directions,
+        'DocumentID': [newRecipe.id],
+        'Keywords': allKeywords.toList(),
+        'RecipeName': recipeController.text,
+        'TotalTime': int.tryParse(totalTimeController.text)
       });
-
-      ingredientCollection
-          .add({
-        'Item': firestoreInstance.collection('food').doc(ingredInstance.id),
-        'Quantity': double.tryParse(amount.text),
-        'Unit': unit
-      });
+      return true;
+    } catch (e) {
+      print(e);
+      return false;
     }
-
-    List<String> directions = [];
-    for (TextEditingController dir in _directionControllers) {
-      directions.add(dir.text);
-    }
-
-    allKeywords.addAll(getKeywords(recipeController.text.toLowerCase()));
-    await newRecipe.set({
-      'CreationDate': FieldValue.serverTimestamp(),
-      'Creator': firestoreInstance.collection('users').doc(this.user.docID),
-      'Credit': this.user.name,
-      'Directions': directions,
-      'DocumentID': [newRecipe.id],
-      'Keywords': allKeywords.toList(),
-      'RecipeName': recipeController.text,
-      'TotalTime': int.tryParse(totalTimeController.text)
-    });
-    return true;
-
-  } catch (e) {
-  print(e);
-  return false;
-  }
-
   }
 
   Future<void> handleSubmit(BuildContext context) async {
     try {
-      if (!_timeForm.currentState.validate() || !_nameForm.currentState.validate())
-        return;
-
       Dialogs.showLoadingDialog(context, _keyLoader);
       bool b = await addToDatabase();
       Navigator.of(context, rootNavigator: true).pop();
       if (b) {
-        Dialogs.showOKDialog(context, "Great Success!",
-            "Your new recipe has been created.");
+        Dialogs.showOKDialog(
+            context, "Great Success!", "Your new recipe has been created.");
       } else {
-        Dialogs.showOKDialog(context, "Oh no!",
-            "Something went wrong trying to create your recipe! Please check your input or try again later.");
+        Dialogs.showCreateRecipeFailDialog(context, "Oh no!",
+            "Something went wrong trying to create your recipe! Please make sure all fields are filled out and valid or try again later.");
       }
     } catch (error) {
       print(error);

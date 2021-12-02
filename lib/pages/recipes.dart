@@ -5,7 +5,7 @@ import 'package:pantree/models/modules.dart';
 import 'package:pantree/models/recipe_creation.dart';
 import 'package:pantree/pantreeUser.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:pantree/models/recipe_viewer.dart';
+import 'package:pantree/models/extensions.dart';
 import 'package:pantree/models/drawer.dart';
 import 'package:pantree/models/recipe_recommendation.dart';
 
@@ -93,10 +93,10 @@ class _recipeState extends State<recipes> {
 
   Set<DocumentReference> getData(List<QueryDocumentSnapshot> shots) {
     Set<DocumentReference> pantryIngredients = {};
-        for (int i = 0; i < shots.length; i++)
-          pantryIngredients.add(shots[i]["Item"]);
+    for (int i = 0; i < shots.length; i++)
+      pantryIngredients.add(shots[i]["Item"]);
 
-      return pantryIngredients;
+    return pantryIngredients;
   }
 
   setListener() {
@@ -115,8 +115,6 @@ class _recipeState extends State<recipes> {
     });
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     if (this.currentPPID == null) {
@@ -124,63 +122,72 @@ class _recipeState extends State<recipes> {
     }
 
     return StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection(this.currentPPID.path + "/ingredients").snapshots(),
-        builder: (BuildContext context,
-        AsyncSnapshot<QuerySnapshot> querySnapshot) {
-      if (querySnapshot.connectionState == ConnectionState.waiting) {
-        return Center(child: CircularProgressIndicator());
-      } else {
-
-        return Scaffold(
-          drawer: PantreeDrawer(user: this.user),
-          floatingActionButton: SingleChildScrollView( child: Column(children: [
-            CustomFAB(
-                color: Colors.red[400],
-                icon: const Icon(Icons.food_bank_rounded, size: 35),
-                onPressed: (() => {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => RecommendRecipe(user: this.user)))
-                })),
-            SizedBox(height: 15),
-            CustomFAB(
-                color: Colors.red[400],
-                icon: const Icon(Icons.add, size: 30),
-                onPressed: (() => {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => RecipeCreator(user: this.user)))
-                })),
-          ],)),
-          body: FloatingSearchBar(
-            controller: controller,
-            body: Column(children: [
-              SizedBox(height: 75),
-              Container(
-                  height: MediaQuery.of(context).size.height * 0.1,
-                  child: StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance
-                          .collection('filters')
-                          .snapshots(),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<QuerySnapshot> querySnapshot) {
-                        if (querySnapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
-                        } else {
-                          return Container(
-                              child: ListView.builder(
+        stream: FirebaseFirestore.instance
+            .collection(this.currentPPID.path + "/ingredients")
+            .snapshots(),
+        builder:
+            (BuildContext context, AsyncSnapshot<QuerySnapshot> querySnapshot) {
+          if (querySnapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else {
+            return Scaffold(
+              drawer: PantreeDrawer(user: this.user),
+              floatingActionButton: SingleChildScrollView(
+                  child: Column(
+                children: [
+                  CustomFAB(
+                      color: Colors.red[400],
+                      icon: const Icon(Icons.food_bank_rounded, size: 35),
+                      onPressed: (() => {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        RecommendRecipe(user: this.user)))
+                          })),
+                  SizedBox(height: 15),
+                  CustomFAB(
+                      color: Colors.red[400],
+                      icon: const Icon(Icons.add, size: 30),
+                      onPressed: (() => {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        RecipeCreator(user: this.user)))
+                          })),
+                ],
+              )),
+              body: FloatingSearchBar(
+                controller: controller,
+                body: Column(children: [
+                  SizedBox(height: 75),
+                  Container(
+                      height: MediaQuery.of(context).size.height * 0.1,
+                      child: StreamBuilder<QuerySnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('filters')
+                              .snapshots(),
+                          builder: (BuildContext context,
+                              AsyncSnapshot<QuerySnapshot> querySnapshot) {
+                            if (querySnapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Center(child: CircularProgressIndicator());
+                            } else {
+                              return Container(
+                                  child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
                                 itemBuilder: (context, index) {
                                   QueryDocumentSnapshot filter =
-                                  querySnapshot.data.docs[index];
+                                      querySnapshot.data.docs[index];
                                   return Container(
-                                      width: MediaQuery.of(context).size.width * 0.4,
+                                      color: Colors.transparent,
+                                      width: MediaQuery.of(context).size.width *
+                                          0.4,
                                       child: Card(
                                           shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(50)),
+                                              borderRadius:
+                                                  BorderRadius.circular(50)),
                                           color: Colors.red[400],
                                           margin: const EdgeInsets.only(
                                               top: 12.0, right: 8.0, left: 8.0),
@@ -193,7 +200,7 @@ class _recipeState extends State<recipes> {
 
                                                 List<dynamic> idStrings = [];
                                                 for (DocumentReference ref
-                                                in filter["recipe_ids"]) {
+                                                    in filter["recipe_ids"]) {
                                                   idStrings.add(ref.id);
                                                   if (idStrings.length == 10) {
                                                     break;
@@ -202,122 +209,123 @@ class _recipeState extends State<recipes> {
                                                 filteredRecipes = idStrings;
                                               },
                                               child: Center(
-                                                child: Text(filter.id,
+                                                child: Text(filter.id.capitalizeFirstLetter,
                                                     style: TextStyle(
-                                                        fontSize: 20,
+                                                        fontSize: 21,
+                                                        fontWeight: FontWeight.bold,
                                                         color: Colors.white)),
                                               ))));
                                 },
                                 itemCount: querySnapshot.data.docs.length,
                               ));
-                        }
-                      })),
-              FloatingSearchBarScrollNotifier(
-                child: SearchResultsListView(
-                    pantryIngredients: getData(querySnapshot.data.docs),
-                    user: this.user,
-                    searchTerm: selectedTerm.toLowerCase(),
-                    filters: filteredRecipes),
-              )
-            ]),
-            transition: CircularFloatingSearchBarTransition(),
-            physics: BouncingScrollPhysics(),
-            title: Text(
-              selectedTerm ?? 'Search for Recipes',
-              style: Theme.of(context).textTheme.headline6,
-            ),
-            hint: 'Begin by typing a recipe...',
-            actions: [
-              FloatingSearchBarAction.searchToClear(),
-            ],
-            // onQueryChanged: (query) {
-            //   setState(() {
-            //     filteredSearchHistory = filterSearchTerms(filter: query);
-            //     filteredRecipes = [];
-            //   });
-            // },
-            onSubmitted: (query) {
-              setState(() {
-                addSearchTerm(query);
-                selectedTerm = query;
-                filteredRecipes = [];
-              });
-              controller.close();
-            },
-            builder: (context, transition) {
-              return ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Material(
-                  color: Colors.white,
-                  elevation: 4,
-                  child: Builder(
-                    builder: (context) {
-                      if (filteredSearchHistory.isEmpty &&
-                          controller.query.isEmpty) {
-                        return Container(
-                          height: 56,
-                          width: double.infinity,
-                          alignment: Alignment.center,
-                          child: Text(
-                            'Click Above to Start Searching Recipes',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.caption,
-                          ),
-                        );
-                      } else if (filteredSearchHistory.isEmpty) {
-                        return ListTile(
-                          title: Text(controller.query),
-                          leading: const Icon(Icons.search),
-                          onTap: () {
-                            setState(() {
-                              addSearchTerm(controller.query);
-                              selectedTerm = controller.query;
-                            });
-                            controller.close();
-                          },
-                        );
-                      } else {
-                        return Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: filteredSearchHistory
-                              .map(
-                                (term) => ListTile(
-                              title: Text(
-                                term,
+                            }
+                          })),
+                  FloatingSearchBarScrollNotifier(
+                    child: SearchResultsListView(
+                        pantryIngredients: getData(querySnapshot.data.docs),
+                        user: this.user,
+                        searchTerm: selectedTerm.toLowerCase(),
+                        filters: filteredRecipes),
+                  )
+                ]),
+                transition: CircularFloatingSearchBarTransition(),
+                physics: BouncingScrollPhysics(),
+                title: Text(
+                  selectedTerm ?? 'Search for Recipes',
+                  style: Theme.of(context).textTheme.headline6,
+                ),
+                hint: 'Begin by typing a recipe...',
+                actions: [
+                  FloatingSearchBarAction.searchToClear(),
+                ],
+                // onQueryChanged: (query) {
+                //   setState(() {
+                //     filteredSearchHistory = filterSearchTerms(filter: query);
+                //     filteredRecipes = [];
+                //   });
+                // },
+                onSubmitted: (query) {
+                  setState(() {
+                    addSearchTerm(query);
+                    selectedTerm = query;
+                    filteredRecipes = [];
+                  });
+                  controller.close();
+                },
+                builder: (context, transition) {
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Material(
+                      color: Colors.white,
+                      elevation: 4,
+                      child: Builder(
+                        builder: (context) {
+                          if (filteredSearchHistory.isEmpty &&
+                              controller.query.isEmpty) {
+                            return Container(
+                              height: 56,
+                              width: double.infinity,
+                              alignment: Alignment.center,
+                              child: Text(
+                                'Click Above to Start Searching Recipes',
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.caption,
                               ),
-                              leading: const Icon(Icons.history),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.clear),
-                                onPressed: () {
-                                  setState(() {
-                                    deleteSearchTerm(term);
-                                  });
-                                },
-                              ),
+                            );
+                          } else if (filteredSearchHistory.isEmpty) {
+                            return ListTile(
+                              title: Text(controller.query),
+                              leading: const Icon(Icons.search),
                               onTap: () {
                                 setState(() {
-                                  putSearchTermFirst(term);
-                                  selectedTerm = term;
+                                  addSearchTerm(controller.query);
+                                  selectedTerm = controller.query;
                                 });
                                 controller.close();
                               },
-                            ),
-                          )
-                              .toList(),
-                        );
-                      }
-                    },
-                  ),
-                ),
-              );
-            },
-          ),
-        );
-      }
-    });
+                            );
+                          } else {
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: filteredSearchHistory
+                                  .map(
+                                    (term) => ListTile(
+                                      title: Text(
+                                        term,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      leading: const Icon(Icons.history),
+                                      trailing: IconButton(
+                                        icon: const Icon(Icons.clear),
+                                        onPressed: () {
+                                          setState(() {
+                                            deleteSearchTerm(term);
+                                          });
+                                        },
+                                      ),
+                                      onTap: () {
+                                        setState(() {
+                                          putSearchTermFirst(term);
+                                          selectedTerm = term;
+                                        });
+                                        controller.close();
+                                      },
+                                    ),
+                                  )
+                                  .toList(),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  );
+                },
+              ),
+            );
+          }
+        });
   }
 }
 
@@ -387,21 +395,23 @@ class SearchResultsListView extends StatelessWidget {
                     QueryDocumentSnapshot recipe =
                         querySnapshot.data.docs[index];
 
-                    Stream<QuerySnapshot> ingredients = FirebaseFirestore.instance
-                        .collection(recipe.reference.path + "/ingredients").snapshots();
+                    Stream<QuerySnapshot> ingredients = FirebaseFirestore
+                        .instance
+                        .collection(recipe.reference.path + "/ingredients")
+                        .snapshots();
 
                     return StreamBuilder<QuerySnapshot>(
-                     stream: ingredients,
-                      builder: (BuildContext context,
-                      AsyncSnapshot<QuerySnapshot> ingredientsSnapshot) {
-                       if (ingredientsSnapshot.connectionState == ConnectionState.waiting) {
-                         return Container();
-                       }
+                        stream: ingredients,
+                        builder: (BuildContext context,
+                            AsyncSnapshot<QuerySnapshot> ingredientsSnapshot) {
+                          if (ingredientsSnapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Container();
+                          }
 
-                       return recipeCard(this.pantryIngredients, this.user, recipe, context, ingredientsSnapshot.data);
-                      });
-
-
+                          return recipeCard(this.pantryIngredients, this.user,
+                              recipe, context, ingredientsSnapshot.data);
+                        });
                   },
                   itemCount: querySnapshot.data.docs.length,
                 );

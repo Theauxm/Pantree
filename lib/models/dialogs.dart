@@ -48,6 +48,26 @@ class Dialogs {
     );
   }
 
+  static Future<void> showCreateRecipeFailDialog(
+      BuildContext context, String title, String message) async {
+    // set up the button
+    Widget okButton = TextButton(
+      child: Text("OK"),
+      onPressed: () {
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+            title: Text(title), content: Text(message), actions: [okButton]);
+      },
+    );
+  }
+
   static Future<void> friendRequestSent(
       BuildContext context, String friend) async {
     // set up the button
