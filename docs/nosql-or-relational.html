@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Relational or Non-Relational. Which database Should You Use? | Pantree</title>
+<meta name="generator" content="Jekyll v4.2.1" />
+<meta property="og:title" content="Relational or Non-Relational. Which database Should You Use?" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Firstly, What Is SQL? And Why Would I Want It?" />
+<meta property="og:description" content="Firstly, What Is SQL? And Why Would I Want It?" />
+<link rel="canonical" href="http://localhost:4000/Pantree/jekyll/update/2021/11/07/nosql-or-relational.html" />
+<meta property="og:url" content="http://localhost:4000/Pantree/jekyll/update/2021/11/07/nosql-or-relational.html" />
+<meta property="og:site_name" content="Pantree" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-11-07T14:08:14-07:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Relational or Non-Relational. Which database Should You Use?" />
+<script type="application/ld+json">
+{"datePublished":"2021-11-07T14:08:14-07:00","url":"http://localhost:4000/Pantree/jekyll/update/2021/11/07/nosql-or-relational.html","dateModified":"2021-11-07T14:08:14-07:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/Pantree/jekyll/update/2021/11/07/nosql-or-relational.html"},"@type":"BlogPosting","description":"Firstly, What Is SQL? And Why Would I Want It?","headline":"Relational or Non-Relational. Which database Should You Use?","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/Pantree/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/Pantree/feed.xml" title="Pantree" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/Pantree/">Pantree</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/Pantree/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Relational or Non-Relational. Which database Should You Use?</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2021-11-07T14:08:14-07:00" itemprop="datePublished">Nov 7, 2021
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <h3 id="firstly-what-is-sql-and-why-would-i-want-it">Firstly, What Is SQL? And Why Would I Want It?</h3>
+
+<h3 id="sql-101">SQL 101</h3>
+<p>SQL stands for Structured Query Language, and it has been around for longer than almost the entire Pantree team combined (1979). Despite it’s age, there are some strong reasons for it to still be around. First and foremost, SQL has allows for incredible detail in the information that can be queried from the database. But, this does require a decent amount of thought to be put into the actual schema (design) for the database. The general breakdown of a relational database using SQL, is separated into two objects - tables and records. SQL requires the user to adhere very closely to the definition for each of these tables, where very little, to no wiggle room. This can be viewed as a strength or a weakness for SQL, as it requires your data to be very consistent, but it can also feel restrictive when developing against it.</p>
+
+<h3 id="why-firebase">Why Firebase</h3>
+<p>Departing from SQL being a relational form of database, Firebase is a non-relational database that does not have relationships as a requirement between collections. Where SQL has tables, Firebase has collections, and records to documents as well. Consequently, it is much harder to break any sort of ‘schema’ that would exist in this style of database. Similarly to SQL, this can be viewed as a strength or a weakness, as we are able to add any field that we might desire to a particular document, and the entire collection does not have to adhere to the same fields that any other document within that collection needs. While this is a very nice feature for designing, it can equally be a hurdle to get over when creating documents that need to be consistent, as there are very little requirements for a new document. We were able to get around this issue, by creating empty fields on each document that we desired to have a particular field.</p>
+
+<p> </p>
+
+<h3 id="so-why-did-the-pantree-team-choose-firebase">So Why Did the Pantree Team Choose Firebase?</h3>
+
+<p>Now that we know that there are some very powerful features in both relational and non-relational databases, let’s dive into the reasons why we chose to use Firebase. The biggest and most obvious one would be that when we chose to use Flutter and Dart, Google pushes it’s users to take up all the entire technology stack as they are marketed to be work quite nicely with each other. In practice, I would say this is fairly accurate, with the majority of the short-comings of the entire technology stack to be almost entirely isolated within the fact that Flutter and Dart have less documentation, and community support than other technology stacks. Additionally, Google’s own documentation does often does not write their documentation in Dart, which we found to be very odd.</p>
+
+  </div><a class="u-url" href="/Pantree/jekyll/update/2021/11/07/nosql-or-relational.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/Pantree/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Pantree</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Pantree</li><li><a class="u-email" href="mailto:PantreeOfficial@gmail.com">PantreeOfficial@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Pantree official viewing site. Containing information about the team, what we have aimed to achieve with this project, along with a download link for those who want to experience what we&#39;ve created.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
