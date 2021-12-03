@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>The timeline of Pantree | Pantree</title>
+<meta name="generator" content="Jekyll v4.2.1" />
+<meta property="og:title" content="The timeline of Pantree" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Cooking, the Pandemic hobby. How on Earth am I supposed to organize a pantry??" />
+<meta property="og:description" content="Cooking, the Pandemic hobby. How on Earth am I supposed to organize a pantry??" />
+<link rel="canonical" href="http://localhost:4000/Pantree/jekyll/update/2021/11/14/the-problems-we-ran-into.html" />
+<meta property="og:url" content="http://localhost:4000/Pantree/jekyll/update/2021/11/14/the-problems-we-ran-into.html" />
+<meta property="og:site_name" content="Pantree" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-11-14T14:08:14-07:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="The timeline of Pantree" />
+<script type="application/ld+json">
+{"datePublished":"2021-11-14T14:08:14-07:00","url":"http://localhost:4000/Pantree/jekyll/update/2021/11/14/the-problems-we-ran-into.html","dateModified":"2021-11-14T14:08:14-07:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/Pantree/jekyll/update/2021/11/14/the-problems-we-ran-into.html"},"@type":"BlogPosting","description":"Cooking, the Pandemic hobby. How on Earth am I supposed to organize a pantry??","headline":"The timeline of Pantree","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/Pantree/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/Pantree/feed.xml" title="Pantree" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/Pantree/">Pantree</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/Pantree/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">The timeline of Pantree</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2021-11-14T14:08:14-07:00" itemprop="datePublished">Nov 14, 2021
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <h3 id="cooking-the-pandemic-hobby-how-on-earth-am-i-supposed-to-organize-a-pantry">Cooking, the Pandemic hobby. How on Earth am I supposed to organize a pantry??</h3>
+
+<h3 id="how-we-got-started">How we got started</h3>
+<p>The idea for Pantree came about as a result of living with 6 roommates during the Coronavirus shutdown. We were bored out of our minds, hungry for decent food, and all extremely broke (hence the 6 roommates). We couldn’t afford to use meal services like DoorDash or UberEats everyday, so why not cook for each other? Well, if everybody wants to pitch in with ingredients, why not create a massive list so we can tell what needs to be bought at the grocery store?</p>
+
+<p>That’s great and all, but what about the roommates who are absolutely god awful at coming up with ideas for food to make? What if there was a way that you could tell exactly what you could make by opening an app? From there, Pantree was formed.</p>
+
+<p> </p>
+
+<h3 id="the-technology--engineering-decisions">The technology – Engineering decisions!</h3>
+<p>Early on we realized that using our own hardware would take up too much time. We wanted a service that provided exactly what we needed without any additional setup required. We needed a front-end language/framework that would let all of us (with next to no experience) be able to learn the foundational technology at a steady pace. On top of this, we knew we were going to need a database to hold massive amounts of data about food. Any freemium service would most likely cost money down the line, but there has to be something that at least gives a free tier, right?</p>
+
+<p>We narrowed it down to a few frameworks and databases, ultimately deciding on Google Firestore. Each of us had extremely limited exposure to Google Cloud, but nonetheless it checked all of our boxes. Dart, Google’s version of a front-end language, had a massive community and more tutorials than we would have time to watch over the course of the semester. However, their database options were another story.</p>
+
+<p>The decision of a NoSQL database or MySQL database took about a week of talking to come to a conclusion. It is talked more about in another blog post, <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">NoSQL or Relational. Which should you use?</a>, but in short we decided to go with NoSQL since we knew structural changes were going to be made extremely often. The “dependency” nature of MySQL would lead us down a path of bad coding practice and un-necessary workarounds in the end.</p>
+
+<p> </p>
+
+<h3 id="the-web-scraper--its-alive">The Web Scraper – It’s alive!!</h3>
+<p>After deciding on a NoSQL database, we needed some way of showing off an early version of what the backend would look like. This had more to do with the deadlines of marketing presentations than any actual coding necessities at that time. We didn’t want to spend the time figuring out every niche edge case of web scraping, so we instead decided to go with a library that did the majority of the work for us. After many iterations, we were able to figure out how to recur down any website to get any and all recipes associated with it.</p>
+
+<p> </p>
+
+<h3 id="pantree-a-skeleton">Pantree, a skeleton.</h3>
+<p>The team decided we wanted to focus on figuring out the best way to organize Pantree’s app UI to keep the amount of tech debt at a low. No one on the team had used Dart prior to this project, meaning a lot of time was dedicated to learning best practices. By the end of the semester we had basic functionality for navigation between views, and front-end logic for searching recipes.</p>
+
+<p> </p>
+
+<h3 id="to-finals-week-and-beyond">To finals week, and beyond!</h3>
+<p>By the time the semester began winding down we decided to take a break with Pantree. We didn’t want to put pressure on anybody to put in additional work, though we made an agreement to begin having mettings a few weeks before the semester started up again. Thankfully, the project was left in a state at which it would be easy to pick up after a few months of dust.</p>
+
+<p> </p>
+
+<h3 id="tech-debt--who-knew">Tech Debt – Who knew?</h3>
+<p>During the first few weeks of our second semester we decided to refactor a few parts of the project after realizing a few better ways to go about architecting the code. This included improving the web scraper, and adding a user object that can be passed around to each view for easier access to data that is universal. It was at this point in the project that things really started to take form in terms of what the project was going to actually look like.</p>
+
+<p> </p>
+
+<h3 id="code-organization">Code Organization</h3>
+<p>We began creating an organizational structure to our code, making sure that what each person worked on could be easily found by another. This included making standardizations to naming conventions, where files were in the code structure, and a general outline of arguments for each view’s object to take along with it. This helped us cut down on the amount of time it would take to integrate a team member’s code into their own.</p>
+
+<p> </p>
+
+<h3 id="alpha-release">Alpha Release</h3>
+<p>As the second semester went on, we were each mainly working independently on an assigned view. This was in an attempt to let each person work at their own pace, hopefully being able to get the code to a point where we could beging mering and interacting with each other’s views. It wasn’t until the week before Alpha that we realized how far behind we were. A meeting with our professor showed that we didn’t really have much to show in terms of what the app promised, and as a result we spent the last week cranking out features.</p>
+
+<p>Alpha release ended up being a success, and we were overall happy with where the app ended up. There were incomplete features and bugs, but the amount of work put into the application during that week proved the team was able to pull something together in a short time if necessary.</p>
+
+<p> </p>
+
+<h3 id="beta-release">Beta Release</h3>
+<p>Once Alpha was finished, we had a pretty decent idea of where we wanted the app to end up. This included things like showing Missing Ingredients for the recipe search, being able to add and remove friends, upload photos to the social view, adding collaborators to pantries, adding and removing quantities from ingredients in the pantry/shopping list, and being able to let users create their own recipes. In retrospect it waas quite a tall order for the time we had, but overall the team spread out the work a lot better this time around.</p>
+
+<p>Beta release also ended up being a success, and put the app in a position to be useable by industry standards. It was by no means polished and still had its fair share of bugs, but the original idea had finally began to take form.</p>
+
+<p> </p>
+
+<h3 id="looking-forward">Looking Forward</h3>
+<p>As of writing this blog post, our full release is still yet to be published. We have a plan for what we would like to see completed by the end of the semester, and will hopefully be able to fulfill what we’ve set out to do. This senior project has been an interesting experience for the entire team, I believe everybody has learned a lot. It has been the first experience in which we were put in charge of making a product out of nothing, and being forced to learn a piece of technology on our own without being thrown heapfulls of information at us. I am proud of what we’ve accomplished, and I can genuinely see people using the app in the future.</p>
+
+
+  </div><a class="u-url" href="/Pantree/jekyll/update/2021/11/14/the-problems-we-ran-into.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/Pantree/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Pantree</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Pantree</li><li><a class="u-email" href="mailto:PantreeOfficial@gmail.com">PantreeOfficial@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Pantree official viewing site. Containing information about the team, what we have aimed to achieve with this project, along with a download link for those who want to experience what we&#39;ve created.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

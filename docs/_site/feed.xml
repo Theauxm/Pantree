@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.1">Jekyll</generator><link href="http://localhost:4000/Pantree/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/Pantree/" rel="alternate" type="text/html" /><updated>2021-12-02T18:52:16-07:00</updated><id>http://localhost:4000/Pantree/feed.xml</id><title type="html">Pantree</title><subtitle>Pantree official viewing site. Containing information about the team, what we have aimed to achieve with this project, along with a download link for those who want to experience what we&apos;ve created.</subtitle><entry><title type="html">The timeline of Pantree</title><link href="http://localhost:4000/Pantree/jekyll/update/2021/11/14/the-problems-we-ran-into.html" rel="alternate" type="text/html" title="The timeline of Pantree" /><published>2021-11-14T14:08:14-07:00</published><updated>2021-11-14T14:08:14-07:00</updated><id>http://localhost:4000/Pantree/jekyll/update/2021/11/14/the-problems-we-ran-into</id><content type="html" xml:base="http://localhost:4000/Pantree/jekyll/update/2021/11/14/the-problems-we-ran-into.html">&lt;h3 id=&quot;cooking-the-pandemic-hobby-how-on-earth-am-i-supposed-to-organize-a-pantry&quot;&gt;Cooking, the Pandemic hobby. How on Earth am I supposed to organize a pantry??&lt;/h3&gt;
+
+&lt;h3 id=&quot;how-we-got-started&quot;&gt;How we got started&lt;/h3&gt;
+&lt;p&gt;The idea for Pantree came about as a result of living with 6 roommates during the Coronavirus shutdown. We were bored out of our minds, hungry for decent food, and all extremely broke (hence the 6 roommates). We couldn’t afford to use meal services like DoorDash or UberEats everyday, so why not cook for each other? Well, if everybody wants to pitch in with ingredients, why not create a massive list so we can tell what needs to be bought at the grocery store?&lt;/p&gt;
+
+&lt;p&gt;That’s great and all, but what about the roommates who are absolutely god awful at coming up with ideas for food to make? What if there was a way that you could tell exactly what you could make by opening an app? From there, Pantree was formed.&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;h3 id=&quot;the-technology--engineering-decisions&quot;&gt;The technology – Engineering decisions!&lt;/h3&gt;
+&lt;p&gt;Early on we realized that using our own hardware would take up too much time. We wanted a service that provided exactly what we needed without any additional setup required. We needed a front-end language/framework that would let all of us (with next to no experience) be able to learn the foundational technology at a steady pace. On top of this, we knew we were going to need a database to hold massive amounts of data about food. Any freemium service would most likely cost money down the line, but there has to be something that at least gives a free tier, right?&lt;/p&gt;
+
+&lt;p&gt;We narrowed it down to a few frameworks and databases, ultimately deciding on Google Firestore. Each of us had extremely limited exposure to Google Cloud, but nonetheless it checked all of our boxes. Dart, Google’s version of a front-end language, had a massive community and more tutorials than we would have time to watch over the course of the semester. However, their database options were another story.&lt;/p&gt;
+
+&lt;p&gt;The decision of a NoSQL database or MySQL database took about a week of talking to come to a conclusion. It is talked more about in another blog post, &lt;a href=&quot;https://www.youtube.com/watch?v=dQw4w9WgXcQ&quot;&gt;NoSQL or Relational. Which should you use?&lt;/a&gt;, but in short we decided to go with NoSQL since we knew structural changes were going to be made extremely often. The “dependency” nature of MySQL would lead us down a path of bad coding practice and un-necessary workarounds in the end.&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;h3 id=&quot;the-web-scraper--its-alive&quot;&gt;The Web Scraper – It’s alive!!&lt;/h3&gt;
+&lt;p&gt;After deciding on a NoSQL database, we needed some way of showing off an early version of what the backend would look like. This had more to do with the deadlines of marketing presentations than any actual coding necessities at that time. We didn’t want to spend the time figuring out every niche edge case of web scraping, so we instead decided to go with a library that did the majority of the work for us. After many iterations, we were able to figure out how to recur down any website to get any and all recipes associated with it.&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;h3 id=&quot;pantree-a-skeleton&quot;&gt;Pantree, a skeleton.&lt;/h3&gt;
+&lt;p&gt;The team decided we wanted to focus on figuring out the best way to organize Pantree’s app UI to keep the amount of tech debt at a low. No one on the team had used Dart prior to this project, meaning a lot of time was dedicated to learning best practices. By the end of the semester we had basic functionality for navigation between views, and front-end logic for searching recipes.&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;h3 id=&quot;to-finals-week-and-beyond&quot;&gt;To finals week, and beyond!&lt;/h3&gt;
+&lt;p&gt;By the time the semester began winding down we decided to take a break with Pantree. We didn’t want to put pressure on anybody to put in additional work, though we made an agreement to begin having mettings a few weeks before the semester started up again. Thankfully, the project was left in a state at which it would be easy to pick up after a few months of dust.&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;h3 id=&quot;tech-debt--who-knew&quot;&gt;Tech Debt – Who knew?&lt;/h3&gt;
+&lt;p&gt;During the first few weeks of our second semester we decided to refactor a few parts of the project after realizing a few better ways to go about architecting the code. This included improving the web scraper, and adding a user object that can be passed around to each view for easier access to data that is universal. It was at this point in the project that things really started to take form in terms of what the project was going to actually look like.&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;h3 id=&quot;code-organization&quot;&gt;Code Organization&lt;/h3&gt;
+&lt;p&gt;We began creating an organizational structure to our code, making sure that what each person worked on could be easily found by another. This included making standardizations to naming conventions, where files were in the code structure, and a general outline of arguments for each view’s object to take along with it. This helped us cut down on the amount of time it would take to integrate a team member’s code into their own.&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;h3 id=&quot;alpha-release&quot;&gt;Alpha Release&lt;/h3&gt;
+&lt;p&gt;As the second semester went on, we were each mainly working independently on an assigned view. This was in an attempt to let each person work at their own pace, hopefully being able to get the code to a point where we could beging mering and interacting with each other’s views. It wasn’t until the week before Alpha that we realized how far behind we were. A meeting with our professor showed that we didn’t really have much to show in terms of what the app promised, and as a result we spent the last week cranking out features.&lt;/p&gt;
+
+&lt;p&gt;Alpha release ended up being a success, and we were overall happy with where the app ended up. There were incomplete features and bugs, but the amount of work put into the application during that week proved the team was able to pull something together in a short time if necessary.&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;h3 id=&quot;beta-release&quot;&gt;Beta Release&lt;/h3&gt;
+&lt;p&gt;Once Alpha was finished, we had a pretty decent idea of where we wanted the app to end up. This included things like showing Missing Ingredients for the recipe search, being able to add and remove friends, upload photos to the social view, adding collaborators to pantries, adding and removing quantities from ingredients in the pantry/shopping list, and being able to let users create their own recipes. In retrospect it waas quite a tall order for the time we had, but overall the team spread out the work a lot better this time around.&lt;/p&gt;
+
+&lt;p&gt;Beta release also ended up being a success, and put the app in a position to be useable by industry standards. It was by no means polished and still had its fair share of bugs, but the original idea had finally began to take form.&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;h3 id=&quot;looking-forward&quot;&gt;Looking Forward&lt;/h3&gt;
+&lt;p&gt;As of writing this blog post, our full release is still yet to be published. We have a plan for what we would like to see completed by the end of the semester, and will hopefully be able to fulfill what we’ve set out to do. This senior project has been an interesting experience for the entire team, I believe everybody has learned a lot. It has been the first experience in which we were put in charge of making a product out of nothing, and being forced to learn a piece of technology on our own without being thrown heapfulls of information at us. I am proud of what we’ve accomplished, and I can genuinely see people using the app in the future.&lt;/p&gt;</content><author><name></name></author><category term="jekyll" /><category term="update" /><summary type="html">Cooking, the Pandemic hobby. How on Earth am I supposed to organize a pantry??</summary></entry><entry><title type="html">What is Pantree?</title><link href="http://localhost:4000/Pantree/jekyll/update/2021/11/07/what-is-pantree.html" rel="alternate" type="text/html" title="What is Pantree?" /><published>2021-11-07T14:08:14-07:00</published><updated>2021-11-07T14:08:14-07:00</updated><id>http://localhost:4000/Pantree/jekyll/update/2021/11/07/what-is-pantree</id><content type="html" xml:base="http://localhost:4000/Pantree/jekyll/update/2021/11/07/what-is-pantree.html">&lt;h4 id=&quot;in-short-pantree-is-a-kitchen-management-app-desgined-to-help-reduce-waste-by-providing-a-platform-to-organize-what-you-have-in-your-pantry-and-refrigerator-we-aimed-to-do-this-in-a-few-different-ways&quot;&gt;In short, Pantree is a Kitchen Management App desgined to help reduce waste by providing a platform to organize what you have in your pantry and refrigerator. We aimed to do this in a few different ways.&lt;/h4&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;h2 id=&quot;pantries&quot;&gt;Pantries&lt;/h2&gt;
+&lt;p&gt;First, the app provides a way to add any type of food to a Pantry, keeping track of the date the item was added. This allows a user to see what may be about to expire, cutting down on food that may need to be thrown away. Dynamic pantries allow multiple users to be apart of the same pantry, giving those who live together a way to know exactly what is available at any time.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/Pantree/assets/images/pantry_example.PNG&quot; alt=&quot;Pantry Example&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;h2 id=&quot;recipe-search&quot;&gt;Recipe Search&lt;/h2&gt;
+&lt;p&gt;Second, there is a Recipe tab in the app that provides a way for users to filter based on what they’d like to make, or search directly for something they have in mind. The missing ingredients function allows users to see exactly what they don’t have, rather than having to do all the mental math on their own. Users can also create their own recipes as well!&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/Pantree/assets/images/recipe_example.PNG&quot; alt=&quot;Shopping List Example&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;h2 id=&quot;shopping-lists&quot;&gt;Shopping Lists&lt;/h2&gt;
+&lt;p&gt;Third, a Shopping List tab is provided as a way to organize future grocery store/market visits, allowing for easy integration into a Pantry once the items are back home. The Recipe tab allows users to export recipe items directly into a shopping list, cutting down on the amount of time it takes to figure out what is and isn’t necessary to purchase.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/Pantree/assets/images/shopping_list_example.PNG&quot; alt=&quot;Recipe Example&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;h2 id=&quot;social-view&quot;&gt;Social View&lt;/h2&gt;
+&lt;p&gt;Lastly, the Social Tab is available to show off finished products! There is functionality to add and remove friends, allowing for collaborators to be added to a pantry. Posts can also be created to show off what users have created, or upload instructions via photo on how to make a specific dish.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/Pantree/assets/images/social_example.PNG&quot; alt=&quot;Social Example&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;p&gt;You may be curious what technologies we used to develop the appliaction and the reasoning behind the choices we made. Checkout &lt;a href=&quot;https://www.youtube.com/watch?v=dQw4w9WgXcQ&quot;&gt;Technologies and Methodologies&lt;/a&gt; to read more!&lt;/p&gt;</content><author><name></name></author><category term="jekyll" /><category term="update" /><summary type="html">In short, Pantree is a Kitchen Management App desgined to help reduce waste by providing a platform to organize what you have in your pantry and refrigerator. We aimed to do this in a few different ways.</summary></entry><entry><title type="html">Dart - The language of Widgets</title><link href="http://localhost:4000/Pantree/jekyll/update/2021/11/07/dart-the-widget-language.html" rel="alternate" type="text/html" title="Dart - The language of Widgets" /><published>2021-11-07T14:08:14-07:00</published><updated>2021-11-07T14:08:14-07:00</updated><id>http://localhost:4000/Pantree/jekyll/update/2021/11/07/dart-the-widget-language</id><content type="html" xml:base="http://localhost:4000/Pantree/jekyll/update/2021/11/07/dart-the-widget-language.html"></content><author><name></name></author><category term="jekyll" /><category term="update" /><summary type="html"></summary></entry><entry><title type="html">Meet the Team</title><link href="http://localhost:4000/Pantree/jekyll/update/2021/11/07/meet-the-team.html" rel="alternate" type="text/html" title="Meet the Team" /><published>2021-11-07T14:08:14-07:00</published><updated>2021-11-07T14:08:14-07:00</updated><id>http://localhost:4000/Pantree/jekyll/update/2021/11/07/meet-the-team</id><content type="html" xml:base="http://localhost:4000/Pantree/jekyll/update/2021/11/07/meet-the-team.html">&lt;h4 id=&quot;who-developed-pantree-how-did-the-team-form-why-do-you-work-well-together-how-did-each-person-contribute-to-the-team&quot;&gt;Who developed Pantree? How did the team form? Why do you work well together? How did each person contribute to the team?&lt;/h4&gt;
+
+&lt;p&gt;Brandon, Trey, Ben, and Theaux met during their first year at the University of Utah. After working together throughout various classes and other semester long projects, they decided to group together for their senior project. Pantree started as a simple idea over the COVID19 pandemic in an attempt to keep a living space a bit more clean and save money. By understanding the strengths and weaknesses of each other, working together has been an overall very positive experience.&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/Pantree/assets/images/team_tile.jpg&quot; alt=&quot;MeetTheTeam&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;brandon&quot;&gt;Brandon&lt;/h3&gt;
+&lt;p&gt;My main contributions to the pantree project have been located within the social view, and some of the social aspects related to it. We wanted the ability for users to easily share the amazing creations that they have made, as well as having easy access to other users of the application, and the ability to see what they were cooking. This extended to mingling with some of the other views, such as the recipe view, where users can easily see what recipes other users have made, and add them to the ingredients to their own shopping cart if they would like to try it!&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;h3 id=&quot;theaux&quot;&gt;Theaux&lt;/h3&gt;
+&lt;p&gt;I worked on a lot of the back-end for Pantree and the Recipe tab. Brandon and I collaborated on figuring out the structure of the database, and I created a web scraper to make sure users have the ability to make whatever kind of food they want! Users can add their own recipes to the database for others to create, seeing as the main goal of the app is to be able to share food with others.&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;h3 id=&quot;trey&quot;&gt;Trey&lt;/h3&gt;
+&lt;p&gt;xxx&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;h3 id=&quot;ben&quot;&gt;Ben&lt;/h3&gt;
+&lt;p&gt;xxx&lt;/p&gt;</content><author><name></name></author><category term="jekyll" /><category term="update" /><summary type="html">Who developed Pantree? How did the team form? Why do you work well together? How did each person contribute to the team?</summary></entry><entry><title type="html">Relational or Non-Relational. Which database Should You Use?</title><link href="http://localhost:4000/Pantree/jekyll/update/2021/11/07/nosql-or-relational.html" rel="alternate" type="text/html" title="Relational or Non-Relational. Which database Should You Use?" /><published>2021-11-07T14:08:14-07:00</published><updated>2021-11-07T14:08:14-07:00</updated><id>http://localhost:4000/Pantree/jekyll/update/2021/11/07/nosql-or-relational</id><content type="html" xml:base="http://localhost:4000/Pantree/jekyll/update/2021/11/07/nosql-or-relational.html">&lt;h3 id=&quot;firstly-what-is-sql-and-why-would-i-want-it&quot;&gt;Firstly, What Is SQL? And Why Would I Want It?&lt;/h3&gt;
+
+&lt;h3 id=&quot;sql-101&quot;&gt;SQL 101&lt;/h3&gt;
+&lt;p&gt;SQL stands for Structured Query Language, and it has been around for longer than almost the entire Pantree team combined (1979). Despite it’s age, there are some strong reasons for it to still be around. First and foremost, SQL has allows for incredible detail in the information that can be queried from the database. But, this does require a decent amount of thought to be put into the actual schema (design) for the database. The general breakdown of a relational database using SQL, is separated into two objects - tables and records. SQL requires the user to adhere very closely to the definition for each of these tables, where very little, to no wiggle room. This can be viewed as a strength or a weakness for SQL, as it requires your data to be very consistent, but it can also feel restrictive when developing against it.&lt;/p&gt;
+
+&lt;h3 id=&quot;why-firebase&quot;&gt;Why Firebase&lt;/h3&gt;
+&lt;p&gt;Departing from SQL being a relational form of database, Firebase is a non-relational database that does not have relationships as a requirement between collections. Where SQL has tables, Firebase has collections, and records to documents as well. Consequently, it is much harder to break any sort of ‘schema’ that would exist in this style of database. Similarly to SQL, this can be viewed as a strength or a weakness, as we are able to add any field that we might desire to a particular document, and the entire collection does not have to adhere to the same fields that any other document within that collection needs. While this is a very nice feature for designing, it can equally be a hurdle to get over when creating documents that need to be consistent, as there are very little requirements for a new document. We were able to get around this issue, by creating empty fields on each document that we desired to have a particular field.&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;h3 id=&quot;so-why-did-the-pantree-team-choose-firebase&quot;&gt;So Why Did the Pantree Team Choose Firebase?&lt;/h3&gt;
+
+&lt;p&gt;Now that we know that there are some very powerful features in both relational and non-relational databases, let’s dive into the reasons why we chose to use Firebase. The biggest and most obvious one would be that when we chose to use Flutter and Dart, Google pushes it’s users to take up all the entire technology stack as they are marketed to be work quite nicely with each other. In practice, I would say this is fairly accurate, with the majority of the short-comings of the entire technology stack to be almost entirely isolated within the fact that Flutter and Dart have less documentation, and community support than other technology stacks. Additionally, Google’s own documentation does often does not write their documentation in Dart, which we found to be very odd.&lt;/p&gt;</content><author><name></name></author><category term="jekyll" /><category term="update" /><summary type="html">Firstly, What Is SQL? And Why Would I Want It?</summary></entry><entry><title type="html">What technology did we use?</title><link href="http://localhost:4000/Pantree/jekyll/update/2021/11/07/the-technology.html" rel="alternate" type="text/html" title="What technology did we use?" /><published>2021-11-07T14:00:00-07:00</published><updated>2021-11-07T14:00:00-07:00</updated><id>http://localhost:4000/Pantree/jekyll/update/2021/11/07/the-technology</id><content type="html" xml:base="http://localhost:4000/Pantree/jekyll/update/2021/11/07/the-technology.html">&lt;h3 id=&quot;flutter-and-the-google-technology-stack&quot;&gt;Flutter and the Google technology stack&lt;/h3&gt;
+
+&lt;h3 id=&quot;why-flutter&quot;&gt;Why Flutter?&lt;/h3&gt;
+&lt;p&gt;In an age where creating your own framework might be right around the corner.. why did the Pantree team decide to use Flutter and the Google technology stack? That, reader, is a fantastic question. There are a few reasons why Flutter shines a bit brighter than many current frameworks.&lt;/p&gt;
+
+&lt;h3 id=&quot;cross-platform-support&quot;&gt;Cross-Platform Support&lt;/h3&gt;
+&lt;p&gt;In our case, the most notable feature was the cross-platform support. Our first goal was to make a mobile application, as we believed that this would be the most useful medium for our application to be used on. As Flutter has support for iOS, Android, and Web, this felt like a very easy option for us as we would not have to develop three separate applications to serve the same code, we could keep it all in one project, which is much easier to maintain.&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+
+&lt;h3 id=&quot;dart-and-flutter-20&quot;&gt;Dart and Flutter 2.0&lt;/h3&gt;
+&lt;p&gt;Google’s home cooked language and framework were definitely a bit to get used to but we quickly found the strengths for both of these. One of our favorite features that was pivotal for many of our features is the framework’s ability to handle state of the application. In our initial set up, we definitely viewed this as more of a hurdle, as state was something that most of us on the team had not encountered before - but the benefits it provided when we found out how to use it were great, and will come further into focus in the next section.&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;
+&lt;h3 id=&quot;firebase-and-cloud-storage&quot;&gt;Firebase and Cloud Storage&lt;/h3&gt;
+&lt;p&gt;When asked the question of where we would be storing our data, it was a very easy choice for us. Living within the Google technology stack enabled us to hook our database up seamlessly within our application, and have direct communication with objects that lived within our database. Beyond developing our UI, this was the largest focus in developing the Pantree application, as the majority of our features were centered around interacting with the database. One notable area that departs a bit from the paradigm that has been set up, is utilizing Cloud Storage. This is yet another service that Google provides, that is primarily used for larger objects over 1MB, such as images. We were able to integrate this into our application by carrying a reference that the Cloud Storage provides within Firebase, enabling this service to be used in a much wider scope.&lt;/p&gt;</content><author><name></name></author><category term="jekyll" /><category term="update" /><summary type="html">Flutter and the Google technology stack</summary></entry></feed>
