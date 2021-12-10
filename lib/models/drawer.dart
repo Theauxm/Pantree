@@ -54,16 +54,16 @@ class _PantreeDrawerState extends State<PantreeDrawer> {
                   ],
                 ),
               ),
-              ListTile(
+              /*ListTile(
                 leading: const Icon(Icons.account_circle),
                 title: Text('Profile'),
-              ),
+              ),*/
               ListTile(
                 leading: const Icon(Icons.people),
                 title: Text('Friends'),
                 onTap: friendsList,
               ),
-              ListTile(
+              /*ListTile(
                 leading: const Icon(Icons.settings),
                 title: Text('Settings'),
               ),
@@ -74,7 +74,7 @@ class _PantreeDrawerState extends State<PantreeDrawer> {
               ListTile(
                 leading: const Icon(Icons.help),
                 title: Text('Help'),
-              ),
+              ),*/
               ListTile(
                 leading: const Icon(Icons.logout),
                 title: Text('Sign out'),
