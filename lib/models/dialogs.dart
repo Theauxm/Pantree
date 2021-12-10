@@ -48,6 +48,39 @@ class Dialogs {
     );
   }
 
+  /// Your generic no/yes dialog generalized to work with any function
+  static showNoYesDialog(BuildContext context, String title, String msg, Function func, {Object param}) {
+    Widget noButton = TextButton(
+        style: TextButton.styleFrom(primary: Colors.red),
+        child: Text("NO"),
+        onPressed: () {
+          Navigator.of(context, rootNavigator: true).pop();
+        });
+
+    Widget yesButton = TextButton(
+      style: TextButton.styleFrom(primary: Colors.lightBlue),
+      child: Text("YES"),
+      onPressed: () {
+        func(param);
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(msg),
+          actions: [
+            noButton,
+            yesButton,
+          ],
+        );
+      },
+    );
+  }
+
   static Future<void> showCreateRecipeFailDialog(
       BuildContext context, String title, String message) async {
     // set up the button

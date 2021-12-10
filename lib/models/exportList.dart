@@ -206,15 +206,14 @@ class _ExportListState extends State<ExportList> {
   }
 
   showExportDialog(BuildContext context) {
-    Widget cancelButton = TextButton(
-        style: TextButton.styleFrom(
-            backgroundColor: Colors.lightBlue, primary: Colors.white),
+    Widget noButton = TextButton(
+        style: TextButton.styleFrom(primary: Colors.red),
         child: Text("NO"),
         onPressed: () {
           Navigator.of(context, rootNavigator: true).pop();
         });
 
-    Widget okButton = TextButton(
+    Widget yesButton = TextButton(
       style: TextButton.styleFrom(primary: Colors.lightBlue),
       child: Text("YES"),
       onPressed: () {
@@ -228,10 +227,10 @@ class _ExportListState extends State<ExportList> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text("Are you sure?"),
-          content: Text("Do you really want to Export Selected Items?"),
+          content: Text("Do you really want to export the selected items?"),
           actions: [
-            cancelButton,
-            okButton,
+            noButton,
+            yesButton,
           ],
         );
       },
@@ -250,8 +249,8 @@ class _ExportListState extends State<ExportList> {
     String t = "Error!";
     String m = "There was a problem exporting your Items. Try again later.";
     if (bool) {
-      t = "Success!";
-      m = "Items added to ${widget.exportingToName}!";
+      t = "Great Success!";
+      m = "The selected items have been added to your ${widget.exportingToName.toLowerCase()}!";
     }
     showDialog(
       context: context,

@@ -760,9 +760,9 @@ class _EditState extends State<Edit> {
         String message = "${widget.usedByView} edit failed, please try again.";
         if (_form.currentState.validate()) {
           if (editList(_pantryNameTextController.text, makePrimary)) {
-            title = "Success!";
+            title = "Great Success!";
             message =
-                "Your ${widget.usedByView} has been edited. \nPress OK to return to your ${widget.usedByView}!";
+                "Your ${widget.usedByView.toLowerCase()} has been edited.";
             showAlertDialog(context, title, message, true);
           } else {
             showAlertDialog(context, title, message, false);
@@ -895,7 +895,7 @@ Widget createLandingPage(user, usedByView, context) {
           Icon(Icons.sentiment_very_dissatisfied, size: 72),
           Container(
             child: Text(
-              'You appear to be devoid of $text',
+              'No $text found',
               style: TextStyle(color: Colors.black, fontSize: 20),
               textAlign: TextAlign.center,
             ),
@@ -919,7 +919,7 @@ Widget createLandingPage(user, usedByView, context) {
                             makePrimary: true,
                           ))));
             },
-            child: const Text("Create"),
+            child: Text("Create one now!"),
           ),
         ],
       ),

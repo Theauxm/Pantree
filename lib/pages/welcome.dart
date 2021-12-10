@@ -36,13 +36,13 @@ class _WelcomePage extends State<WelcomePage> {
   @override
   void initState() {
     super.initState(); // start initState() with this
-    email= FocusNode();
-    password= FocusNode();
-    signInButton= FocusNode();
+    email = FocusNode();
+    password = FocusNode();
+    signInButton = FocusNode();
   }
 
   @override
-  void dispose(){
+  void dispose() {
     email.dispose();
     password.dispose();
     signInButton.dispose();
@@ -53,21 +53,20 @@ class _WelcomePage extends State<WelcomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.white,
-       // appBar: AppBar(
-          //title: Text("Welcome!"),
-       // ),
+        // appBar: AppBar(
+        //title: Text("Welcome!"),
+        // ),
         body: Builder(
             builder: (context) => SingleChildScrollView(
                   child: Center(
-                    child: Column(
-                        children: [
-                          Padding(
-                          padding: const EdgeInsets.all(30.0),
-                            ),
-                          Image.asset('assets/images/pantree.png'),
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                          ),
+                    child: Column(children: [
+                      Padding(
+                        padding: const EdgeInsets.all(30.0),
+                      ),
+                      Image.asset('assets/images/pantree.png'),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                      ),
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Container(
@@ -85,7 +84,8 @@ class _WelcomePage extends State<WelcomePage> {
                                   ),
                                   onFieldSubmitted: (term) {
                                     email.unfocus();
-                                    FocusScope.of(context).requestFocus(password);
+                                    FocusScope.of(context)
+                                        .requestFocus(password);
                                   }),
                               SizedBox(height: 10),
                               TextFormField(
@@ -96,10 +96,11 @@ class _WelcomePage extends State<WelcomePage> {
                                     labelText: "Password",
                                     border: OutlineInputBorder(),
                                   ),
-                              onFieldSubmitted: (term) {
-                                password.unfocus();
-                                FocusScope.of(context).requestFocus(signInButton);
-                              }),
+                                  onFieldSubmitted: (term) {
+                                    password.unfocus();
+                                    FocusScope.of(context)
+                                        .requestFocus(signInButton);
+                                  }),
                               SizedBox(height: 10),
                               Row(
                                 mainAxisSize: MainAxisSize.max,
@@ -107,45 +108,48 @@ class _WelcomePage extends State<WelcomePage> {
                                     MainAxisAlignment.spaceAround,
                                 children: [
                                   Flexible(
-                                    flex: 1,
-                                    child: Container(
-                                      width: double.maxFinite,
-                                      child: TextButton(
-                                        focusNode: signInButton,
-                                        style: TextButton.styleFrom(
-                                            backgroundColor: Colors.blue),
-                                        onPressed: () {
-                                          signIn();
-                                        },
-                                        child: Text(
-                                          'Log in',
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.white),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
+                                      flex: 1,
+                                      child: Container(
+                                          width: double.maxFinite,
+                                          child: ElevatedButton(
+                                            focusNode: signInButton,
+                                            style: ElevatedButton.styleFrom(
+                                                primary: Colors.lightBlue,
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 25,
+                                                        vertical: 10),
+                                                textStyle: const TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
+                                            onPressed: () {
+                                              signIn();
+                                            },
+                                            child: const Text("Log in"),
+                                          ))),
                                   SizedBox(width: 10),
                                   Flexible(
-                                    flex: 1,
-                                    child: Container(
-                                      width: double.maxFinite,
-                                      child: TextButton(
-                                        style: TextButton.styleFrom(
-                                            backgroundColor: Colors.blue),
-                                        onPressed: () {
-                                          _navigateToNextScreen(context);
-                                        },
-                                        child: Text(
-                                          'Sign up',
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.white),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
+                                      flex: 1,
+                                      child: Container(
+                                          width: double.maxFinite,
+                                          child: ElevatedButton(
+                                            focusNode: signInButton,
+                                            style: ElevatedButton.styleFrom(
+                                                primary: Colors.lightBlue,
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 25,
+                                                        vertical: 10),
+                                                textStyle: const TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
+                                            onPressed: () {
+                                              _navigateToNextScreen(context);
+                                            },
+                                            child: const Text("Sign up"),
+                                          ))),
                                 ],
                               ),
                               //Center(child: GoogleButton()),
@@ -171,7 +175,7 @@ Future<void> handleNewUsers(String docID, String displayName) async {
         .doc(docID)
         .get()
         .then((doc) {
-      if (!doc.exists){
+      if (!doc.exists) {
         FirebaseFirestore.instance.collection('users').doc(docID).set({
           'Username': displayName,
           'PantryIDs': [],
@@ -183,7 +187,8 @@ Future<void> handleNewUsers(String docID, String displayName) async {
           'PPID': null,
           'PSID': null,
         });
-      }});
+      }
+    });
   } catch (e) {
     throw e;
   }
@@ -245,14 +250,14 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
   void initState() {
     super.initState(); // start initState() with this
     userName = FocusNode();
-    email= FocusNode();
-    password= FocusNode();
-    confirmPassword= FocusNode();
-    submit= FocusNode();
+    email = FocusNode();
+    password = FocusNode();
+    confirmPassword = FocusNode();
+    submit = FocusNode();
   }
 
   @override
-  void dispose(){
+  void dispose() {
     userName.dispose();
     email.dispose();
     password.dispose();
@@ -260,7 +265,6 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
     submit.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -270,39 +274,40 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
           key: _form,
           child: Column(children: <Widget>[
             TextFormField(
-                autofocus: true,
-                focusNode: userName,
-                controller: _Username,
-                validator: (validator){
-                  if (validator.isEmpty) return 'Empty';
-                  if(!RegExp (r"^\S*$").hasMatch(validator)) return "No Spaces Allowed";
-                  if (!nameTaken) return 'Username Taken';
-                  return null;
-                },
-                decoration: InputDecoration(
-                  labelText: "User Name",
-                  border: OutlineInputBorder(),
-                ),
+              autofocus: true,
+              focusNode: userName,
+              controller: _Username,
+              validator: (validator) {
+                if (validator.isEmpty) return 'Empty';
+                if (!RegExp(r"^\S*$").hasMatch(validator))
+                  return "No Spaces Allowed";
+                if (!nameTaken) return 'Username Taken';
+                return null;
+              },
+              decoration: InputDecoration(
+                labelText: "User Name",
+                border: OutlineInputBorder(),
+              ),
               onFieldSubmitted: (term) {
-                  userName.unfocus();
-                  FocusScope.of(context).requestFocus(email);
+                userName.unfocus();
+                FocusScope.of(context).requestFocus(email);
               },
             ),
             SizedBox(height: 10),
             TextFormField(
-                focusNode: email,
-                controller: _Email,
-                validator: (validator) {
-                  if (validator.isEmpty) return 'Empty';
-                  if (RegExp(
-                          r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                      .hasMatch(validator)) return null;
-                  return "Invalid Email Address";
-                },
-                decoration: InputDecoration(
-                  labelText: "Email",
-                  border: OutlineInputBorder(),
-                ),
+              focusNode: email,
+              controller: _Email,
+              validator: (validator) {
+                if (validator.isEmpty) return 'Empty';
+                if (RegExp(
+                        r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                    .hasMatch(validator)) return null;
+                return "Invalid Email Address";
+              },
+              decoration: InputDecoration(
+                labelText: "Email",
+                border: OutlineInputBorder(),
+              ),
               onFieldSubmitted: (term) {
                 email.unfocus();
                 FocusScope.of(context).requestFocus(password);
@@ -310,21 +315,22 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
             ),
             SizedBox(height: 10),
             TextFormField(
-                focusNode: password,
-                controller: _Password,
-                validator: (validator) {
-                  if (validator.isEmpty) return 'Empty';
-                  return null;
-                },
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: "Password",
-                  border: OutlineInputBorder(),
-                ),
+              focusNode: password,
+              controller: _Password,
+              validator: (validator) {
+                if (validator.isEmpty) return 'Empty';
+                return null;
+              },
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: "Password",
+                border: OutlineInputBorder(),
+              ),
               onFieldSubmitted: (term) {
                 password.unfocus();
                 FocusScope.of(context).requestFocus(confirmPassword);
-              },),
+              },
+            ),
             SizedBox(height: 10),
             TextFormField(
               focusNode: confirmPassword,
@@ -350,8 +356,8 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
               focusNode: submit,
               style: ElevatedButton.styleFrom(
                   primary: Colors.lightBlue,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 25, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
                   textStyle: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.bold)),
               onPressed: () async {
@@ -373,8 +379,11 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
   }
 
   Future<bool> _checkName(name) async {
-    QuerySnapshot users = await FirebaseFirestore.instance.collection('users').where('Username', isEqualTo: name).get();
-    if(users.docs.isEmpty) return true;
+    QuerySnapshot users = await FirebaseFirestore.instance
+        .collection('users')
+        .where('Username', isEqualTo: name)
+        .get();
+    if (users.docs.isEmpty) return true;
     return false;
   }
 
@@ -386,9 +395,8 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
       try {
         await FirebaseAuth.instance
             .createUserWithEmailAndPassword(
-                email: _Email.text, password: _Password.text).then((value) => {
-                  handleNewUsers(value.user.uid, _Username.text)
-        });
+                email: _Email.text, password: _Password.text)
+            .then((value) => {handleNewUsers(value.user.uid, _Username.text)});
       } on FirebaseAuthException catch (e) {
         String error = getMessageFromErrorCode(e);
         m = error;
@@ -397,8 +405,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
     } catch (e) {
       return getMessageFromErrorCode(e);
     }
-      return m;
-
+    return m;
   }
 }
 
