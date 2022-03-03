@@ -36,18 +36,18 @@ class _ListState extends State<ShoppingList> {
   }
 
   Future<dynamic> getData() async {
-    print('SL GETDATA() CALLED');
+    print('SL GETDATA() CALLED'); // DEBUG
     DocumentReference tempPantry;
     String tempName;
     bool tempBool;
     _listMap = Map<String, DocumentReference>();
-    _listMapOwner = Map<String, bool>();// instantiate the map
+    _listMapOwner = Map<String, bool>(); // instantiate the map
     for (DocumentReference ref in user.shoppingLists) {
       // go through each doc ref and add to list of list names + map
       String listName = "";
       bool tempIsOwner = false;
       await ref.get().then((DocumentSnapshot snapshot) {
-        if(snapshot.data()['Owner'].id == widget.user.uid){
+        if (snapshot.data()['Owner'].id == widget.user.uid) {
           tempIsOwner = true;
         }
         if (ref == user.PSID) {
@@ -56,11 +56,12 @@ class _ListState extends State<ShoppingList> {
           listName = snapshot.data()['Name']; // get the list name as a string
         }
       });
-      tempPantry = ref; // this will have to do for now
+      /* This will have to do for now */
+      tempPantry = ref;
       tempName = listName;
       tempBool = tempIsOwner;
       _listMap[listName] = ref;
-      _listMapOwner[listName] = tempIsOwner;// map the doc ref to its name
+      _listMapOwner[listName] = tempIsOwner; // map the doc ref to its name
     }
 
     // make sure widget hasn't been disposed before rebuild
@@ -75,21 +76,20 @@ class _ListState extends State<ShoppingList> {
     }
   }
 
-  // Listener for when a user adds a list
+  // Listener for when a user updates their lists collection or changes PSID
   setListener() {
     FirebaseFirestore.instance
         .collection("users")
         .doc(user.uid)
         .snapshots()
         .listen((event) {
-          bool update = false;
+      bool update = false;
       if (event.data()['ShoppingIDs'].length != user.shoppingLists.length) {
         user.shoppingLists = event.data()['ShoppingIDs'];
         update = true;
       }
       if (event.data()['PSID'].toString() != user.PSID.toString()) {
         user.PSID = event.data()['PSID'];
-        //update = true;
       }
       if (update) {
         getData();
@@ -97,6 +97,7 @@ class _ListState extends State<ShoppingList> {
     });
   }
 
+  // Handler for exporting a list to pantry
   void exportList() {
     if (user.pantries.length > 0) {
       Navigator.push(
@@ -108,10 +109,12 @@ class _ListState extends State<ShoppingList> {
                   exportList: user.pantries,
                   exportingToName: "Pantry"))));
     } else {
-      Dialogs.showError(context, "No Pantries", "You don't have any pantries to export to! ");
+      Dialogs.showError(
+          context, "No Pantries", "You don't have any pantries to export to! ");
     }
   }
 
+  // Sets up initial list and PSID
   setInitList() {
     DocumentReference primary = user.PSID;
     if (primary != null) {
@@ -127,6 +130,7 @@ class _ListState extends State<ShoppingList> {
     }
   }
 
+  // Handler for creating a new list
   void createNewList(bool makePrimary) {
     Navigator.push(
         context,
@@ -138,23 +142,25 @@ class _ListState extends State<ShoppingList> {
                 ))));
   }
 
+  // Handler for adding a list collaborator
   void addCollaborator() {
-    if(isOwner) {
+    if (isOwner) {
       if (user.friends.length > 0) {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) =>
-                (AddNewCollaborator(
-                  user: user,
-                  usedByView: "Shopping List",
-                  docRef: _selectedList,
-                ))));
+                builder: (context) => (AddNewCollaborator(
+                      user: user,
+                      usedByView: "Shopping List",
+                      docRef: _selectedList,
+                    ))));
       } else {
-        Dialogs.showError(context, "No Friends", "You can't add a collaborator to this shopping list because you don't have any friends!");
+        Dialogs.showError(context, "No Friends",
+            "You can't add a collaborator to this shopping list because you don't have any friends!");
       }
-    } else{
-      Dialogs.showError(context, "Permission Denied", "You are not the owner so you can't add a collaborator to this shopping list!");
+    } else {
+      Dialogs.showError(context, "Permission Denied",
+          "You are not the owner so you can't add a collaborator to this shopping list!");
     }
   }
 
@@ -178,6 +184,7 @@ class _ListState extends State<ShoppingList> {
       String newName, bool primaryChanged, bool isPrimary) async {
     DocumentReference primaryList;
     String primaryListName;
+
     _listMapOwner.clear();
     _listMap.clear();
     for (DocumentReference ref in user.shoppingLists) {
@@ -192,7 +199,7 @@ class _ListState extends State<ShoppingList> {
         } else {
           listName = snapshot.data()['Name'];
         }
-        if(snapshot.data()['Owner'].id == widget.user.uid){
+        if (snapshot.data()['Owner'].id == widget.user.uid) {
           ownerBool = true;
         }
       });
@@ -264,32 +271,31 @@ class _ListState extends State<ShoppingList> {
   }*/
 
   Future<void> deleteList(DocumentReference doc) async {
-    // delete pantry from list of pantries
-    if(isOwner) {
+    if (isOwner) { // only delete if user is owner
       var snap = await doc.get();
       List altUsers = snap.data()['AltUsers'];
-      altUsers.forEach((element) {removeListFromUser(element.id, doc);});
+      altUsers.forEach((element) { // delete list from collaborators' lists
+        removeListFromUser(element.id, doc);
+      });
       await doc
           .delete()
           .then((value) =>
-          print("SUCCESS: $doc has been deleted from Shopping Lists"))
+              print("SUCCESS: $doc has been deleted from Shopping Lists"))
           .catchError((error) =>
-          print("FAILURE: couldn't delete $doc from Shopping Lists: $error"));
+              print("FAILURE: couldn't delete $doc from Shopping Lists: $error"));
     }
-    removeListFromUser(user.uid, doc);// delete pantry from user pantries
+    removeListFromUser(user.uid, doc);
   }
 
-  removeListFromUser(id, doc) async{
-
-    // if pantry is primary, remove it from PPID
-    var tempUser = await firestoreInstance
-        .collection('users')
-        .doc(id).get();
+  // remove this list from user's lists
+  removeListFromUser(id, doc) async {
+    // if list is primary, remove it from PSID
+    var tempUser = await firestoreInstance.collection('users').doc(id).get();
     var tempPSID = tempUser.data()['PSID'];
     if (doc == tempUser.data()['PSID']) {
       tempPSID = null;
-      for(int i = 0; i< tempUser.data()['ShoppingIDs'].length; i++){
-        if(tempUser.data()['ShoppingIDs'][i] != doc){
+      for (int i = 0; i < tempUser.data()['ShoppingIDs'].length; i++) {
+        if (tempUser.data()['ShoppingIDs'][i] != doc) {
           tempPSID = tempUser.data()['ShoppingIDs'][i];
           break;
         }
@@ -299,25 +305,25 @@ class _ListState extends State<ShoppingList> {
         .collection('users')
         .doc(id)
         .update({
-      'PSID': tempPSID,
-      'ShoppingIDs': FieldValue.arrayRemove([_selectedList])
-    }).then((value) =>
-        print("SUCCESS: $doc has been deleted from user Shopping List"))
-        .catchError((error) =>
-        print("FAILURE: couldn't delete $doc from user Shopping List: $error"));
+          'PSID': tempPSID,
+          'ShoppingIDs': FieldValue.arrayRemove([_selectedList])
+        })
+        .then((value) =>
+            print("SUCCESS: $doc has been deleted from user Shopping List"))
+        .catchError((error) => print(
+            "FAILURE: couldn't delete $doc from user Shopping List: $error"));
   }
 
   showDeleteDialog(
       BuildContext context, String listName, DocumentReference doc) {
     Widget cancelButton = TextButton(
-        style: TextButton.styleFrom(
-            backgroundColor: Colors.lightBlue, primary: Colors.white),
+        style: TextButton.styleFrom(primary: Colors.red),
         child: Text("NO"),
         onPressed: () {
           Navigator.of(context, rootNavigator: true).pop();
         });
 
-    Widget okButton = TextButton(
+    Widget yesButton = TextButton(
       style: TextButton.styleFrom(primary: Colors.lightBlue),
       child: Text("YES"),
       onPressed: () {
@@ -335,7 +341,7 @@ class _ListState extends State<ShoppingList> {
               "Do you really want to remove \"$listName\"? This cannot be undone."),
           actions: [
             cancelButton,
-            okButton,
+            yesButton,
           ],
         );
       },
@@ -356,7 +362,7 @@ class _ListState extends State<ShoppingList> {
       return createLandingPage(user, "Shopping List", context);
     }
 
-    // User pantry dropdown selector that listens for changes in users
+    // User list dropdown selector
     final makeDropDown = Container(
       padding: EdgeInsets.only(left: 17.0),
       child: DropdownButton<String>(
@@ -388,6 +394,7 @@ class _ListState extends State<ShoppingList> {
       ),
     );
 
+    // Top appbar
     final makeAppBar = AppBar(
       title: makeDropDown,
       actions: <Widget>[
@@ -424,8 +431,12 @@ class _ListState extends State<ShoppingList> {
             }
           },
           itemBuilder: (BuildContext context) {
-            return {'Create a new list', 'Edit this list', 'Remove this list', 'Add Collaborator'}
-                .map((String choice) {
+            return {
+              'Create a new list',
+              'Edit this list',
+              'Remove this list',
+              'Add Collaborator'
+            }.map((String choice) {
               return PopupMenuItem<String>(
                 value: choice,
                 child: Text(choice),
@@ -436,6 +447,7 @@ class _ListState extends State<ShoppingList> {
       ],
     );
 
+    // List of cards
     final makeBody = Column(children: [
       // Sets up a stream builder to listen for changes inside the database.
       StreamBuilder(

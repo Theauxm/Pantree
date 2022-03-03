@@ -35,7 +35,7 @@ class _PantryState extends State<Pantry> {
   }
 
   Future<dynamic> getData() async {
-    print('PANTRY GETDATA() CALLED');
+    print('PANTRY GETDATA() CALLED'); // DEBUG
     DocumentReference tempPantry;
     String tempName;
     bool tempBool;
@@ -56,7 +56,8 @@ class _PantryState extends State<Pantry> {
               snapshot.data()['Name']; // get the pantry name as a string
         }
       });
-      tempPantry = ref; // this will have to do for now
+      /* This will have to do for now */
+      tempPantry = ref;
       tempName = pantryName;
       tempBool = tempIsOwner;
       _pantryMap[pantryName] = ref;
@@ -75,7 +76,7 @@ class _PantryState extends State<Pantry> {
     }
   }
 
-  // Listener for when a user adds a pantry
+  // Listener for when a user updates their pantries collection or changes PPID
   setListener() {
     FirebaseFirestore.instance
         .collection("users")
@@ -84,12 +85,10 @@ class _PantryState extends State<Pantry> {
         .listen((event) {
       bool update = false;
       if (event.data()['PantryIDs'].length != user.pantries.length) {
-        print("INSIDE LISTENER --> PANTRIES");
         user.pantries = event.data()['PantryIDs'];
         update = true;
       }
       if (event.data()['PPID'].toString() != user.PPID.toString()) {
-        print("INSIDE LISTENER --> PPID");
         user.PPID = event.data()['PPID'];
       }
       if (update) {
@@ -98,6 +97,7 @@ class _PantryState extends State<Pantry> {
     });
   }
 
+  // Sets up initial pantry and PPID
   setInitPantry() {
     DocumentReference primary = user.PPID;
     if (primary != null) {
@@ -113,6 +113,7 @@ class _PantryState extends State<Pantry> {
     }
   }
 
+  // Handler for creating a pantry
   void createPantry(bool makePrimary) {
     Navigator.push(
         context,
@@ -124,6 +125,7 @@ class _PantryState extends State<Pantry> {
                 ))));
   }
 
+  // Handler for adding a pantry collaborator
   void addCollaborator() {
     if (isOwner) {
       if (user.friends.length > 0) {
@@ -173,8 +175,6 @@ class _PantryState extends State<Pantry> {
 
   Future<dynamic> updatePantries(
       String newName, bool primaryChanged, bool isPrimary) async {
-    // print("PANTRY MAP BEFORE CLEAR: $_pantryMap");
-    // print("USER PANTRIES BEFORE MAP CLEAR: ${user.pantries}");
     DocumentReference primaryPantry;
     String primaryPantryName;
 
@@ -196,10 +196,9 @@ class _PantryState extends State<Pantry> {
           ownerBool = true;
         }
       });
-      _pantryMap[pantryName] = ref;
-      _pantryMapOwner[pantryName] = ownerBool; // map the doc ref to its name
+      _pantryMap[pantryName] = ref; // map the doc ref to its name
+      _pantryMapOwner[pantryName] = ownerBool;
     }
-    print("REPOPULATED PANTRY MAP: $_pantryMap");
 
     if (mounted) {
       setState(() {
@@ -225,24 +224,23 @@ class _PantryState extends State<Pantry> {
   }
 
   Future<void> deletePantry(DocumentReference doc) async {
-    print("INSIDE DELETEPANTRY");
-    // delete pantry from list of pantries
-    if (isOwner) {
+    if (isOwner) { // only delete if user is owner
       var snap = await doc.get();
       List altUsers = snap.data()['AltUsers'];
-      altUsers.forEach((element) {
+      altUsers.forEach((element) { // delete pantry from collaborators' pantries
         removePantryFromUser(element.id, doc);
       });
       await doc
           .delete()
-          .then(
-              (value) => print("SUCCESS: $doc has been deleted from pantries"))
+          .then((value) =>
+              print("SUCCESS: $doc has been deleted from pantries"))
           .catchError((error) =>
               print("FAILURE: couldn't delete $doc from pantries: $error"));
     }
-    removePantryFromUser(user.uid, doc); // delete pantry from user pantries
+    removePantryFromUser(user.uid, doc);
   }
 
+  // Remove this pantry from user's pantries
   removePantryFromUser(id, doc) async {
     // if pantry is primary, remove it from PPID
     var tempUser = await firestoreInstance.collection('users').doc(id).get();
@@ -363,7 +361,7 @@ class _PantryState extends State<Pantry> {
       ),
     );
 
-    // top appbar
+    // Top appbar
     final makeAppBar = AppBar(
       backgroundColor: Color.fromRGBO(255, 190, 50, 1.0),
       title: makeDropDown,
@@ -417,9 +415,8 @@ class _PantryState extends State<Pantry> {
       ],
     );
 
-    // list of cards
+    // List of cards
     final makeBody = Column(children: [
-      // SizedBox(height: 10),
       // Sets up a stream builder to listen for changes inside the database.
       StreamBuilder(
           stream: _selectedPantry.collection('ingredients').snapshots(),
@@ -429,8 +426,7 @@ class _PantryState extends State<Pantry> {
             return Expanded(
                 child: ListView(
                     children: snapshot.data.docs.map<Widget>((doc) {
-                    return Container(
-                        child: itemCard(doc, context, _selectedPantry));
+              return Container(child: itemCard(doc, context, _selectedPantry));
             }).toList()));
           }),
     ]);
