@@ -122,60 +122,54 @@ class _recipeState extends State<recipes> {
     }
 
     return StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection(this.currentPPID.path + "/ingredients")
-            .snapshots(),
-        builder:
-            (BuildContext context, AsyncSnapshot<QuerySnapshot> querySnapshot) {
-          if (querySnapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else {
-            return Scaffold(
-              drawer: PantreeDrawer(user: this.user),
-              floatingActionButton: SingleChildScrollView(
-                  child: Column(
-                children: [
-                  CustomFAB(
-                      color: Colors.red[400],
-                      icon: const Icon(Icons.food_bank_rounded, size: 35),
-                      onPressed: (() => {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        RecommendRecipe(user: this.user)))
-                          })),
-                  SizedBox(height: 15),
-                  CustomFAB(
-                      color: Colors.red[400],
-                      icon: const Icon(Icons.add, size: 30),
-                      onPressed: (() => {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        RecipeCreator(user: this.user)))
-                          })),
-                ],
-              )),
-              body: FloatingSearchBar(
-                controller: controller,
-                body: Column(children: [
-                  SizedBox(height: 75),
-                  Container(
-                      height: MediaQuery.of(context).size.height * 0.1,
-                      child: StreamBuilder<QuerySnapshot>(
-                          stream: FirebaseFirestore.instance
-                              .collection('filters')
-                              .snapshots(),
-                          builder: (BuildContext context,
-                              AsyncSnapshot<QuerySnapshot> querySnapshot) {
-                            if (querySnapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return Center(child: CircularProgressIndicator());
-                            } else {
-                              return Container(
-                                  child: ListView.builder(
+        stream: FirebaseFirestore.instance.collection(this.currentPPID.path + "/ingredients").snapshots(),
+        builder: (BuildContext context,
+        AsyncSnapshot<QuerySnapshot> querySnapshot) {
+      if (querySnapshot.connectionState == ConnectionState.waiting) {
+        return Center(child: CircularProgressIndicator());
+      } else {
+
+        return Scaffold(
+          drawer: PantreeDrawer(user: this.user),
+          floatingActionButton: SingleChildScrollView( child: Column(children: [
+            CustomFAB(
+                color: Colors.red[400],
+                icon: const Icon(Icons.food_bank_rounded, size: 35),
+                onPressed: (() => {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => RecommendRecipe(user: this.user)))
+                })),
+            SizedBox(height: 15),
+            CustomFAB(
+                color: Colors.red[400],
+                icon: const Icon(Icons.add, size: 30),
+                onPressed: (() => {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => RecipeCreator(user: this.user)))
+                })),
+          ],)),
+          body: FloatingSearchBar(
+            controller: controller,
+            body: Column(children: [
+              SizedBox(height: 75),
+              Container(
+                  height: MediaQuery.of(context).size.height * 0.1,
+                  child: StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('filters')
+                          .snapshots(),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<QuerySnapshot> querySnapshot) {
+                        if (querySnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        } else {
+                          return Container(
+                              child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
                                 itemBuilder: (context, index) {
                                   QueryDocumentSnapshot filter =
@@ -401,17 +395,15 @@ class SearchResultsListView extends StatelessWidget {
                         .snapshots();
 
                     return StreamBuilder<QuerySnapshot>(
-                        stream: ingredients,
-                        builder: (BuildContext context,
-                            AsyncSnapshot<QuerySnapshot> ingredientsSnapshot) {
-                          if (ingredientsSnapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return Container();
-                          }
+                     stream: ingredients,
+                      builder: (BuildContext context,
+                      AsyncSnapshot<QuerySnapshot> ingredientsSnapshot) {
+                       if (ingredientsSnapshot.connectionState == ConnectionState.waiting) {
+                         return Container();
+                       }
 
-                          return recipeCard(this.pantryIngredients, this.user,
-                              recipe, context, ingredientsSnapshot.data);
-                        });
+                       return recipeCard(this.pantryIngredients, this.user, recipe, context, ingredientsSnapshot.data);
+                      });
                   },
                   itemCount: querySnapshot.data.docs.length,
                 );
